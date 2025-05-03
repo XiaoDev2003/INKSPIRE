@@ -1,7 +1,0 @@
-RewriteEngine On
-RewriteBase /EP1/backend/
-
-# Chuyển mọi request dạng /api/... về index.php
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^api/ index.php [QSA,L]
