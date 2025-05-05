@@ -1,22 +1,21 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
-    <div>
-      <header className="flex h-30 justify-between bg-white px-5">
-        <div className="flex items-center">
-          <img src="../public/logo.png" alt="Logo" className="w-45" />
+    <header className="bg-amber-50 shadow-md h-20 flex items-center justify-center">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-center">
+          <Link to="/">
+            <img
+              src="./logo.png"
+              alt="Logo Inkspire"
+              className="w-36 object-contain"
+            />
+          </Link>
         </div>
-        <div className="flex items-center gap-5">
-          <a href="" className="cursor-pointer">
-            Đăng nhập
-          </a>
-          <a href="" className="cursor-pointer">
-            Đăng ký
-          </a>
-        </div>
-      </header>
-    </div>
+      </div>
+    </header>
   );
 };
 
