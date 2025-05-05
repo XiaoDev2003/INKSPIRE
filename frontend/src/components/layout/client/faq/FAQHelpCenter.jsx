@@ -38,8 +38,8 @@ const FAQHelpCenter = () => {
 
       <div className="grid grid-cols-1 gap-4">
         {supportOptions.map((option, index) => (
-          <Link 
-            key={index} 
+          <Link
+            key={index}
             to={option.link}
             className={`flex items-center p-4 rounded-lg bg-${option.color}-50 hover:bg-${option.color}-100 transition-colors duration-300`}
           >
@@ -66,8 +66,8 @@ const FAQHelpCenter = () => {
             <p className="text-sm text-gray-700">
               Không tìm thấy câu trả lời bạn cần? Hãy gửi câu hỏi mới và chúng tôi sẽ phản hồi trong vòng 24 giờ.
             </p>
-            <Link 
-              to="/contact" 
+            <Link
+              to="/contact"
               className="mt-2 inline-flex items-center text-sm font-medium text-amber-600 hover:text-amber-800"
             >
               Đặt câu hỏi mới

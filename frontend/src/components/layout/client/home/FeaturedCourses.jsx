@@ -1,7 +1,7 @@
-// src/components/home/FeaturedCourses.jsx
+// src/components/layout/client/calligraphy/FeaturedCourses.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Card from '../common/Card';
+import Card from '../../../common/Card';
 
 const CourseCard = ({ title, description, image, level, duration, link }) => {
   return (

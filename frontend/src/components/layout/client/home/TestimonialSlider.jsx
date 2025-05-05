@@ -1,4 +1,4 @@
-// src/components/home/TestimonialSlider.jsx
+// src/components/layout/client/calligraphy/TestimonialSlider.jsx
 import React, { useState, useEffect } from 'react';
 
 const testimonials = [

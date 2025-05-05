@@ -1,4 +1,4 @@
-// src/components/home/CalligraphyGallery.jsx
+// src/components/layout/client/calligraphy/CalligraphyGallery.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 

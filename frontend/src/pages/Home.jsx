@@ -3,9 +3,9 @@ import React, { useEffect } from 'react';
 import Banner from '../components/ui/Banner';
 import AccordionItem from '../components/ui/AccordionItem';
 import BoxCount from '../components/common/BoxCount';
-import FeaturedCourses from '../components/home/FeaturedCourses';
-import TestimonialSlider from '../components/home/TestimonialSlider';
-import CalligraphyGallery from '../components/home/CalligraphyGallery';
+import FeaturedCourses from '../components/layout/client/home/FeaturedCourses';
+import TestimonialSlider from '../components/layout/client/home/TestimonialSlider';
+import CalligraphyGallery from '../components/layout/client/home/CalligraphyGallery';
 
 function Home() {
   const [viewCount, setViewCount] = React.useState(0);
