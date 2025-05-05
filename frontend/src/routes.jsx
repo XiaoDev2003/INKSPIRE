@@ -8,6 +8,7 @@ import React from 'react'
 import Gallery from './pages/Gallery';
 import Feedback from './pages/Feedback';
 import Calligraphy from './pages/Calligraphy';
+import Register from './pages/Auth/Register';
 
 
 const MainRouter = () => {
@@ -23,6 +24,7 @@ const MainRouter = () => {
 
       {/* Auth Routers */}
       <Route path='/auth/login' element={<Login />}/>
+      <Route path='/auth/register' element={<Register />}/>
 
       {/* 404 route */}
       <Route path="*" element={<NotFound />} />
