@@ -4,6 +4,7 @@ import Banner from "../components/ui/Banner";
 import CalligraphyTypes from "../components/layout/client/calligraphy/CalligraphyTypes";
 import CalligraphyTools from "../components/layout/client/calligraphy/CalligraphyTools";
 import CalligraphyTechniques from "../components/layout/client/calligraphy/CalligraphyTechniques";
+import CalligraphyCategory from "../components/layout/client/calligraphy/CalligraphyCategory";
 
 const Calligraphy = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -145,6 +146,7 @@ const Calligraphy = () => {
         </div>
         
         {/* Integrate new components */}
+        <CalligraphyCategory />
         <CalligraphyTypes types={calligraphyTypes} />
         <CalligraphyTools />
         <CalligraphyTechniques />

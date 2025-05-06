@@ -6,16 +6,15 @@ import Image from '../../components/ui/Image';
 import { Box, Container, Section } from '../../components/ui/Layout';
 
 const Banner = ({
-  title = "Khám phá nghệ thuật thư pháp",
+  title = "null",
   subtitle = "Học viết chữ truyền thống & cảm nhận nét đẹp văn hóa Á Đông",
   ctaText = "Khóa học dành cho bạn",
   ctaLink = "/courses",
   imageSrc = "/images/banner-calligraphy.jpg",
 
   // Các props tùy biến cho Image
-  imageRatio = 'full',     // Tỷ lệ khung hình
-  imageOverlay,            // Lớp phủ mờ (class Tailwind)
-  imageClassName = '',     // Class tùy chỉnh cho hình ảnh
+  Ratio = 'full',     // Tỷ lệ khung hình
+  ClassName = '',     // Class tùy chỉnh cho hình ảnh
 }) => {
   return (
         <Box className="relative bg-gray rounded-xl overflow-hidden" shadow='true'>
@@ -24,12 +23,9 @@ const Banner = ({
             <Image
               src={imageSrc}
               alt={title}
-              ratio={imageRatio}
-              className={imageClassName}
+              ratio={Ratio}
+              className={ClassName}
             />
-
-            {/* Lớp phủ nếu có */}
-            {imageOverlay && <div className={`absolute inset-0 ${imageOverlay}`}></div>}
           </div>
 
           {/* Nội dung bên dưới hình ảnh */}

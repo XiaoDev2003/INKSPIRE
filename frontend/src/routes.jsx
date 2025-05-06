@@ -24,15 +24,8 @@ const MainRouter = () => {
       <Route path='/feedbackandquestion' element={<FAQ />} />
       <Route path='/feedback' element={<Feedback />} />
 
-      {/* Category Routers */}
-      <Route path='/category' element={<Category />} />
-      <Route path='/category/traditional' element={<Category />} />
-      <Route path='/category/modern' element={<Category />} />
-      <Route path='/category/handwriting' element={<Category />} />
-
       {/* Calligraphy Routers */}
-      <Route path='/calligraphy/traditional' element={<Calligraphy />} />
-      <Route path='/calligraphy/modern' element={<Calligraphy />} />
+      <Route path='/category/:type' element={<Category />} />
 
       {/* Auth Routers */}
       <Route path='/auth/login' element={<Login />}/>

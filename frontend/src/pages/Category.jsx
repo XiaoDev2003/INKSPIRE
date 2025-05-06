@@ -235,28 +235,32 @@ const Category = () => {
     return stars;
   };
 
-  // Xác định tiêu đề và mô tả dựa trên loại thư pháp
+  // Xác định tiêu đề, mô tả và hình ảnh banner dựa trên loại thư pháp
   const getCategoryInfo = () => {
     switch(categoryType) {
       case 'traditional':
         return {
           title: "Thư pháp truyền thống",
-          subtitle: "Khám phá các font thư pháp truyền thống với nét bút cổ điển và tinh tế"
+          subtitle: "Nghệ thuật viết chữ truyền thống với bút lông và mực Tàu, thể hiện vẻ đẹp của văn hóa Á Đông",
+          imageSrc: "./banner/traditional.png"
         };
       case 'modern':
         return {
           title: "Thư pháp hiện đại",
-          subtitle: "Khám phá các font thư pháp hiện đại với phong cách đương đại và sáng tạo"
+          subtitle: "Kết hợp giữa kỹ thuật truyền thống và phong cách đương đại, tạo nên những tác phẩm độc đáo và sáng tạo",
+          imageSrc: "./banner/modern.png"
         };
       case 'handwriting':
         return {
-          title: "Thư pháp chữ viết tay",
-          subtitle: "Khám phá các font thư pháp chữ viết tay với nét bút tự nhiên và cá tính"
+          title: "Viết tay thiết kế",
+          subtitle: "Nghệ thuật viết tay kết hợp với thiết kế hiện đại, tạo nên những tác phẩm độc đáo và cá nhân hóa",
+          imageSrc: "./banner/writing.png"
         };
       default:
         return {
           title: "Thư viện font thư pháp",
-          subtitle: "Khám phá và tải xuống các font thư pháp đa dạng từ nhiều nền văn hóa khác nhau"
+          subtitle: "Khám phá và tải xuống các font thư pháp đa dạng từ nhiều nền văn hóa khác nhau",
+          imageSrc: "./banner/home.png"
         };
     }
   };
@@ -271,7 +275,7 @@ const Category = () => {
         subtitle={categoryInfo.subtitle}
         ctaText="Tìm hiểu thêm"
         ctaLink="/about"
-        imageSrc="./banner/home.png"
+        imageSrc={categoryInfo.imageSrc}
       />
 
       {/* Container chính */}
