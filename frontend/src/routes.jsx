@@ -9,6 +9,8 @@ import Gallery from './pages/Gallery';
 import Feedback from './pages/Feedback';
 import Calligraphy from './pages/Calligraphy';
 import Register from './pages/Auth/Register';
+import Category from './pages/Category';
+import Test from './pages/Test';
 
 
 const MainRouter = () => {
@@ -22,10 +24,21 @@ const MainRouter = () => {
       <Route path='/feedbackandquestion' element={<FAQ />} />
       <Route path='/feedback' element={<Feedback />} />
 
+      {/* Category Routers */}
+      <Route path='/category' element={<Category />} />
+      <Route path='/category/traditional' element={<Category />} />
+      <Route path='/category/modern' element={<Category />} />
+      <Route path='/category/handwriting' element={<Category />} />
+
+      {/* Calligraphy Routers */}
+      <Route path='/calligraphy/traditional' element={<Calligraphy />} />
+      <Route path='/calligraphy/modern' element={<Calligraphy />} />
+
       {/* Auth Routers */}
       <Route path='/auth/login' element={<Login />}/>
       <Route path='/auth/register' element={<Register />}/>
 
+      <Route path='/test' element={<Test />}/>
       {/* 404 route */}
       <Route path="*" element={<NotFound />} />
     </Routes>

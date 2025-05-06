@@ -95,19 +95,18 @@ const Gallery = () => {
   };
 
   return (
-    <div className="bg-gray-50 py-12">
+    <div className="py-12">
+      <Banner
+        title="Nghệ thuật thư pháp"
+        subtitle="InkSpire là nền tảng chia sẻ nội dung về thư pháp, giúp các độc giả tìm hiểu về nét đẹp của thư pháp đại chúng và khám phá nghệ thuật viết chữ truyền thống"
+        ctaText="Tìm hiểu thêm"
+        ctaLink="/courses"
+        imageSrc="./banner/home.png"
+      />
       <div className="container mx-auto px-4 md:px-8 lg:px-16">
         {/* Header section with upload button handler */}
         <div className="mb-12 text-center">
-          <div>
-            <Banner
-              title="Nghệ thuật thư pháp"
-              subtitle="InkSpire là nền tảng chia sẻ nội dung về thư pháp, giúp các độc giả tìm hiểu về nét đẹp của thư pháp đại chúng và khám phá nghệ thuật viết chữ truyền thống"
-              ctaText="Tìm hiểu thêm"
-              ctaLink="/courses"
-              imageSrc="./banner/home.png"
-            />
-          </div>
+          <div></div>
           <div className="mt-6">
             <button
               onClick={openUploadModal}

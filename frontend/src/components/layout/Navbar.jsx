@@ -44,7 +44,7 @@ const Navbar = () => {
               <ul className="invisible absolute left-0 z-10 mt-1 w-56 rounded-md bg-white opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:opacity-100">
                 <li>
                   <Link
-                    to="/traditional-calligraphy"
+                    to="/calligraphy/traditional"
                     className="block px-4 py-2 text-amber-900 hover:bg-amber-100"
                   >
                     Thư pháp Truyền thống
@@ -52,7 +52,7 @@ const Navbar = () => {
                 </li>
                 <li>
                   <Link
-                    to="/modern-calligraphy"
+                    to="/calligraphy/modern"
                     className="block px-4 py-2 text-amber-900 hover:bg-amber-100"
                   >
                     Thư pháp Hiện đại
@@ -215,7 +215,7 @@ const Navbar = () => {
                   <ul className="space-y-1 pt-1 pl-6">
                     <li>
                       <Link
-                        to="/traditional-calligraphy"
+                        to="/calligraphy/traditional"
                         className="block rounded-md px-4 py-2 text-amber-800 hover:bg-amber-100"
                       >
                         Truyền thống
@@ -223,7 +223,7 @@ const Navbar = () => {
                     </li>
                     <li>
                       <Link
-                        to="/modern-calligraphy"
+                        to="/calligraphy/modern"
                         className="block rounded-md px-4 py-2 text-amber-800 hover:bg-amber-100"
                       >
                         Hiện đại

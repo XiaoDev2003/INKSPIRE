@@ -1,57 +1,57 @@
-// src/components/Banner.jsx
+// src/components/Banner/Banner.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Text from '../../components/ui/Text';
+import Button from '../../components/ui/Button';
+import Image from '../../components/ui/Image';
+import { Box, Container, Section } from '../../components/ui/Layout';
 
 const Banner = ({
   title = "Khám phá nghệ thuật thư pháp",
   subtitle = "Học viết chữ truyền thống & cảm nhận nét đẹp văn hóa Á Đông",
   ctaText = "Khóa học dành cho bạn",
   ctaLink = "/courses",
-  imageSrc = "/images/banner-calligraphy.jpg"
+  imageSrc = "/images/banner-calligraphy.jpg",
+
+  // Các props tùy biến cho Image
+  imageRatio = 'full',     // Tỷ lệ khung hình
+  imageOverlay,            // Lớp phủ mờ (class Tailwind)
+  imageClassName = '',     // Class tùy chỉnh cho hình ảnh
 }) => {
   return (
-    <section className="bg-white py-12">
-      {/* Container căn giữa */}
-      <div className="container mx-auto px-4 md:px-6">
-        {/* Nội dung nằm trong banner - có border nhẹ */}
-        <div className="relative bg-white rounded-xl shadow-md overflow-hidden">
-          {/* Hình ảnh banner */}
-          <div className="w-full h-64 sm:h-72 md:h-96 relative overflow-hidden">
-            <img
+        <Box className="relative bg-gray rounded-xl overflow-hidden" shadow='true'>
+          {/* Hình ảnh */}
+          <div className="relative overflow-hidden">
+            <Image
               src={imageSrc}
               alt={title}
-              className="w-full h-full object-cover"
+              ratio={imageRatio}
+              className={imageClassName}
             />
+
+            {/* Lớp phủ nếu có */}
+            {imageOverlay && <div className={`absolute inset-0 ${imageOverlay}`}></div>}
           </div>
 
           {/* Nội dung bên dưới hình ảnh */}
           <div className="p-6 md:p-8 space-y-6 bg-gray-100 bg-opacity-60 backdrop-blur-sm">
             {/* Tiêu đề */}
-            <h1
-              className="text-3xl md:text-6xl font-bold text-center text-amber-900 leading-tight max-w-2xl mx-auto"
-              style={{ fontFamily: "'Noto Serif', serif" }}
-            >
+            <Text as="h1" size="4xl" weight="bold" color="text-amber-900" className="text-center max-w-2xl mx-auto">
               {title}
-            </h1>
+            </Text>
 
             {/* Mô tả ngắn */}
-            <p className="text-base sm:text-lg md:text-xl text-gray-700 text-center max-w-2xl mx-auto">
+            <Text as="p" size="lg" color="text-gray-700" className="text-center max-w-2xl mx-auto">
               {subtitle}
-            </p>
+            </Text>
 
-            {/* Nút hành động chính */}
+            {/* Nút hành động */}
             <div className="flex justify-center mt-4">
-              <Link
-                to={ctaLink}
-                className="inline-flex items-center px-6 py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-medium rounded-md transition-colors duration-300"
-              >
+              <Button to={ctaLink} variant="secondary">
                 {ctaText} <span className="ml-2">🡒</span>
-              </Link>
+              </Button>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </Box>
   );
 };
 
