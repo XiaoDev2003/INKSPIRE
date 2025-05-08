@@ -22,11 +22,14 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
     }
   };
 
-  if (!isOpen || (registerModalOpen && !loginVisible)) return null;
+  if (!isOpen && !registerModalOpen) return null;
 
+  // Hiển thị modal đăng nhập chỉ khi isOpen là true và registerModalOpen là false
+  const showLoginForm = isOpen && !registerModalOpen;
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      {showLoginForm && <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold text-amber-900">Đăng nhập</h2>
           <button
@@ -86,10 +89,7 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
               <FaSignInAlt />
               <span>Đăng nhập</span>
             </button>
-            <a
-              href="#"
-              className="text-sm text-amber-600 hover:text-amber-800"
-            >
+            <a href="#" className="text-sm text-amber-600 hover:text-amber-800">
               Quên mật khẩu?
             </a>
           </div>
@@ -103,7 +103,7 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
                 setRegisterModalOpen(true);
                 setLoginVisible(false);
               }}
-              className='font-medium text-amber-600 hover:text-amber-800 border-none bg-transparent cursor-pointer'
+              className="font-medium text-amber-600 hover:text-amber-800 border-none bg-transparent cursor-pointer"
             >
               Đăng ký ngay
             </button>
@@ -112,34 +112,27 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
             Đăng nhập mẫu: user123 / adminuser
           </p>
         </div>
-        
-      </div>
-    </div>
-    
-    {/* Modal đăng ký */}
-    <RegisterModal 
-      isOpen={registerModalOpen} 
-      onClose={() => {
-        setRegisterModalOpen(false);
-        setLoginVisible(true);
-      }} 
-      onRegister={(data) => {
-        console.log('Đăng ký:', data);
-        // Xử lý đăng ký thực tế sẽ được thêm vào đây
-        setRegisterModalOpen(false);
-        onLogin(data.username); // Tự động đăng nhập sau khi đăng ký
-        onClose();
-      }}
-      onBackToLogin={() => {
-        setRegisterModalOpen(false);
-        setLoginVisible(true);
-      }}
-    />
-  );
-};
+      </div>}
 
-export default LoginModal;
-      </div>
+      {/* Modal đăng ký */}
+      <RegisterModal
+        isOpen={registerModalOpen}
+        onClose={() => {
+          setRegisterModalOpen(false);
+          setLoginVisible(true);
+        }}
+        onRegister={(data) => {
+          console.log('Đăng ký:', data);
+          // Xử lý đăng ký thực tế sẽ được thêm vào đây
+          setRegisterModalOpen(false);
+          onLogin(data.username); // Tự động đăng nhập sau khi đăng ký
+          onClose();
+        }}
+        onBackToLogin={() => {
+          setRegisterModalOpen(false);
+          setLoginVisible(true);
+        }}
+      />
     </div>
   );
 };
