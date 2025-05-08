@@ -6,10 +6,22 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
+import AccountMenu from "../common/AccountMenu";
+import LoginModal from "../common/LoginModal";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [calligraphySubMenuOpen, setCalligraphySubMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Mặc định là false để hiển thị nút đăng nhập
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [username, setUsername] = useState("");
+  
+  // Hàm xử lý đăng xuất
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUsername("");
+    window.location.reload(); // Tải lại trang sau khi đăng xuất
+  };
 
   return (
     <nav className="bg-white shadow-md">
@@ -118,16 +130,20 @@ const Navbar = () => {
             </li>
           </ul>
 
-          {/* Right Side - Đăng nhập */}
+          {/* Right Side - Đăng nhập hoặc Account Menu */}
           <div>
-            <Link
-              to="/auth/login"
-              className="flex items-center gap-2 rounded-md bg-amber-100 px-4 py-2 font-medium text-amber-900 transition-colors duration-200 hover:bg-amber-200"
-              aria-label="Đăng nhập tài khoản"
-            >
-              <FaSignInAlt />
-              <span>Đăng nhập</span>
-            </Link>
+            {isLoggedIn ? (
+              <AccountMenu username={username || "Người dùng"} onLogout={handleLogout} />
+            ) : (
+              <button
+                onClick={() => setLoginModalOpen(true)}
+                className="flex items-center gap-2 rounded-md bg-amber-100 px-4 py-2 font-medium text-amber-900 transition-colors duration-200 hover:bg-amber-200"
+                aria-label="Đăng nhập tài khoản"
+              >
+                <FaSignInAlt />
+                <span>Đăng nhập</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -161,14 +177,18 @@ const Navbar = () => {
             </svg>
           </button>
 
-          <Link
-            to="/auth/login"
-            className="flex items-center gap-1 text-amber-800 hover:text-amber-600"
-            aria-label="Đăng nhập tài khoản"
-          >
-            <FaSignInAlt />
-            <span>Đăng nhập</span>
-          </Link>
+          {isLoggedIn ? (
+            <AccountMenu username={username || "Người dùng"} onLogout={handleLogout} />
+          ) : (
+            <button
+              onClick={() => setLoginModalOpen(true)}
+              className="flex items-center gap-1 text-amber-800 hover:text-amber-600"
+              aria-label="Đăng nhập tài khoản"
+            >
+              <FaSignInAlt />
+              <span>Đăng nhập</span>
+            </button>
+          )}
         </div>
 
         {/* Mobile menu */}
@@ -262,6 +282,16 @@ const Navbar = () => {
           </div>
         )}
       </div>
+
+      {/* Modal đăng nhập */}
+      <LoginModal 
+        isOpen={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+        onLogin={(user) => {
+          setUsername(user);
+          setIsLoggedIn(true);
+        }}
+      />
     </nav>
   );
 };
