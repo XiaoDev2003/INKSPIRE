@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaUserPlus, FaTimes } from 'react-icons/fa';
 
-const RegisterModal = ({ isOpen, onClose, onRegister }) => {
+const RegisterModal = ({ isOpen, onClose, onRegister, onBackToLogin }) => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -136,7 +136,7 @@ const RegisterModal = ({ isOpen, onClose, onRegister }) => {
           <p>
             Đã có tài khoản?{' '}
             <button
-              onClick={onClose}
+              onClick={onBackToLogin || onClose}
               className="font-medium text-amber-600 hover:text-amber-800"
             >
               Đăng nhập ngay
