@@ -1,8 +1,30 @@
-// src/pages/Login.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axiosClient from '../../api/axiosClient';
 
 const Login = () => {
+  const [form, setForm] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axiosClient.post('/api/login', {
+        email: form.username, // Giả định username là email để tương thích với API
+        password: form.password,
+      });
+      localStorage.setItem('user', JSON.stringify(res.data));
+      navigate('/');
+    } catch (err) {
+      setError('Sai tên đăng nhập hoặc mật khẩu');
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 px-4">
       {/* Form đăng nhập */}
@@ -17,8 +39,11 @@ const Login = () => {
           Chào mừng trở lại!
         </h2>
 
+        {/* Thông báo lỗi */}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
         {/* Form */}
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Tên đăng nhập */}
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
@@ -31,6 +56,8 @@ const Login = () => {
               placeholder="Nhập tên đăng nhập"
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-gray-900 placeholder:text-gray-500"
               required
+              onChange={handleChange}
+              value={form.username}
             />
           </div>
 
@@ -46,6 +73,8 @@ const Login = () => {
               placeholder="Nhập mật khẩu"
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-gray-900 placeholder:text-gray-500"
               required
+              onChange={handleChange}
+              value={form.password}
             />
           </div>
 

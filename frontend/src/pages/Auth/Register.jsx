@@ -1,8 +1,41 @@
-// src/pages/Register.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axiosClient from '../../api/axiosClient';
 
 const Register = () => {
+  const [form, setForm] = useState({ fullname: '', username: '', password: '', confirmPassword: '' });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      setError('Mật khẩu không khớp. Vui lòng kiểm tra lại.');
+      return;
+    }
+    try {
+      // Gửi yêu cầu đăng ký với fullname làm username, username làm email
+      await axiosClient.post('/api/register', {
+        username: form.fullname, 
+        email: form.username,   
+        password: form.password,
+      });
+      // Tự động đăng nhập sau khi đăng ký
+      const res = await axiosClient.post('/api/login', {
+        email: form.username,   // Sử dụng email để đăng nhập
+        password: form.password,
+      });
+      localStorage.setItem('user', JSON.stringify(res.data));
+      navigate('/');
+    } catch (err) {
+      setError('Đăng ký thất bại. Vui lòng thử lại.');
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 px-4">
       {/* Form đăng ký */}
@@ -17,12 +50,15 @@ const Register = () => {
           Tạo tài khoản mới
         </h2>
 
+        {/* Thông báo lỗi */}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
         {/* Form */}
-        <form className="space-y-5">
-          {/* Họ tên */}
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          {/* Họ tên (username) */}
           <div>
             <label htmlFor="fullname" className="block text-sm font-medium text-gray-700 mb-1">
-              Họ và tên
+              Họ và tên (Tên đăng nhập)
             </label>
             <input
               type="text"
@@ -31,22 +67,25 @@ const Register = () => {
               placeholder="Nhập họ và tên"
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-gray-800 placeholder:text-gray-500"
               required
+              onChange={handleChange}
+              value={form.fullname}
             />
           </div>
 
-
-          {/* Tên đăng nhập */}
+          {/* Tên đăng nhập (email) */}
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-              Tên đăng nhập
+              Email (Tên đăng nhập)
             </label>
             <input
-              type="text"
+              type="email"
               id="username"
               name="username"
-              placeholder="Nhập tên đăng nhập"
+              placeholder="Nhập email"
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-gray-800 placeholder:text-gray-500"
               required
+              onChange={handleChange}
+              value={form.username}
             />
           </div>
 
@@ -62,6 +101,8 @@ const Register = () => {
               placeholder="Tạo mật khẩu"
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-gray-800 placeholder:text-gray-500"
               required
+              onChange={handleChange}
+              value={form.password}
             />
           </div>
 
@@ -77,6 +118,8 @@ const Register = () => {
               placeholder="Nhập lại mật khẩu"
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-gray-800 placeholder:text-gray-500"
               required
+              onChange={handleChange}
+              value={form.confirmPassword}
             />
           </div>
 
