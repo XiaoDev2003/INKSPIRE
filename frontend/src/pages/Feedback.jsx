@@ -1,12 +1,25 @@
 // src/components/layout/client/faq/FAQFeedback.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 const FAQFeedback = () => {
+  const location = useLocation();
+
   const [formData, setFormData] = useState({
     message: '',
     attachment: null,
     url: ''
   });
+
+  // Kiểm tra xem có URL được truyền từ trang Category không
+  useEffect(() => {
+    if (location.state && location.state.referringUrl) {
+      setFormData(prev => ({
+        ...prev,
+        url: location.state.referringUrl
+      }));
+    }
+  }, [location.state]);
 
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -42,7 +55,7 @@ const FAQFeedback = () => {
         <i className="fa-solid fa-comment-dots text-amber-600 mr-2"></i>
         Gửi Phản Hồi
       </h2>
-      
+
       {isSubmitted ? (
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
           <div className="text-green-500 text-4xl mb-3">
