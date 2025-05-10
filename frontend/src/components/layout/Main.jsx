@@ -1,6 +1,6 @@
 import React from 'react'
 import MainRouter from '../../routes'
-import ScrollToTopButton from '../ui/ScrollToTopButton'
+import ScrollToTopButton from '../common/ScrollToTopButton'
 
 const Main = () => {
   return (

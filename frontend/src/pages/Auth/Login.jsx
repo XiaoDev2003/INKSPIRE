@@ -15,7 +15,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axiosClient.post('/api/login', {
-        email: form.username, // Giả định username là email để tương thích với API
+        email: form.username, 
         password: form.password,
       });
       localStorage.setItem('user', JSON.stringify(res.data));

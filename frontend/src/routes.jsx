@@ -26,6 +26,7 @@ const MainRouter = () => {
 
       {/* Calligraphy Routers */}
       <Route path='/category/:type' element={<Category />} />
+      <Route path='/category/:type/:itemId' element={<Category />} />
 
       {/* Auth Routers */}
       <Route path='/auth/login' element={<Login />}/>

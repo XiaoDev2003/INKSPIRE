@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import axiosClient from '../api/axiosClient'; 
+import axiosClient from '../api/axiosClient';
 
 const FAQFeedback = () => {
-  const location = useLocation();
+  const location = useLocation(); // Chỉ khai báo một lần
 
   const [formData, setFormData] = useState({
     message: '',
@@ -36,9 +36,15 @@ const FAQFeedback = () => {
     e.preventDefault();
     setError(null);
 
+    // Validation phía client
+    if (!formData.message.trim()) {
+      setError('Vui lòng nhập nội dung phản hồi');
+      return;
+    }
+
     const formDataToSend = new FormData();
-    formDataToSend.append('user_id', 1); // Giả định user_id, cần lấy từ context/auth
-    formDataToSend.append('feedback_message', formData.message);
+    formDataToSend.append('user_id', 1); // TODO: Thay bằng user_id từ context/auth
+    formDataToSend.append('feedback_message', formData.message.trim());
     if (formData.url) {
       formDataToSend.append('feedback_url', formData.url);
     }
@@ -103,7 +109,7 @@ const FAQFeedback = () => {
               className="w-full border border-gray-300 rounded-lg p-3 focus:ring-amber-500 focus:border-amber-500 outline-none transition-colors duration-200"
               placeholder="Chia sẻ câu hỏi mới hoặc góp ý về câu trả lời hiện tại..."
               required
-            ></textarea>
+            />
           </div>
 
           <div>

@@ -1,5 +1,4 @@
 import React from 'react';
-import Banner from './Banner';
 
 // Box component: Thay thế thẻ div linh hoạt
 const Box = ({
