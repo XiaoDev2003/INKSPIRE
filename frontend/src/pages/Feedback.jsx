@@ -1,14 +1,27 @@
-// src/components/layout/client/faq/FAQFeedback.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import axiosClient from '../api/axiosClient'; 
 
 const FAQFeedback = () => {
+  const location = useLocation();
+
   const [formData, setFormData] = useState({
     message: '',
     attachment: null,
     url: ''
   });
-
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Kiểm tra URL từ trang Category
+  useEffect(() => {
+    if (location.state && location.state.referringUrl) {
+      setFormData(prev => ({
+        ...prev,
+        url: location.state.referringUrl
+      }));
+    }
+  }, [location.state]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -19,21 +32,38 @@ const FAQFeedback = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Gửi dữ liệu đi hoặc xử lý tại client
-    console.log('Gửi phản hồi:', formData);
-    // Hiển thị thông báo thành công
-    setIsSubmitted(true);
-    // Reset form sau 3 giây
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        message: '',
-        attachment: null,
-        url: ''
+    setError(null);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('user_id', 1); // Giả định user_id, cần lấy từ context/auth
+    formDataToSend.append('feedback_message', formData.message);
+    if (formData.url) {
+      formDataToSend.append('feedback_url', formData.url);
+    }
+    if (formData.attachment) {
+      formDataToSend.append('attachment', formData.attachment);
+    }
+
+    try {
+      await axiosClient.post('/api/feedback', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
-    }, 3000);
+      setIsSubmitted(true);
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          message: '',
+          attachment: null,
+          url: ''
+        });
+      }, 3000);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+    }
   };
 
   return (
@@ -42,7 +72,13 @@ const FAQFeedback = () => {
         <i className="fa-solid fa-comment-dots text-amber-600 mr-2"></i>
         Gửi Phản Hồi
       </h2>
-      
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
+
       {isSubmitted ? (
         <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
           <div className="text-green-500 text-4xl mb-3">
@@ -53,7 +89,6 @@ const FAQFeedback = () => {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Message */}
           <div>
             <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
               <i className="fa-solid fa-pen-to-square text-amber-600 mr-2"></i>
@@ -71,7 +106,6 @@ const FAQFeedback = () => {
             ></textarea>
           </div>
 
-          {/* File upload */}
           <div>
             <label htmlFor="attachment" className="block text-sm font-medium text-gray-700 mb-2">
               <i className="fa-solid fa-paperclip text-amber-600 mr-2"></i>
@@ -82,11 +116,11 @@ const FAQFeedback = () => {
               id="attachment"
               name="attachment"
               onChange={handleChange}
+              accept="image/jpeg,image/png,application/pdf"
               className="w-full text-sm text-gray-900 border border-gray-300 cursor-pointer bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-600 file:text-white file:text-sm file:font-semibold hover:file:bg-amber-700 focus-within:ring-2 ring-amber-500 rounded-lg"
             />
           </div>
 
-          {/* URL liên quan */}
           <div>
             <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-2">
               <i className="fa-solid fa-link text-amber-600 mr-2"></i>
@@ -103,7 +137,6 @@ const FAQFeedback = () => {
             />
           </div>
 
-          {/* Submit Button */}
           <div className="flex justify-center mt-6">
             <button
               type="submit"
