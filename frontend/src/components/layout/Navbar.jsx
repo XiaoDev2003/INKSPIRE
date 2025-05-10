@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   FaCalendarAlt,
@@ -12,15 +12,33 @@ import LoginModal from "../common/LoginModal";
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [calligraphySubMenuOpen, setCalligraphySubMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Mặc định là false để hiển thị nút đăng nhập
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [username, setUsername] = useState("");
   
+  // Kiểm tra thông tin đăng nhập từ localStorage khi component được tải
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    const storedLoginStatus = localStorage.getItem('isLoggedIn');
+    
+    if (storedLoginStatus === 'true' && storedUsername) {
+      setIsLoggedIn(true);
+      setUsername(storedUsername);
+    }
+  }, []);
+  
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
+    // Xóa thông tin đăng nhập khỏi localStorage
+    localStorage.removeItem('username');
+    localStorage.removeItem('isLoggedIn');
+    
+    // Cập nhật state
     setIsLoggedIn(false);
     setUsername("");
-    window.location.reload(); // Tải lại trang sau khi đăng xuất
+    
+    // Tải lại trang sau khi đăng xuất
+    window.location.reload();
   };
 
   return (
@@ -288,6 +306,11 @@ const Navbar = () => {
         isOpen={loginModalOpen} 
         onClose={() => setLoginModalOpen(false)} 
         onLogin={(user) => {
+          // Lưu thông tin đăng nhập vào localStorage
+          localStorage.setItem('username', user);
+          localStorage.setItem('isLoggedIn', 'true');
+          
+          // Cập nhật state
           setUsername(user);
           setIsLoggedIn(true);
         }}

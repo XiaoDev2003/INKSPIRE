@@ -14,6 +14,24 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
     e.preventDefault();
     setError('');
 
+    // Kiểm tra người dùng mẫu (admin/admin123)
+    if (username === 'admin' && password === 'admin123') {
+      // Tạo dữ liệu người dùng mẫu
+      const adminUser = {
+        id: 'admin-sample',
+        username: 'admin',
+        email: 'admin@example.com',
+        role: 'admin'
+      };
+      
+      // Lưu thông tin người dùng vào localStorage
+      localStorage.setItem('user', JSON.stringify(adminUser));
+      onLogin('admin'); // Gọi onLogin với username admin
+      onClose(); // Đóng modal
+      return;
+    }
+
+    // Xử lý đăng nhập thông thường qua API
     try {
       const res = await axiosClient.post('/api/login', {
         email: username, // Gửi username như email để khớp với backend
@@ -116,7 +134,9 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
                 Đăng ký ngay
               </button>
             </p>
-            {/* Tạm bỏ gợi ý đăng nhập mẫu để tránh nhầm lẫn */}
+            <p className="mt-2 text-gray-500 italic">
+              Tài khoản mẫu: <span className="font-medium">admin</span> / <span className="font-medium">admin123</span>
+            </p>
           </div>
         </div>
       )}
