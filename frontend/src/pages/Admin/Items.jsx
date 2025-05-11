@@ -267,18 +267,14 @@ const Items = () => {
 
       {/* Modal thêm/sửa font chữ */}
       {showModal && (
-        <div className="fixed inset-0 overflow-y-auto" style={{ position: 'fixed' }}>
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0" onClick={() => setShowModal(false)}>
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
+        <div className="fixed inset-0 overflow-y-auto z-50">
+          <div className="flex items-center justify-center min-h-screen p-4">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={() => setShowModal(false)}></div>
 
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative bg-white rounded-md shadow-md w-full max-w-lg mx-auto z-50" onClick={(e) => e.stopPropagation()}>
               <form onSubmit={handleSubmit}>
-                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                <div className="bg-white p-5">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
                     {currentItem ? 'Chỉnh sửa font chữ' : 'Thêm font chữ mới'}
                   </h3>
                   <div className="space-y-4">
