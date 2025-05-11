@@ -11,6 +11,17 @@ import Calligraphy from './pages/Calligraphy';
 import Register from './pages/Auth/Register';
 import Category from './pages/Category';
 import Test from './pages/Test';
+import ProtectedRoute from './components/common/ProtectedRoute';
+
+// Admin pages
+import Dashboard from './pages/Admin/Dashboard';
+import Users from './pages/Admin/Users';
+import Categories from './pages/Admin/Categories';
+import Items from './pages/Admin/Items';
+import AdminGallery from './pages/Admin/Gallery';
+import Comments from './pages/Admin/Comments';
+import AdminFeedback from './pages/Admin/Feedback';
+import AdminFAQ from './pages/Admin/FAQ';
 
 
 const MainRouter = () => {
@@ -31,6 +42,17 @@ const MainRouter = () => {
       {/* Auth Routers */}
       <Route path='/auth/login' element={<Login />}/>
       <Route path='/auth/register' element={<Register />}/>
+
+      {/* Admin Routes - Được bảo vệ bởi ProtectedRoute */}
+      <Route path='/admin' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path='/admin/users' element={<ProtectedRoute><Users /></ProtectedRoute>} />
+      <Route path='/admin/categories' element={<ProtectedRoute><Categories /></ProtectedRoute>} />
+      <Route path='/admin/items' element={<ProtectedRoute><Items /></ProtectedRoute>} />
+      <Route path='/admin/gallery' element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
+      <Route path='/admin/comments' element={<ProtectedRoute><Comments /></ProtectedRoute>} />
+      <Route path='/admin/feedback' element={<ProtectedRoute><AdminFeedback /></ProtectedRoute>} />
+      <Route path='/admin/faq' element={<ProtectedRoute><AdminFAQ /></ProtectedRoute>} />
+      <Route path='/admin/statistics' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
       <Route path='/test' element={<Test />}/>
       {/* 404 route */}

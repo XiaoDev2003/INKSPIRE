@@ -13,10 +13,14 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    
+    // Kiểm tra mật khẩu khớp nhau
     if (form.password !== form.confirmPassword) {
       setError('Mật khẩu không khớp. Vui lòng kiểm tra lại.');
       return;
     }
+    
     try {
       // Gửi yêu cầu đăng ký với fullname làm username, username làm email
       await axiosClient.post('/api/register', {
@@ -24,6 +28,7 @@ const Register = () => {
         email: form.username,   
         password: form.password,
       });
+      
       // Tự động đăng nhập sau khi đăng ký
       const res = await axiosClient.post('/api/login', {
         email: form.username,   // Sử dụng email để đăng nhập
@@ -32,7 +37,25 @@ const Register = () => {
       localStorage.setItem('user', JSON.stringify(res.data));
       navigate('/');
     } catch (err) {
-      setError('Đăng ký thất bại. Vui lòng thử lại.');
+      console.error('Lỗi đăng ký:', err);
+      
+      // Xử lý các loại lỗi khác nhau
+      if (err.response) {
+        // Lỗi từ server với response
+        if (err.response.status === 409) {
+          setError('Email hoặc tên đăng nhập đã tồn tại. Vui lòng sử dụng thông tin khác.');
+        } else if (err.response.data && err.response.data.message) {
+          setError(err.response.data.message);
+        } else {
+          setError(`Đăng ký thất bại: ${err.response.status}. Vui lòng thử lại.`);
+        }
+      } else if (err.request) {
+        // Lỗi không nhận được response từ server
+        setError('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng và thử lại sau.');
+      } else {
+        // Lỗi khác
+        setError('Đăng ký thất bại. Vui lòng thử lại sau.');
+      }
     }
   };
 
