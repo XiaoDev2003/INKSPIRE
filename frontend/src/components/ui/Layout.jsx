@@ -26,7 +26,6 @@ const Container = ({
   className = '',
   children,
   size = 'responsive',       // Kích thước mặc định
-  px = 'px-4 md:px-6 lg:px-8', // Padding trái/phải
   as: Tag = 'div',   // Có thể truyền vào 'section', 'main', v.v.
 }) => {
   const sizes = {
@@ -36,12 +35,6 @@ const Container = ({
     medium: 'max-w-md',      // 28rem / 448px
     larger: 'max-w-lg',      // 32rem / 512px
     xlarger: 'max-w-xl',      // 36rem / 576px
-    '2xl': 'max-w-2xl',  // 42rem / 672px
-    '3xl': 'max-w-3xl',  // 48rem / 768px
-    '4xl': 'max-w-4xl',  // 56rem / 896px
-    '5xl': 'max-w-5xl',  // 64rem / 1024px
-    '6xl': 'max-w-6xl',  // 72rem / 1152px
-    '7xl': 'max-w-7xl',  // 80rem / 1280px
 
     // Các giá trị đặc biệt
     none: 'max-w-none',     // max-width: none  / Vô hiệu hoá chiều rộng tối đa nếu có kế thừa
@@ -62,7 +55,7 @@ const Container = ({
   };
 
   return (
-    <Tag className={`mx-auto ${sizes[size]} ${px} ${className}`}>
+    <Tag className={`mx-auto ${sizes[size]} ${className}`}>
       {children}
     </Tag>
   );

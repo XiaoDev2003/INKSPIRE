@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
-import { FaEdit, FaTrash, FaSearch, FaPlus, FaEye, FaEyeSlash, FaDownload } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaSearch, FaPlus, FaEye, FaEyeSlash, FaDownload, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const Items = () => {
   const [items, setItems] = useState([]);
@@ -29,7 +29,6 @@ const Items = () => {
       { category_id: 4, category_name: 'Triện thư' },
       { category_id: 5, category_name: 'Lệ thư' },
     ];
-
     const mockItems = [
       { item_id: 1, item_name: 'Thư pháp Việt', category_id: 1, item_des: 'Font chữ thư pháp Việt Nam truyền thống', item_origin: 'Việt Nam', lang_type: 'Vietnamese', item_url: '/fonts/thu-phap-viet.ttf', author_id: 1, views: 1250, status: 'published', created_at: '2023-01-15' },
       { item_id: 2, item_name: 'Chữ Thảo', category_id: 3, item_des: 'Font chữ thảo thư cổ điển', item_origin: 'Trung Quốc', lang_type: 'Chinese', item_url: '/fonts/chu-thao.ttf', author_id: 2, views: 980, status: 'published', created_at: '2023-02-10' },
@@ -37,7 +36,6 @@ const Items = () => {
       { item_id: 4, item_name: 'Thư pháp hiện đại', category_id: 2, item_des: 'Font chữ thư pháp phong cách hiện đại', item_origin: 'Quốc tế', lang_type: 'Latin', item_url: '/fonts/thu-phap-hien-dai.ttf', author_id: 3, views: 620, status: 'published', created_at: '2023-03-20' },
       { item_id: 5, item_name: 'Chữ Lệ', category_id: 5, item_des: 'Font chữ lệ thư cổ điển', item_origin: 'Trung Quốc', lang_type: 'Chinese', item_url: '/fonts/chu-le.ttf', author_id: 1, views: 540, status: 'published', created_at: '2023-04-10' },
     ];
-
     setCategories(mockCategories);
     setItems(mockItems);
     setLoading(false);
@@ -113,7 +111,6 @@ const Items = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (currentItem) {
       // Cập nhật font chữ hiện có
       setItems(items.map(item => {
@@ -133,7 +130,6 @@ const Items = () => {
       };
       setItems([...items, newItem]);
     }
-
     setShowModal(false);
   };
 
@@ -160,6 +156,16 @@ const Items = () => {
         return 'Đã lưu trữ';
       default:
         return status;
+    }
+  };
+
+  const [expandedItem, setExpandedItem] = useState(null);
+
+  const toggleExpand = (itemId) => {
+    if (expandedItem === itemId) {
+      setExpandedItem(null);
+    } else {
+      setExpandedItem(itemId);
     }
   };
 
@@ -191,201 +197,230 @@ const Items = () => {
 
         {loading ? (
           <div className="text-center py-4">Đang tải...</div>
+        ) : filteredItems.length === 0 ? (
+          <div className="text-center py-4 text-gray-500">Không tìm thấy font chữ nào</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên font chữ</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Danh mục</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngôn ngữ</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lượt xem</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tạo</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredItems.map((item) => (
-                  <tr key={item.item_id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.item_id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{item.item_name}</div>
-                      <div className="text-xs text-gray-500 truncate max-w-xs">{item.item_des}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getCategoryName(item.category_id)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.lang_type}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.views.toLocaleString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(item.status)}`}>
-                        {getStatusText(item.status)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.created_at}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEditItem(item)}
-                          className="text-amber-600 hover:text-amber-900"
-                          title="Chỉnh sửa"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(item.item_id, item.status)}
-                          className={`${item.status === 'published' ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900'}`}
-                          title={item.status === 'published' ? 'Chuyển sang bản nháp' : 'Xuất bản'}
-                        >
-                          {item.status === 'published' ? <FaEyeSlash /> : <FaEye />}
-                        </button>
-                        <a
-                          href={item.item_url}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Tải xuống"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <FaDownload />
-                        </a>
-                        <button
-                          onClick={() => handleDeleteItem(item.item_id)}
-                          className="text-red-600 hover:text-red-900"
-                          title="Xóa"
-                        >
-                          <FaTrash />
-                        </button>
+            <div className="space-y-4">
+              {filteredItems.map((item) => (
+                <div key={item.item_id} className="border border-gray-200 rounded-lg overflow-hidden">
+                  <div
+                    className="flex justify-between items-center p-4 bg-gray-50 cursor-pointer"
+                    onClick={() => toggleExpand(item.item_id)}
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-medium text-gray-900">{item.item_name}</h3>
+                      <div className="flex items-center mt-1 space-x-2">
+                        <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                          {getCategoryName(item.category_id)}
+                        </span>
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadgeClass(item.status)}`}>
+                          {getStatusText(item.status)}
+                        </span>
+                        <span className="text-xs text-gray-500">{item.lang_type}</span>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditItem(item);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 p-1"
+                        title="Chỉnh sửa"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleStatus(item.item_id, item.status);
+                        }}
+                        className={`${item.status === 'published' ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900'} p-1`}
+                        title={item.status === 'published' ? 'Chuyển sang bản nháp' : 'Xuất bản'}
+                      >
+                        {item.status === 'published' ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                      <a
+                        href={item.item_url}
+                        className="text-blue-600 hover:text-blue-900 p-1"
+                        title="Tải xuống"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <FaDownload />
+                      </a>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteItem(item.item_id);
+                        }}
+                        className="text-red-600 hover:text-red-800 p-1"
+                        title="Xóa"
+                      >
+                        <FaTrash />
+                      </button>
+                      {expandedItem === item.item_id ? <FaChevronUp /> : <FaChevronDown />}
+                    </div>
+                  </div>
+                  {expandedItem === item.item_id && (
+                    <div className="p-4 bg-white border-t border-gray-200">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Thông tin font chữ:</p>
+                          <p className="text-gray-700">ID: {item.item_id}</p>
+                          <p className="text-gray-700">Nguồn gốc: {item.item_origin}</p>
+                          <p className="text-gray-700">Lượt xem: {item.views.toLocaleString()}</p>
+                          <p className="text-gray-700">Ngày tạo: {item.created_at}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Mô tả:</p>
+                          <p className="text-gray-700 whitespace-pre-line">{item.item_des}</p>
+                          <div className="mt-4">
+                            <a
+                              href={item.item_url}
+                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <FaDownload className="mr-1" /> Tải xuống font chữ
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
       {/* Modal thêm/sửa font chữ */}
       {showModal && (
-        <div className="fixed inset-0 overflow-y-auto z-50">
-          <div className="flex items-center justify-center min-h-screen p-4">
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={() => setShowModal(false)}></div>
+        <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }}>
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center" onClick={() => setShowModal(false)}>
+            {/* Overlay sử dụng position thay vì z-index */}
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
 
-            <div className="relative bg-white rounded-md shadow-md w-full max-w-lg mx-auto z-50" onClick={(e) => e.stopPropagation()}>
-              <form onSubmit={handleSubmit}>
-                <div className="bg-white p-5">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    {currentItem ? 'Chỉnh sửa font chữ' : 'Thêm font chữ mới'}
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="item_name" className="block text-sm font-medium text-gray-700">Tên font chữ</label>
-                      <input
-                        type="text"
-                        name="item_name"
-                        id="item_name"
-                        value={formData.item_name}
-                        onChange={handleChange}
-                        className="mt-1 focus:ring-amber-500 focus:border-amber-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="category_id" className="block text-sm font-medium text-gray-700">Danh mục</label>
-                      <select
-                        name="category_id"
-                        id="category_id"
-                        value={formData.category_id}
-                        onChange={handleChange}
-                        className="mt-1 focus:ring-amber-500 focus:border-amber-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                        required
-                      >
-                        <option value="">Chọn danh mục</option>
-                        {categories.map(category => (
-                          <option key={category.category_id} value={category.category_id}>
-                            {category.category_name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="item_des" className="block text-sm font-medium text-gray-700">Mô tả</label>
-                      <textarea
-                        name="item_des"
-                        id="item_des"
-                        rows="3"
-                        value={formData.item_des}
-                        onChange={handleChange}
-                        className="mt-1 focus:ring-amber-500 focus:border-amber-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      ></textarea>
-                    </div>
-                    <div>
-                      <label htmlFor="item_origin" className="block text-sm font-medium text-gray-700">Nguồn gốc</label>
-                      <input
-                        type="text"
-                        name="item_origin"
-                        id="item_origin"
-                        value={formData.item_origin}
-                        onChange={handleChange}
-                        className="mt-1 focus:ring-amber-500 focus:border-amber-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="lang_type" className="block text-sm font-medium text-gray-700">Ngôn ngữ</label>
-                      <input
-                        type="text"
-                        name="lang_type"
-                        id="lang_type"
-                        value={formData.lang_type}
-                        onChange={handleChange}
-                        className="mt-1 focus:ring-amber-500 focus:border-amber-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="item_url" className="block text-sm font-medium text-gray-700">Đường dẫn font</label>
-                      <input
-                        type="text"
-                        name="item_url"
-                        id="item_url"
-                        value={formData.item_url}
-                        onChange={handleChange}
-                        className="mt-1 focus:ring-amber-500 focus:border-amber-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="status" className="block text-sm font-medium text-gray-700">Trạng thái</label>
-                      <select
-                        name="status"
-                        id="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                        className="mt-1 focus:ring-amber-500 focus:border-amber-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      >
-                        <option value="draft">Bản nháp</option>
-                        <option value="published">Đã xuất bản</option>
-                        <option value="archived">Đã lưu trữ</option>
-                      </select>
-                    </div>
+            {/* Sử dụng flex để căn giữa nội dung modal và position relative để hiển thị trên overlay */}
+            <form onSubmit={handleSubmit} className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8" style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  {currentItem ? 'Chỉnh sửa font chữ' : 'Thêm font chữ mới'}
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="item_name" className="block text-sm font-medium text-gray-700">Tên font chữ</label>
+                    <input
+                      type="text"
+                      name="item_name"
+                      id="item_name"
+                      value={formData.item_name}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="category_id" className="block text-sm font-medium text-gray-700">Danh mục</label>
+                    <select
+                      name="category_id"
+                      id="category_id"
+                      value={formData.category_id}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                      required
+                    >
+                      <option value="">Chọn danh mục</option>
+                      {categories.map(category => (
+                        <option key={category.category_id} value={category.category_id}>
+                          {category.category_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="item_des" className="block text-sm font-medium text-gray-700">Mô tả</label>
+                    <textarea
+                      name="item_des"
+                      id="item_des"
+                      rows="3"
+                      value={formData.item_des}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label htmlFor="item_origin" className="block text-sm font-medium text-gray-700">Nguồn gốc</label>
+                    <input
+                      type="text"
+                      name="item_origin"
+                      id="item_origin"
+                      value={formData.item_origin}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="lang_type" className="block text-sm font-medium text-gray-700">Ngôn ngữ</label>
+                    <input
+                      type="text"
+                      name="lang_type"
+                      id="lang_type"
+                      value={formData.lang_type}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="item_url" className="block text-sm font-medium text-gray-700">Đường dẫn font</label>
+                    <input
+                      type="text"
+                      name="item_url"
+                      id="item_url"
+                      value={formData.item_url}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="status" className="block text-sm font-medium text-gray-700">Trạng thái</label>
+                    <select
+                      name="status"
+                      id="status"
+                      value={formData.status}
+                      onChange={handleChange}
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                    >
+                      <option value="draft">Bản nháp</option>
+                      <option value="published">Đã xuất bản</option>
+                      <option value="archived">Đã lưu trữ</option>
+                    </select>
                   </div>
                 </div>
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                  <button
-                    type="submit"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    {currentItem ? 'Cập nhật' : 'Thêm mới'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Hủy
-                  </button>
-                </div>
-              </form>
-            </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 flex flex-row-reverse">
+                <button
+                  type="submit"
+                  className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 ml-3"
+                >
+                  {currentItem ? 'Cập nhật' : 'Thêm mới'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 ml-3"
+                >
+                  Hủy
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

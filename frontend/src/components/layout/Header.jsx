@@ -1,10 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Box, Container, Section } from "../ui/Layout"
 
 const Header = () => {
   return (
+
     <header className="bg-amber-50 shadow-md h-20 flex items-center justify-center">
-      <div className="container mx-auto px-4">
+      <Container className="mx-auto">
         <div className="flex justify-center">
           <Link to="/">
             <img
@@ -14,7 +16,7 @@ const Header = () => {
             />
           </Link>
         </div>
-      </div>
+      </Container>
     </header>
   );
 };
