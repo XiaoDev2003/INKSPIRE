@@ -51,7 +51,7 @@ const RegisterModal = ({ isOpen, onClose, onRegister, onBackToLogin }) => {
       onClose();
     } catch (err) {
       console.error('Lỗi đăng ký:', err);
-      
+
       // Xử lý các loại lỗi khác nhau
       if (err.response) {
         // Lỗi từ server với response
