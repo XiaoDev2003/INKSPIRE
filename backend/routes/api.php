@@ -32,6 +32,10 @@ switch (true) {
         require_once __DIR__ . '/../controllers/QueryController.php';
         break;
 
+    // Nếu truy cập trực tiếp vào root backend
+    case preg_match('/\/backend(\/)?$/', $request):
+        echo json_encode(['message' => 'Chào mừng bạn đến với Inkspire API. Vui lòng sử dụng các endpoint bắt đầu bằng /api/']);
+        break;
     default:
         http_response_code(404);
         echo json_encode(['error' => 'API route not found']);
