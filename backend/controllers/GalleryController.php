@@ -13,9 +13,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        if (isset($_GET['gallery_id'])) {
-            $gallery = $galleryModel->getById($_GET['gallery_id']);
-            jsonResponse($gallery ?: ['error' => 'Không tìm thấy'], $gallery ? 200 : 404);
+        if (isset($_GET['image_id'])) {
+            $gallery = $galleryModel->getById($_GET['image_id']);
+            jsonResponse($gallery ?: ['error' => 'Không tìm thấy hình ảnh'], $gallery ? 200 : 404);
         } else {
             $galleries = $galleryModel->getAll();
             jsonResponse($galleries);
@@ -25,21 +25,35 @@ switch ($method) {
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (!isset($data['title'], $data['image_url'], $data['category_id'], $data['item_id'])) {
-            jsonResponse(['error' => 'Thiếu thông tin hình ảnh'], 400);
+        if (!isset($data['image_title'], $data['image_url'])) {
+            jsonResponse(['error' => 'Thiếu tiêu đề hoặc URL hình ảnh'], 400);
         }
 
+        // Giả định user_id của người dùng hiện tại (có thể thay bằng logic xác thực)
+        $data['uploaded_by'] = $data['uploaded_by'] ?? 1; // Mặc định user_id = 1
+
         $result = $galleryModel->create($data);
-        jsonResponse($result ? ['message' => 'Thêm ảnh thành công'] : ['error' => 'Thêm ảnh thất bại'], $result ? 200 : 500);
+        jsonResponse($result ? $result : ['error' => 'Thêm hình ảnh thất bại'], $result ? 201 : 500);
+        break;
+
+    case 'PUT':
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if (!isset($data['image_id'], $data['image_title'], $data['image_url'])) {
+            jsonResponse(['error' => 'Thiếu thông tin cần thiết để cập nhật'], 400);
+        }
+
+        $result = $galleryModel->update($data);
+        jsonResponse($result ? $result : ['error' => 'Cập nhật thất bại'], $result ? 200 : 500);
         break;
 
     case 'DELETE':
-        parse_str(file_get_contents("php://input"), $data);
-        if (!isset($data['gallery_id'])) {
-            jsonResponse(['error' => 'Thiếu gallery_id'], 400);
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['image_id'])) {
+            jsonResponse(['error' => 'Thiếu image_id'], 400);
         }
-        $result = $galleryModel->delete($data['gallery_id']);
-        jsonResponse($result ? ['message' => 'Xóa ảnh thành công'] : ['error' => 'Xóa thất bại'], $result ? 200 : 500);
+        $result = $galleryModel->delete($data['image_id']);
+        jsonResponse($result ? ['message' => 'Xóa hình ảnh thành công'] : ['error' => 'Xóa thất bại'], $result ? 200 : 500);
         break;
 
     default:

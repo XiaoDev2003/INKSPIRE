@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
-import { FaEdit, FaTrash, FaSearch, FaPlus, FaEye, FaEyeSlash, FaDownload, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import axiosClient from '../../api/axiosClient';
+import { FaEdit, FaTrash, FaSearch, FaPlus, FaEye, FaEyeSlash, FaDownload, FaChevronDown, FaChevronUp, FaCopy } from 'react-icons/fa';
 
 const Items = () => {
   const [items, setItems] = useState([]);
@@ -16,44 +17,48 @@ const Items = () => {
     item_origin: '',
     lang_type: '',
     item_url: '',
-    status: 'draft'
+    status: 'draft',
   });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
+  // Giả định lấy user_id từ context hoặc session (thay bằng logic thực tế)
+  const getCurrentUserId = () => {
+    // Ví dụ: Lấy từ localStorage hoặc context
+    return 1; // Mặc định user_id = 1 nếu không có session
+  };
 
   useEffect(() => {
-    // Trong thực tế, sẽ gọi API để lấy danh sách font chữ và danh mục
-    // Hiện tại sử dụng dữ liệu mẫu
-    const mockCategories = [
-      { category_id: 1, category_name: 'Thư pháp truyền thống' },
-      { category_id: 2, category_name: 'Thư pháp hiện đại' },
-      { category_id: 3, category_name: 'Thảo thư' },
-      { category_id: 4, category_name: 'Triện thư' },
-      { category_id: 5, category_name: 'Lệ thư' },
-    ];
-    const mockItems = [
-      { item_id: 1, item_name: 'Thư pháp Việt', category_id: 1, item_des: 'Font chữ thư pháp Việt Nam truyền thống', item_origin: 'Việt Nam', lang_type: 'Vietnamese', item_url: '/fonts/thu-phap-viet.ttf', author_id: 1, views: 1250, status: 'published', created_at: '2023-01-15' },
-      { item_id: 2, item_name: 'Chữ Thảo', category_id: 3, item_des: 'Font chữ thảo thư cổ điển', item_origin: 'Trung Quốc', lang_type: 'Chinese', item_url: '/fonts/chu-thao.ttf', author_id: 2, views: 980, status: 'published', created_at: '2023-02-10' },
-      { item_id: 3, item_name: 'Triện thư', category_id: 4, item_des: 'Font chữ triện cổ điển', item_origin: 'Trung Quốc', lang_type: 'Chinese', item_url: '/fonts/trien-thu.ttf', author_id: 2, views: 750, status: 'draft', created_at: '2023-03-05' },
-      { item_id: 4, item_name: 'Thư pháp hiện đại', category_id: 2, item_des: 'Font chữ thư pháp phong cách hiện đại', item_origin: 'Quốc tế', lang_type: 'Latin', item_url: '/fonts/thu-phap-hien-dai.ttf', author_id: 3, views: 620, status: 'published', created_at: '2023-03-20' },
-      { item_id: 5, item_name: 'Chữ Lệ', category_id: 5, item_des: 'Font chữ lệ thư cổ điển', item_origin: 'Trung Quốc', lang_type: 'Chinese', item_url: '/fonts/chu-le.ttf', author_id: 1, views: 540, status: 'published', created_at: '2023-04-10' },
-    ];
-    setCategories(mockCategories);
-    setItems(mockItems);
-    setLoading(false);
+    const fetchData = async () => {
+      try {
+        const [itemsResponse, categoriesResponse] = await Promise.all([
+          axiosClient.get('/api/items'),
+          axiosClient.get('/api/categories'),
+        ]);
+        setItems(itemsResponse.data);
+        setCategories(categoriesResponse.data);
+      } catch (err) {
+        setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredItems = items.filter(item =>
-    item.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.item_des.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.item_origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.lang_type.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredItems = items.filter((item) =>
+    (item.item_name && item.item_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.item_des && item.item_des.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.item_origin && item.item_origin.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (item.lang_type && item.lang_type.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getCategoryName = (categoryId) => {
-    const category = categories.find(cat => cat.category_id === categoryId);
+    const category = categories.find((cat) => cat.category_id === categoryId);
     return category ? category.category_name : 'Không xác định';
   };
 
@@ -66,75 +71,100 @@ const Items = () => {
       item_origin: '',
       lang_type: '',
       item_url: '',
-      status: 'draft'
+      status: 'draft',
     });
     setShowModal(true);
+    setError(null);
+    setSuccess(null);
   };
 
   const handleEditItem = (item) => {
     setCurrentItem(item);
     setFormData({
-      item_name: item.item_name,
-      category_id: item.category_id,
-      item_des: item.item_des,
-      item_origin: item.item_origin,
-      lang_type: item.lang_type,
-      item_url: item.item_url,
-      status: item.status
+      item_name: item.item_name || '',
+      category_id: item.category_id || '',
+      item_des: item.item_des || '',
+      item_origin: item.item_origin || '',
+      lang_type: item.lang_type || '',
+      item_url: item.item_url || '',
+      status: item.status || 'draft',
     });
     setShowModal(true);
+    setError(null);
+    setSuccess(null);
   };
 
-  const handleDeleteItem = (itemId) => {
+  const handleDeleteItem = async (itemId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa font chữ này?')) {
-      // Trong thực tế, sẽ gọi API để xóa font chữ
-      setItems(items.filter(item => item.item_id !== itemId));
+      try {
+        await axiosClient.delete('/api/items', { data: { item_id: itemId } });
+        setItems(items.filter((item) => item.item_id !== itemId));
+        setSuccess('Xóa thành công!');
+      } catch (err) {
+        setError(err.response?.data?.error || 'Đã có lỗi khi xóa.');
+      }
     }
   };
 
   const handleToggleStatus = (itemId, currentStatus) => {
-    // Trong thực tế, sẽ gọi API để thay đổi trạng thái font chữ
-    setItems(items.map(item => {
-      if (item.item_id === itemId) {
-        const newStatus = currentStatus === 'published' ? 'draft' :
-                         currentStatus === 'draft' ? 'published' : 'archived';
-        return { ...item, status: newStatus };
-      }
-      return item;
-    }));
+    const newStatus = currentStatus === 'published' ? 'draft' : currentStatus === 'draft' ? 'published' : 'archived';
+    setItems(items.map((item) =>
+      item.item_id === itemId ? { ...item, status: newStatus } : item
+    ));
+    axiosClient.put('/api/items', {
+      item_id: itemId,
+      status: newStatus,
+    }).catch((err) => setError(err.response?.data?.error || 'Đã có lỗi khi cập nhật trạng thái.'));
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (currentItem) {
-      // Cập nhật font chữ hiện có
-      setItems(items.map(item => {
-        if (item.item_id === currentItem.item_id) {
-          return { ...item, ...formData };
-        }
-        return item;
-      }));
-    } else {
-      // Thêm font chữ mới
-      const newItem = {
-        item_id: items.length + 1,
-        ...formData,
-        author_id: 1, // Giả định người dùng hiện tại là admin với ID 1
+    try {
+      const payload = {
+        item_name: formData.item_name,
+        category_id: formData.category_id || null,
+        item_des: formData.item_des,
+        item_origin: formData.item_origin,
+        lang_type: formData.lang_type,
+        item_url: formData.item_url,
+        status: formData.status,
+        author_id: getCurrentUserId(), // Lấy user_id hiện tại
         views: 0,
-        created_at: new Date().toISOString().split('T')[0]
       };
-      setItems([...items, newItem]);
+      if (currentItem) {
+        payload.item_id = currentItem.item_id;
+        const response = await axiosClient.put('/api/items', payload);
+        setItems(items.map((item) =>
+          item.item_id === currentItem.item_id ? response.data : item
+        ));
+        setSuccess('Cập nhật thành công!');
+      } else {
+        const response = await axiosClient.post('/api/items', payload);
+        setItems([...items, response.data]);
+        setSuccess('Thêm thành công!');
+      }
+      setShowModal(false);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Đã có lỗi khi lưu.');
     }
-    setShowModal(false);
+  };
+
+  const handleCopyUrl = (url) => {
+    navigator.clipboard.writeText(url).then(() => {
+      setSuccess('Đã sao chép URL!');
+      setTimeout(() => setSuccess(null), 2000);
+    }).catch((err) => {
+      setError('Không thể sao chép URL.');
+    });
   };
 
   const getStatusBadgeClass = (status) => {
-    switch(status) {
+    switch (status) {
       case 'published':
         return 'bg-green-100 text-green-800';
       case 'draft':
@@ -147,7 +177,7 @@ const Items = () => {
   };
 
   const getStatusText = (status) => {
-    switch(status) {
+    switch (status) {
       case 'published':
         return 'Đã xuất bản';
       case 'draft':
@@ -180,6 +210,18 @@ const Items = () => {
           <FaPlus /> Thêm font chữ
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-green-600">{success}</p>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="mb-4 relative">
@@ -254,6 +296,16 @@ const Items = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          handleCopyUrl(item.item_url);
+                        }}
+                        className="text-gray-600 hover:text-gray-900 p-1"
+                        title="Sao chép URL"
+                      >
+                        <FaCopy />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
                           handleDeleteItem(item.item_id);
                         }}
                         className="text-red-600 hover:text-red-800 p-1"
@@ -272,12 +324,13 @@ const Items = () => {
                           <p className="text-gray-700">ID: {item.item_id}</p>
                           <p className="text-gray-700">Nguồn gốc: {item.item_origin}</p>
                           <p className="text-gray-700">Lượt xem: {item.views.toLocaleString()}</p>
-                          <p className="text-gray-700">Ngày tạo: {item.created_at}</p>
+                          <p className="text-gray-700">Ngày tạo: {new Date(item.created_at).toLocaleDateString('vi-VN')}</p>
+                          <p className="text-gray-700">Tác giả: {item.author_name || 'Không xác định'}</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-500">Mô tả:</p>
                           <p className="text-gray-700 whitespace-pre-line">{item.item_des}</p>
-                          <div className="mt-4">
+                          <div className="mt-4 flex space-x-2">
                             <a
                               href={item.item_url}
                               className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -286,6 +339,12 @@ const Items = () => {
                             >
                               <FaDownload className="mr-1" /> Tải xuống font chữ
                             </a>
+                            <button
+                              onClick={() => handleCopyUrl(item.item_url)}
+                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                            >
+                              <FaCopy className="mr-1" /> Sao chép URL
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -302,12 +361,10 @@ const Items = () => {
       {showModal && (
         <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }}>
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center" onClick={() => setShowModal(false)}>
-            {/* Overlay sử dụng position thay vì z-index */}
             <div className="fixed inset-0 transition-opacity" aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            {/* Sử dụng flex để căn giữa nội dung modal và position relative để hiển thị trên overlay */}
             <form onSubmit={handleSubmit} className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8" style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -337,7 +394,7 @@ const Items = () => {
                       required
                     >
                       <option value="">Chọn danh mục</option>
-                      {categories.map(category => (
+                      {categories.map((category) => (
                         <option key={category.category_id} value={category.category_id}>
                           {category.category_name}
                         </option>

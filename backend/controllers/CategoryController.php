@@ -28,11 +28,11 @@ switch ($method) {
             jsonResponse(['error' => 'Thiếu tên và loại phong cách'], 400);
         }
         $result = $categoryModel->create($data);
-        jsonResponse($result ? ['message' => 'Thêm category thành công'] : ['error' => 'Thêm thất bại'], $result ? 200 : 500);
+        jsonResponse($result ? ['message' => 'Thêm category thành công', 'category_id' => $conn->lastInsertId()] : ['error' => 'Thêm thất bại'], $result ? 201 : 500);
         break;
 
     case 'PUT':
-        parse_str(file_get_contents("php://input"), $data);
+        $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['category_id'])) {
             jsonResponse(['error' => 'Thiếu category_id'], 400);
         }
@@ -41,7 +41,7 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        parse_str(file_get_contents("php://input"), $data);
+        $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['category_id'])) {
             jsonResponse(['error' => 'Thiếu category_id'], 400);
         }

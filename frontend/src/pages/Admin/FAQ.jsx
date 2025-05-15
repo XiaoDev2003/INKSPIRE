@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
+import axiosClient from '../../api/axiosClient';
 import { FaEdit, FaTrash, FaSearch, FaPlus, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const FAQ = () => {
@@ -12,23 +13,30 @@ const FAQ = () => {
   const [formData, setFormData] = useState({
     question: '',
     answer: '',
-    category: 'general',
-    status: 'published'
   });
+  const [error, setError] = useState(null);
+
+  const fetchFaqs = async () => {
+    try {
+      const response = await axiosClient.get('/api/queries');
+      console.log('Fetched FAQs:', response.data);
+      const formattedFaqs = response.data.map(faq => ({
+        faq_id: faq.query_id,
+        question: faq.question_content,
+        answer: faq.full_answer,
+        created_at: new Date(faq.added_at).toLocaleDateString('vi-VN'),
+      }));
+      setFaqs(formattedFaqs);
+    } catch (err) {
+      console.error('Error fetching FAQs:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu câu hỏi.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Trong thực tế, sẽ gọi API để lấy danh sách FAQ
-    // Hiện tại sử dụng dữ liệu mẫu
-    const mockFaqs = [
-      { faq_id: 1, question: 'Thư pháp là gì?', answer: 'Thư pháp là nghệ thuật viết chữ đẹp, nhấn mạnh vào hình thức và cách trình bày của các ký tự viết tay.', category: 'general', status: 'published', created_at: '2023-01-15' },
-      { faq_id: 2, question: 'Làm thế nào để bắt đầu học thư pháp?', answer: 'Để bắt đầu học thư pháp, bạn cần chuẩn bị các dụng cụ cơ bản như bút, mực, giấy và tìm hiểu các kỹ thuật cơ bản. Bạn có thể bắt đầu với các bài tập đơn giản và dần dần nâng cao kỹ năng.', category: 'learning', status: 'published', created_at: '2023-02-10' },
-      { faq_id: 3, question: 'Các dụng cụ cần thiết cho thư pháp là gì?', answer: 'Các dụng cụ cơ bản cho thư pháp bao gồm bút lông, mực tàu, giấy thư pháp, đá mài mực, bàn đá và các phụ kiện khác như con dấu, giá vẽ.', category: 'tools', status: 'published', created_at: '2023-03-05' },
-      { faq_id: 4, question: 'Sự khác biệt giữa thư pháp truyền thống và hiện đại?', answer: 'Thư pháp truyền thống tuân theo các quy tắc nghiêm ngặt về cấu trúc, bố cục và kỹ thuật, trong khi thư pháp hiện đại có nhiều tự do sáng tạo hơn, kết hợp các phong cách và kỹ thuật mới.', category: 'styles', status: 'draft', created_at: '2023-04-20' },
-      { faq_id: 5, question: 'Làm thế nào để bảo quản tác phẩm thư pháp?', answer: 'Để bảo quản tác phẩm thư pháp, bạn nên tránh ánh nắng trực tiếp, độ ẩm cao và nhiệt độ thay đổi đột ngột. Nên đóng khung tác phẩm bằng kính chống tia UV và treo ở nơi khô ráo, thoáng mát.', category: 'preservation', status: 'published', created_at: '2023-05-15' },
-    ];
-
-    setFaqs(mockFaqs);
-    setLoading(false);
+    fetchFaqs();
   }, []);
 
   const handleSearch = (e) => {
@@ -37,8 +45,7 @@ const FAQ = () => {
 
   const filteredFaqs = faqs.filter(faq =>
     faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    faq.category.toLowerCase().includes(searchTerm.toLowerCase())
+    faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleAddFaq = () => {
@@ -46,8 +53,6 @@ const FAQ = () => {
     setFormData({
       question: '',
       answer: '',
-      category: 'general',
-      status: 'published'
     });
     setShowModal(true);
   };
@@ -57,16 +62,23 @@ const FAQ = () => {
     setFormData({
       question: faq.question,
       answer: faq.answer,
-      category: faq.category,
-      status: faq.status
     });
     setShowModal(true);
   };
 
-  const handleDeleteFaq = (faqId) => {
+  const handleDeleteFaq = async (faqId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa câu hỏi này?')) {
-      // Trong thực tế, sẽ gọi API để xóa FAQ
-      setFaqs(faqs.filter(faq => faq.faq_id !== faqId));
+      try {
+        console.log('Deleting FAQ with ID:', faqId); // Thêm log để debug
+        const response = await axiosClient.delete('/api/queries', {
+          data: { query_id: faqId },
+        });
+        console.log('Delete response:', response.data);
+        await fetchFaqs();
+      } catch (err) {
+        console.error('Error deleting FAQ:', err.response?.data || err.message);
+        setError(err.response?.data?.error || 'Đã có lỗi khi xóa câu hỏi.');
+      }
     }
   };
 
@@ -75,28 +87,33 @@ const FAQ = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (currentFaq) {
-      // Cập nhật FAQ hiện có
-      setFaqs(faqs.map(faq => {
-        if (faq.faq_id === currentFaq.faq_id) {
-          return { ...faq, ...formData };
-        }
-        return faq;
-      }));
-    } else {
-      // Thêm FAQ mới
-      const newFaq = {
-        faq_id: faqs.length + 1,
-        ...formData,
-        created_at: new Date().toISOString().split('T')[0]
+    try {
+      const payload = {
+        question_content: formData.question,
+        short_answer: formData.answer.substring(0, 255),
+        full_answer: formData.answer,
       };
-      setFaqs([...faqs, newFaq]);
-    }
+      console.log('Payload gửi lên API:', payload);
 
-    setShowModal(false);
+      if (currentFaq) {
+        console.log('Updating FAQ with ID:', currentFaq.faq_id);
+        await axiosClient.put('/api/queries', {
+          query_id: currentFaq.faq_id,
+          ...payload,
+        });
+      } else {
+        console.log('Adding new FAQ');
+        await axiosClient.post('/api/queries', payload);
+      }
+      await fetchFaqs();
+      setShowModal(false);
+    } catch (err) {
+      console.error('Error saving FAQ:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Đã có lỗi khi lưu câu hỏi.');
+    }
   };
 
   const toggleExpand = (faqId) => {
@@ -104,45 +121,6 @@ const FAQ = () => {
       setExpandedFaq(null);
     } else {
       setExpandedFaq(faqId);
-    }
-  };
-
-  const getStatusBadgeClass = (status) => {
-    switch(status) {
-      case 'published':
-        return 'bg-green-100 text-green-800';
-      case 'draft':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch(status) {
-      case 'published':
-        return 'Đã xuất bản';
-      case 'draft':
-        return 'Bản nháp';
-      default:
-        return status;
-    }
-  };
-
-  const getCategoryText = (category) => {
-    switch(category) {
-      case 'general':
-        return 'Chung';
-      case 'learning':
-        return 'Học tập';
-      case 'tools':
-        return 'Dụng cụ';
-      case 'styles':
-        return 'Phong cách';
-      case 'preservation':
-        return 'Bảo quản';
-      default:
-        return category;
     }
   };
 
@@ -158,6 +136,12 @@ const FAQ = () => {
         </button>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="mb-4 relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -165,7 +149,7 @@ const FAQ = () => {
           </div>
           <input
             type="text"
-            placeholder="Tìm kiếm câu hỏi, câu trả lời hoặc danh mục"
+            placeholder="Tìm kiếm câu hỏi hoặc câu trả lời"
             className="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
             value={searchTerm}
             onChange={handleSearch}
@@ -187,12 +171,6 @@ const FAQ = () => {
                   >
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-900">{faq.question}</h3>
-                      <div className="flex items-center mt-1 space-x-2">
-                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadgeClass(faq.status)}`}>
-                          {getStatusText(faq.status)}
-                        </span>
-                        <span className="text-xs text-gray-500">{getCategoryText(faq.category)}</span>
-                      </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <button
@@ -229,17 +207,18 @@ const FAQ = () => {
         )}
       </div>
 
-      {/* Modal thêm/sửa FAQ */}
       {showModal && (
-        <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }}>
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center" onClick={() => setShowModal(false)}>
-            {/* Overlay sử dụng position thay vì z-index */}
+        <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }} onClick={() => setShowModal(false)}>
+          <div className="flex items-center justify-center min-h-screen px-4 py-4">
             <div className="fixed inset-0 transition-opacity" aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            {/* Sử dụng flex để căn giữa nội dung modal và position relative để hiển thị trên overlay */}
-            <div className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8" style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+            <div
+              className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8"
+              style={{ position: 'relative', zIndex: 10 }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <form onSubmit={handleSubmit}>
                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -273,39 +252,6 @@ const FAQ = () => {
                         className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
                         required
                       />
-                    </div>
-                    <div>
-                      <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                        Danh mục
-                      </label>
-                      <select
-                        id="category"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      >
-                        <option value="general">Chung</option>
-                        <option value="learning">Học tập</option>
-                        <option value="tools">Dụng cụ</option>
-                        <option value="styles">Phong cách</option>
-                        <option value="preservation">Bảo quản</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                        Trạng thái
-                      </label>
-                      <select
-                        id="status"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      >
-                        <option value="published">Đã xuất bản</option>
-                        <option value="draft">Bản nháp</option>
-                      </select>
                     </div>
                   </div>
                 </div>

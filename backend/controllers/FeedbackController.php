@@ -63,7 +63,7 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        parse_str(file_get_contents("php://input"), $data);
+        $data = json_decode(file_get_contents("php://input"), true); // Sử dụng json_decode thay vì parse_str
         if (!isset($data['feedback_id'])) {
             jsonResponse(['error' => 'Thiếu feedback_id'], 400);
         }
@@ -74,4 +74,3 @@ switch ($method) {
     default:
         jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
 }
-?>

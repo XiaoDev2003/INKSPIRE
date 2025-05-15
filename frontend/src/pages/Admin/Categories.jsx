@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
+import axiosClient from '../../api/axiosClient';
 import { FaEdit, FaTrash, FaSearch, FaPlus, FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const Categories = () => {
@@ -15,20 +16,33 @@ const Categories = () => {
     category_type: 'traditional',
     status: 'draft'
   });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    // Trong thực tế, sẽ gọi API để lấy danh sách danh mục
-    // Hiện tại sử dụng dữ liệu mẫu
-    const mockCategories = [
-      { category_id: 1, category_name: 'Thư pháp truyền thống', category_des: 'Các phong cách thư pháp truyền thống Việt Nam', category_origin: 'Việt Nam', category_type: 'traditional', status: 'published' },
-      { category_id: 2, category_name: 'Thư pháp hiện đại', category_des: 'Các phong cách thư pháp hiện đại', category_origin: 'Quốc tế', category_type: 'modern', status: 'published' },
-      { category_id: 3, category_name: 'Thảo thư', category_des: 'Phong cách viết nhanh, tự do', category_origin: 'Trung Quốc', category_type: 'traditional', status: 'published' },
-      { category_id: 4, category_name: 'Triện thư', category_des: 'Phong cách chữ khắc dấu cổ', category_origin: 'Trung Quốc', category_type: 'traditional', status: 'draft' },
-      { category_id: 5, category_name: 'Lệ thư', category_des: 'Phong cách chữ hành chính', category_origin: 'Trung Quốc', category_type: 'traditional', status: 'published' },
-    ];
-    
-    setCategories(mockCategories);
-    setLoading(false);
+    const fetchCategories = async () => {
+      try {
+        console.log('Fetching categories from /api/categories');
+        const response = await axiosClient.get('/api/categories');
+        console.log('Categories response:', response.data);
+        const formattedCategories = response.data.map(category => ({
+          category_id: category.category_id,
+          category_name: category.category_name,
+          category_des: category.category_des,
+          category_origin: category.category_origin,
+          category_type: category.category_type,
+          status: category.status || 'draft'
+        }));
+        setCategories(formattedCategories);
+      } catch (err) {
+        console.error('Error fetching categories:', err.response || err.message);
+        setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu danh mục.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   const handleSearch = (e) => {
@@ -51,6 +65,8 @@ const Categories = () => {
       status: 'draft'
     });
     setShowModal(true);
+    setError(null);
+    setSuccess(null);
   };
 
   const handleEditCategory = (category) => {
@@ -63,25 +79,52 @@ const Categories = () => {
       status: category.status
     });
     setShowModal(true);
+    setError(null);
+    setSuccess(null);
   };
 
-  const handleDeleteCategory = (categoryId) => {
+  const handleDeleteCategory = async (categoryId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
-      // Trong thực tế, sẽ gọi API để xóa danh mục
-      setCategories(categories.filter(category => category.category_id !== categoryId));
+      try {
+        console.log('Deleting category with ID:', categoryId);
+        const response = await axiosClient.delete('/api/categories', {
+          data: { category_id: categoryId },
+        });
+        console.log('Delete response:', response.data);
+        setCategories(categories.filter(category => category.category_id !== categoryId));
+        setSuccess('Xóa danh mục thành công!');
+      } catch (err) {
+        console.error('Error deleting category:', err.response?.data || err.message);
+        setError(err.response?.data?.error || 'Đã có lỗi khi xóa danh mục.');
+      }
     }
   };
 
-  const handleToggleStatus = (categoryId, currentStatus) => {
-    // Trong thực tế, sẽ gọi API để thay đổi trạng thái danh mục
-    setCategories(categories.map(category => {
-      if (category.category_id === categoryId) {
-        const newStatus = currentStatus === 'published' ? 'draft' : 
-                         currentStatus === 'draft' ? 'published' : 'archived';
-        return { ...category, status: newStatus };
-      }
-      return category;
-    }));
+  const handleToggleStatus = async (categoryId, currentStatus) => {
+    try {
+      console.log('Toggling status for category ID:', categoryId, 'Current status:', currentStatus);
+      const newStatus = currentStatus === 'published' ? 'draft' : 
+                       currentStatus === 'draft' ? 'published' : 'archived';
+      const response = await axiosClient.put('/api/categories', {
+        category_id: categoryId,
+        category_name: categories.find(c => c.category_id === categoryId).category_name,
+        category_des: categories.find(c => c.category_id === categoryId).category_des,
+        category_origin: categories.find(c => c.category_id === categoryId).category_origin,
+        category_type: categories.find(c => c.category_id === categoryId).category_type,
+        status: newStatus
+      });
+      console.log('Status update response:', response.data);
+      setCategories(categories.map(category => {
+        if (category.category_id === categoryId) {
+          return { ...category, status: newStatus };
+        }
+        return category;
+      }));
+      setSuccess('Cập nhật trạng thái thành công!');
+    } catch (err) {
+      console.error('Error updating status:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Đã có lỗi khi cập nhật trạng thái.');
+    }
   };
 
   const handleChange = (e) => {
@@ -89,27 +132,41 @@ const Categories = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (currentCategory) {
-      // Cập nhật danh mục hiện có
-      setCategories(categories.map(category => {
-        if (category.category_id === currentCategory.category_id) {
-          return { ...category, ...formData };
-        }
-        return category;
-      }));
-    } else {
-      // Thêm danh mục mới
-      const newCategory = {
-        category_id: categories.length + 1,
-        ...formData
+    try {
+      const payload = {
+        category_name: formData.category_name,
+        category_des: formData.category_des,
+        category_origin: formData.category_origin,
+        category_type: formData.category_type,
+        status: formData.status
       };
-      setCategories([...categories, newCategory]);
+      console.log('Submitting category:', payload);
+
+      if (currentCategory) {
+        payload.category_id = currentCategory.category_id;
+        const response = await axiosClient.put('/api/categories', payload);
+        console.log('Update response:', response.data);
+        setCategories(categories.map(category => 
+          category.category_id === currentCategory.category_id ? { ...category, ...payload } : category
+        ));
+        setSuccess('Cập nhật danh mục thành công!');
+      } else {
+        const response = await axiosClient.post('/api/categories', payload);
+        console.log('Create response:', response.data);
+        const newCategory = { 
+          category_id: response.data.category_id || (categories.length + 1), 
+          ...payload 
+        };
+        setCategories([...categories, newCategory]);
+        setSuccess('Thêm danh mục thành công!');
+      }
+      setShowModal(false);
+    } catch (err) {
+      console.error('Error submitting category:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Đã có lỗi khi lưu danh mục.');
     }
-    
-    setShowModal(false);
   };
 
   const getStatusBadgeClass = (status) => {
@@ -172,6 +229,18 @@ const Categories = () => {
           <FaPlus /> Thêm danh mục
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-green-600">{success}</p>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="mb-4 relative">
@@ -248,11 +317,11 @@ const Categories = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-sm font-medium text-gray-500">Mô tả:</p>
-                          <p className="text-gray-700 whitespace-pre-line">{category.category_des}</p>
+                          <p className="text-gray-700 whitespace-pre-line">{category.category_des || 'Không có'}</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-500">Nguồn gốc:</p>
-                          <p className="text-gray-700">{category.category_origin}</p>
+                          <p className="text-gray-700">{category.category_origin || 'Không có'}</p>
                         </div>
                       </div>
                     </div>
@@ -264,16 +333,13 @@ const Categories = () => {
         )}
       </div>
 
-      {/* Modal thêm/sửa danh mục */}
       {showModal && (
         <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }}>
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center" onClick={() => setShowModal(false)}>
-            {/* Overlay sử dụng position thay vì z-index */}
             <div className="fixed inset-0 transition-opacity" aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            {/* Sử dụng flex để căn giữa nội dung modal và position relative để hiển thị trên overlay */}
             <form onSubmit={handleSubmit} className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8" style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">

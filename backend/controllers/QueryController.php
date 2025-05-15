@@ -24,7 +24,7 @@ switch ($method) {
 
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
-        if (!isset($data['question'], $data['short_answer'], $data['answer_url'], $data['added_by'])) {
+        if (!isset($data['question_content'], $data['short_answer'], $data['full_answer'])) {
             jsonResponse(['error' => 'Thiếu thông tin câu hỏi'], 400);
         }
         $result = $queryModel->create($data);
@@ -32,7 +32,7 @@ switch ($method) {
         break;
 
     case 'PUT':
-        parse_str(file_get_contents("php://input"), $data);
+        $data = json_decode(file_get_contents("php://input"), true); // Sử dụng json_decode thay vì parse_str
         if (!isset($data['query_id'])) {
             jsonResponse(['error' => 'Thiếu query_id'], 400);
         }
@@ -41,7 +41,7 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        parse_str(file_get_contents("php://input"), $data);
+        $data = json_decode(file_get_contents("php://input"), true); // Sử dụng json_decode thay vì parse_str
         if (!isset($data['query_id'])) {
             jsonResponse(['error' => 'Thiếu query_id'], 400);
         }

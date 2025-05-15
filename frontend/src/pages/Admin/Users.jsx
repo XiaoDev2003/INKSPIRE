@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
+import axiosClient from '../../api/axiosClient';
 import { FaEdit, FaTrash, FaLock, FaUnlock, FaSearch, FaPlus, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 const Users = () => {
@@ -18,20 +19,25 @@ const Users = () => {
     last_name: '',
     status: 'active'
   });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    // Trong thực tế, sẽ gọi API để lấy danh sách người dùng
-    // Hiện tại sử dụng dữ liệu mẫu
-    const mockUsers = [
-      { user_id: 1, username: 'admin', email: 'admin@example.com', phone: '0123456789', role: 'admin', gender: 'male', first_name: 'Admin', last_name: 'User', status: 'active', created_at: '2023-01-01' },
-      { user_id: 2, username: 'creator1', email: 'creator1@example.com', phone: '0123456788', role: 'creator', gender: 'female', first_name: 'Creator', last_name: 'One', status: 'active', created_at: '2023-01-15' },
-      { user_id: 3, username: 'user1', email: 'user1@example.com', phone: '0123456787', role: 'user', gender: 'male', first_name: 'User', last_name: 'One', status: 'active', created_at: '2023-02-01' },
-      { user_id: 4, username: 'user2', email: 'user2@example.com', phone: '0123456786', role: 'user', gender: 'female', first_name: 'User', last_name: 'Two', status: 'banned', created_at: '2023-02-15' },
-      { user_id: 5, username: 'creator2', email: 'creator2@example.com', phone: '0123456785', role: 'creator', gender: 'male', first_name: 'Creator', last_name: 'Two', status: 'active', created_at: '2023-03-01' },
-    ];
+    const fetchUsers = async () => {
+      try {
+        console.log('Fetching users from /api/users');
+        const response = await axiosClient.get('/api/users');
+        console.log('Users response:', response.data);
+        setUsers(response.data);
+      } catch (err) {
+        console.error('Error fetching users:', err.response || err.message);
+        setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu người dùng.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setUsers(mockUsers);
-    setLoading(false);
+    fetchUsers();
   }, []);
 
   const handleSearch = (e) => {
@@ -41,7 +47,7 @@ const Users = () => {
   const filteredUsers = users.filter(user =>
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.phone.includes(searchTerm)
+    (user.phone && user.phone.includes(searchTerm))
   );
 
   const handleAddUser = () => {
@@ -57,6 +63,8 @@ const Users = () => {
       status: 'active'
     });
     setShowModal(true);
+    setError(null);
+    setSuccess(null);
   };
 
   const handleEditUser = (user) => {
@@ -72,23 +80,54 @@ const Users = () => {
       status: user.status
     });
     setShowModal(true);
+    setError(null);
+    setSuccess(null);
   };
 
-  const handleDeleteUser = (userId) => {
+  const handleDeleteUser = async (userId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-      // Trong thực tế, sẽ gọi API để xóa người dùng
-      setUsers(users.filter(user => user.user_id !== userId));
+      try {
+        console.log('Deleting user with ID:', userId);
+        const response = await axiosClient.delete('/api/users', {
+          data: { user_id: userId },
+        });
+        console.log('Delete response:', response.data);
+        setUsers(users.filter(user => user.user_id !== userId));
+        setSuccess('Xóa người dùng thành công!');
+      } catch (err) {
+        console.error('Error deleting user:', err.response?.data || err.message);
+        setError(err.response?.data?.error || 'Đã có lỗi khi xóa người dùng.');
+      }
     }
   };
 
-  const handleToggleStatus = (userId, currentStatus) => {
-    // Trong thực tế, sẽ gọi API để thay đổi trạng thái người dùng
-    setUsers(users.map(user => {
-      if (user.user_id === userId) {
-        return { ...user, status: currentStatus === 'active' ? 'banned' : 'active' };
-      }
-      return user;
-    }));
+  const handleToggleStatus = async (userId, currentStatus) => {
+    try {
+      console.log('Toggling status for user ID:', userId, 'Current status:', currentStatus);
+      const newStatus = currentStatus === 'active' ? 'banned' : 'active';
+      const response = await axiosClient.put('/api/users', {
+        user_id: userId,
+        username: users.find(u => u.user_id === userId).username,
+        email: users.find(u => u.user_id === userId).email,
+        phone: users.find(u => u.user_id === userId).phone,
+        role: users.find(u => u.user_id === userId).role,
+        gender: users.find(u => u.user_id === userId).gender,
+        first_name: users.find(u => u.user_id === userId).first_name,
+        last_name: users.find(u => u.user_id === userId).last_name,
+        status: newStatus
+      });
+      console.log('Status update response:', response.data);
+      setUsers(users.map(user => {
+        if (user.user_id === userId) {
+          return { ...user, status: newStatus };
+        }
+        return user;
+      }));
+      setSuccess('Cập nhật trạng thái thành công!');
+    } catch (err) {
+      console.error('Error updating status:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Đã có lỗi khi cập nhật trạng thái.');
+    }
   };
 
   const handleChange = (e) => {
@@ -96,28 +135,106 @@ const Users = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (currentUser) {
-      // Cập nhật người dùng hiện có
-      setUsers(users.map(user => {
-        if (user.user_id === currentUser.user_id) {
-          return { ...user, ...formData };
-        }
-        return user;
-      }));
-    } else {
-      // Thêm người dùng mới
-      const newUser = {
-        user_id: users.length + 1,
-        ...formData,
-        created_at: new Date().toISOString().split('T')[0]
+    try {
+      const payload = {
+        username: formData.username,
+        email: formData.email,
+        phone: formData.phone,
+        role: formData.role,
+        gender: formData.gender,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        status: formData.status
       };
-      setUsers([...users, newUser]);
-    }
+      console.log('Submitting user:', payload);
 
-    setShowModal(false);
+      if (currentUser) {
+        payload.user_id = currentUser.user_id;
+        const response = await axiosClient.put('/api/users', payload);
+        console.log('Update response:', response.data);
+        setUsers(users.map(user => 
+          user.user_id === currentUser.user_id ? { ...user, ...payload } : user
+        ));
+        setSuccess('Cập nhật người dùng thành công!');
+      } else {
+        const response = await axiosClient.post('/api/users', payload);
+        console.log('Create response:', response.data);
+        const newUser = { 
+          user_id: response.data.user_id || (users.length + 1), 
+          ...payload,
+          created_at: new Date().toISOString().split('T')[0]
+        };
+        setUsers([...users, newUser]);
+        setSuccess('Thêm người dùng thành công!');
+      }
+      setShowModal(false);
+    } catch (err) {
+      console.error('Error submitting user:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Đã có lỗi khi lưu người dùng.');
+    }
+  };
+
+  const getRoleBadgeClass = (role) => {
+    switch(role) {
+      case 'admin':
+        return 'bg-purple-100 text-purple-800';
+      case 'creator':
+        return 'bg-blue-100 text-blue-800';
+      case 'user':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch(status) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'banned':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getRoleText = (role) => {
+    switch(role) {
+      case 'admin':
+        return 'Quản trị viên';
+      case 'creator':
+        return 'Người sáng tạo';
+      case 'user':
+        return 'Người dùng';
+      default:
+        return role;
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch(status) {
+      case 'active':
+        return 'Hoạt động';
+      case 'banned':
+        return 'Bị khóa';
+      default:
+        return status;
+    }
+  };
+
+  const getGenderText = (gender) => {
+    switch(gender) {
+      case 'male':
+        return 'Nam';
+      case 'female':
+        return 'Nữ';
+      case 'other':
+        return 'Khác';
+      default:
+        return gender;
+    }
   };
 
   const [expandedUser, setExpandedUser] = useState(null);
@@ -141,6 +258,18 @@ const Users = () => {
           <FaPlus /> Thêm người dùng
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-green-600">{success}</p>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="mb-4 relative">
@@ -176,19 +305,11 @@ const Users = () => {
                       <div className="ml-4">
                         <h3 className="font-medium text-gray-900">{user.username}</h3>
                         <div className="flex items-center mt-1 space-x-2">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
-                            user.role === 'creator' ? 'bg-blue-100 text-blue-800' :
-                            'bg-green-100 text-green-800'
-                          }`}>
-                            {user.role === 'admin' ? 'Quản trị viên' :
-                             user.role === 'creator' ? 'Người sáng tạo' :
-                             'Người dùng'}
+                          <span className={`px-2 py-1 text-xs rounded-full ${getRoleBadgeClass(user.role)}`}>
+                            {getRoleText(user.role)}
                           </span>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                          }`}>
-                            {user.status === 'active' ? 'Hoạt động' : 'Bị khóa'}
+                          <span className={`px-2 py-1 text-xs rounded-full ${getStatusBadgeClass(user.status)}`}>
+                            {getStatusText(user.status)}
                           </span>
                         </div>
                       </div>
@@ -209,6 +330,7 @@ const Users = () => {
                           handleToggleStatus(user.user_id, user.status);
                         }}
                         className={`${user.status === 'active' ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} p-1`}
+                        title={user.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}
                       >
                         {user.status === 'active' ? <FaLock /> : <FaUnlock />}
                       </button>
@@ -231,13 +353,13 @@ const Users = () => {
                           <p className="text-sm font-medium text-gray-500">Thông tin cá nhân:</p>
                           <p className="text-gray-700">Họ tên: {user.first_name} {user.last_name}</p>
                           <p className="text-gray-700">Email: {user.email}</p>
-                          <p className="text-gray-700">Số điện thoại: {user.phone}</p>
-                          <p className="text-gray-700">Giới tính: {user.gender === 'male' ? 'Nam' : user.gender === 'female' ? 'Nữ' : 'Khác'}</p>
+                          <p className="text-gray-700">Số điện thoại: {user.phone || 'Không có'}</p>
+                          <p className="text-gray-700">Giới tính: {getGenderText(user.gender)}</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-500">Thông tin tài khoản:</p>
                           <p className="text-gray-700">ID: {user.user_id}</p>
-                          <p className="text-gray-700">Ngày tạo: {user.created_at}</p>
+                          <p className="text-gray-700">Ngày tạo: {new Date(user.created_at).toLocaleDateString('vi-VN')}</p>
                         </div>
                       </div>
                     </div>
@@ -253,12 +375,10 @@ const Users = () => {
       {showModal && (
         <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }}>
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center" onClick={() => setShowModal(false)}>
-            {/* Overlay sử dụng position thay vì z-index */}
             <div className="fixed inset-0 transition-opacity" aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            {/* Sử dụng flex để căn giữa nội dung modal và position relative để hiển thị trên overlay */}
             <form onSubmit={handleSubmit} className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8" style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">

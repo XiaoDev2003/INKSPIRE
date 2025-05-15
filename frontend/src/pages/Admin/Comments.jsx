@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
-import { FaTrash, FaSearch, FaEye, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
+import axiosClient from '../../api/axiosClient';
+import { FaTrash, FaSearch, FaEye, FaEdit } from 'react-icons/fa';
 
 const Comments = () => {
   const [comments, setComments] = useState([]);
@@ -10,20 +11,31 @@ const Comments = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [currentComment, setCurrentComment] = useState(null);
   const [editedComment, setEditedComment] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null); // Thêm thông báo thành công
 
   useEffect(() => {
-    // Trong thực tế, sẽ gọi API để lấy danh sách bình luận
-    // Hiện tại sử dụng dữ liệu mẫu
-    const mockComments = [
-      { comment_id: 1, user_id: 3, user_name: 'Nguyễn Văn A', item_id: 5, item_name: 'Thư pháp Việt', comment_content: 'Font chữ này rất đẹp và dễ sử dụng. Tôi đã dùng nó cho nhiều dự án của mình.', status: 'approved', created_at: '2023-05-15' },
-      { comment_id: 2, user_id: 5, user_name: 'Trần Thị B', item_id: 8, item_name: 'Chữ Thảo', comment_content: 'Tôi gặp một chút khó khăn khi sử dụng font này. Liệu có hướng dẫn chi tiết hơn không?', status: 'pending', created_at: '2023-05-20' },
-      { comment_id: 3, user_id: 8, user_name: 'Lê Văn C', item_id: 12, item_name: 'Triện thư', comment_content: 'Font chữ này rất phù hợp cho các dự án thiết kế cổ điển. Tôi rất hài lòng với chất lượng.', status: 'approved', created_at: '2023-06-01' },
-      { comment_id: 4, user_id: 12, user_name: 'Phạm Thị D', item_id: 15, item_name: 'Thư pháp hiện đại', comment_content: 'Tôi thấy font này không hiển thị đúng trên một số trình duyệt. Có thể kiểm tra lại không?', status: 'pending', created_at: '2023-06-10' },
-      { comment_id: 5, user_id: 15, user_name: 'Hoàng Văn E', item_id: 18, item_name: 'Lệ thư', comment_content: 'Đây là một trong những font chữ thư pháp đẹp nhất mà tôi từng sử dụng. Cảm ơn vì đã chia sẻ!', status: 'approved', created_at: '2023-06-15' },
-    ];
-    
-    setComments(mockComments);
-    setLoading(false);
+    const fetchComments = async () => {
+      try {
+        const response = await axiosClient.get('/api/comments');
+        const formattedComments = response.data.map(comment => ({
+          comment_id: comment.comment_id,
+          user_id: comment.user_id,
+          user_name: comment.username || 'Ẩn danh',
+          item_id: comment.item_id,
+          item_name: comment.item_name || 'Không xác định',
+          comment_content: comment.comment_content,
+          created_at: new Date(comment.created_at).toLocaleDateString('vi-VN'),
+        }));
+        setComments(formattedComments);
+      } catch (err) {
+        setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu bình luận.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComments();
   }, []);
 
   const handleSearch = (e) => {
@@ -36,10 +48,20 @@ const Comments = () => {
     comment.comment_content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDeleteComment = (commentId) => {
+  const handleDeleteComment = async (commentId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
-      // Trong thực tế, sẽ gọi API để xóa bình luận
-      setComments(comments.filter(comment => comment.comment_id !== commentId));
+      try {
+        console.log('Deleting comment with ID:', commentId); // Log debug
+        const response = await axiosClient.delete('/api/comments', {
+          data: { comment_id: commentId },
+        });
+        console.log('Delete response:', response.data);
+        setComments(comments.filter(comment => comment.comment_id !== commentId));
+        setSuccess('Xóa bình luận thành công!'); // Thông báo thành công
+      } catch (err) {
+        console.error('Error deleting comment:', err.response?.data || err.message);
+        setError(err.response?.data?.error || 'Đã có lỗi khi xóa bình luận.');
+      }
     }
   };
 
@@ -52,66 +74,38 @@ const Comments = () => {
     setCurrentComment(comment);
     setEditedComment(comment.comment_content);
     setShowModal(true);
+    setError(null); // Reset lỗi
+    setSuccess(null); // Reset thông báo thành công
   };
 
-  const handleSubmitEdit = (e) => {
+  const handleSubmitEdit = async (e) => {
     e.preventDefault();
-    
-    // Trong thực tế, sẽ gọi API để cập nhật bình luận
-    setComments(comments.map(comment => {
-      if (comment.comment_id === currentComment.comment_id) {
-        return { ...comment, comment_content: editedComment };
-      }
-      return comment;
-    }));
-    
+    try {
+      console.log('Updating comment with ID:', currentComment.comment_id, 'Content:', editedComment); // Log debug
+      const response = await axiosClient.put('/api/comments', { // Sửa endpoint, gửi comment_id trong body
+        comment_id: currentComment.comment_id,
+        comment_content: editedComment,
+      });
+      console.log('Update response:', response.data);
+      setComments(comments.map(comment => {
+        if (comment.comment_id === currentComment.comment_id) {
+          return { ...comment, comment_content: editedComment };
+        }
+        return comment;
+      }));
+      setSuccess('Cập nhật bình luận thành công!'); // Thông báo thành công
+      setShowModal(false);
+    } catch (err) {
+      console.error('Error updating comment:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Đã có lỗi khi cập nhật bình luận.');
+    }
+  };
+
+  const handleCloseModal = () => {
     setShowModal(false);
-  };
-
-  const handleApproveComment = (commentId) => {
-    // Trong thực tế, sẽ gọi API để cập nhật trạng thái
-    setComments(comments.map(comment => {
-      if (comment.comment_id === commentId) {
-        return { ...comment, status: 'approved' };
-      }
-      return comment;
-    }));
-  };
-
-  const handleRejectComment = (commentId) => {
-    // Trong thực tế, sẽ gọi API để cập nhật trạng thái
-    setComments(comments.map(comment => {
-      if (comment.comment_id === commentId) {
-        return { ...comment, status: 'rejected' };
-      }
-      return comment;
-    }));
-  };
-
-  const getStatusBadgeClass = (status) => {
-    switch(status) {
-      case 'approved':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'rejected':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch(status) {
-      case 'approved':
-        return 'Đã duyệt';
-      case 'pending':
-        return 'Chờ duyệt';
-      case 'rejected':
-        return 'Đã từ chối';
-      default:
-        return status;
-    }
+    setShowViewModal(false);
+    setError(null);
+    setSuccess(null);
   };
 
   return (
@@ -119,6 +113,18 @@ const Comments = () => {
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-amber-900">Quản lý bình luận</h1>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-red-600">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 text-center">
+          <p className="text-green-600">{success}</p>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="mb-4 relative">
@@ -156,9 +162,6 @@ const Comments = () => {
                     Ngày tạo
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Trạng thái
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Thao tác
                   </th>
                 </tr>
@@ -180,11 +183,6 @@ const Comments = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {comment.created_at}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(comment.status)}`}>
-                        {getStatusText(comment.status)}
-                      </span>
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
@@ -201,24 +199,6 @@ const Comments = () => {
                         >
                           <FaEdit />
                         </button>
-                        {comment.status === 'pending' && (
-                          <>
-                            <button
-                              onClick={() => handleApproveComment(comment.comment_id)}
-                              className="text-green-600 hover:text-green-900"
-                              title="Duyệt"
-                            >
-                              <FaCheck />
-                            </button>
-                            <button
-                              onClick={() => handleRejectComment(comment.comment_id)}
-                              className="text-red-600 hover:text-red-900"
-                              title="Từ chối"
-                            >
-                              <FaTimes />
-                            </button>
-                          </>
-                        )}
                         <button
                           onClick={() => handleDeleteComment(comment.comment_id)}
                           className="text-red-600 hover:text-red-900"
@@ -238,15 +218,17 @@ const Comments = () => {
 
       {/* Modal xem chi tiết bình luận */}
       {showViewModal && currentComment && (
-        <div className="fixed inset-0 z-10 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }} onClick={handleCloseModal}>
+          <div className="flex items-center justify-center min-h-screen px-4 py-4">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div
+              className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8"
+              style={{ position: 'relative', zIndex: 10 }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Chi tiết bình luận</h3>
                 <div className="space-y-4">
@@ -263,44 +245,12 @@ const Comments = () => {
                     <p className="mt-1">{currentComment.created_at}</p>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Trạng thái</h4>
-                    <p className="mt-1">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(currentComment.status)}`}>
-                        {getStatusText(currentComment.status)}
-                      </span>
-                    </p>
-                  </div>
-                  <div>
                     <h4 className="text-sm font-medium text-gray-500">Nội dung bình luận</h4>
                     <p className="mt-1 text-gray-800 whitespace-pre-line bg-gray-50 p-3 rounded-md">{currentComment.comment_content}</p>
                   </div>
                 </div>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                {currentComment.status === 'pending' && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleApproveComment(currentComment.comment_id);
-                        setShowViewModal(false);
-                      }}
-                      className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
-                    >
-                      Duyệt
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleRejectComment(currentComment.comment_id);
-                        setShowViewModal(false);
-                      }}
-                      className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
-                    >
-                      Từ chối
-                    </button>
-                  </>
-                )}
                 <button
                   type="button"
                   onClick={() => handleEditComment(currentComment)}
@@ -310,7 +260,7 @@ const Comments = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setShowViewModal(false)}
+                  onClick={handleCloseModal}
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   Đóng
@@ -323,15 +273,17 @@ const Comments = () => {
 
       {/* Modal chỉnh sửa bình luận */}
       {showModal && currentComment && (
-        <div className="fixed inset-0 z-10 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+        <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }} onClick={handleCloseModal}>
+          <div className="flex items-center justify-center min-h-screen px-4 py-4">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div
+              className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8"
+              style={{ position: 'relative', zIndex: 10 }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <form onSubmit={handleSubmitEdit}>
                 <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Chỉnh sửa bình luận</h3>
@@ -366,7 +318,7 @@ const Comments = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowModal(false)}
+                    onClick={handleCloseModal}
                     className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                   >
                     Hủy

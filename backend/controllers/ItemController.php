@@ -24,24 +24,27 @@ switch ($method) {
 
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
-        if (!isset($data['item_name'], $data['category_id'], $data['script_type'], $data['author_id'])) {
+        if (!isset($data['item_name'], $data['category_id'], $data['item_url'])) {
             jsonResponse(['error' => 'Thiếu thông tin bắt buộc'], 400);
         }
+        // Giả định lấy author_id từ session (thay bằng logic xác thực thực tế)
+        $data['author_id'] = $data['author_id'] ?? 1;
         $result = $itemModel->create($data);
-        jsonResponse($result ? ['message' => 'Thêm item thành công'] : ['error' => 'Thêm thất bại'], $result ? 200 : 500);
+        jsonResponse($result ? $result : ['error' => 'Thêm thất bại'], $result ? 201 : 500);
         break;
 
     case 'PUT':
-        parse_str(file_get_contents("php://input"), $data);
-        if (!isset($data['item_id'])) {
-            jsonResponse(['error' => 'Thiếu item_id'], 400);
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['item_id'], $data['item_name'], $data['item_url'])) {
+            jsonResponse(['error' => 'Thiếu thông tin cần thiết để cập nhật'], 400);
         }
+        $data['author_id'] = $data['author_id'] ?? 1;
         $result = $itemModel->update($data);
-        jsonResponse($result ? ['message' => 'Cập nhật thành công'] : ['error' => 'Cập nhật thất bại'], $result ? 200 : 500);
+        jsonResponse($result ? $result : ['error' => 'Cập nhật thất bại'], $result ? 200 : 500);
         break;
 
     case 'DELETE':
-        parse_str(file_get_contents("php://input"), $data);
+        $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['item_id'])) {
             jsonResponse(['error' => 'Thiếu item_id'], 400);
         }

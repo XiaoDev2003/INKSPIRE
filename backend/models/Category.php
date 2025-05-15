@@ -9,39 +9,49 @@ class Category {
     }
 
     public function getAll() {
-        $stmt = $this->conn->query("SELECT * FROM category ORDER BY created_at DESC");
+        $stmt = $this->conn->query("SELECT * FROM categories"); // Bỏ ORDER BY created_at DESC
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getById($id) {
-        $stmt = $this->conn->prepare("SELECT * FROM category WHERE category_id = :id");
+        $stmt = $this->conn->prepare("SELECT * FROM categories WHERE category_id = :id");
         $stmt->execute([':id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function create($data) {
-        $stmt = $this->conn->prepare("INSERT INTO category (category_name, category_description, category_origin, category_type) VALUES (:name, :desc, :origin, :type)");
+        $stmt = $this->conn->prepare("INSERT INTO categories (category_name, category_des, category_origin, category_type, status) VALUES (:name, :desc, :origin, :type, :status)");
         return $stmt->execute([
             ':name' => htmlspecialchars(strip_tags(trim($data['category_name']))),
-            ':desc' => htmlspecialchars(strip_tags(trim($data['category_description'] ?? ''))),
+            ':desc' => htmlspecialchars(strip_tags(trim($data['category_des'] ?? ''))),
             ':origin' => htmlspecialchars(strip_tags(trim($data['category_origin'] ?? ''))),
-            ':type' => $data['category_type']
+            ':type' => $data['category_type'],
+            ':status' => $data['status'] ?? 'draft'
         ]);
     }
 
     public function update($data) {
-        $stmt = $this->conn->prepare("UPDATE category SET category_name = :name, category_description = :desc, category_origin = :origin, category_type = :type WHERE category_id = :id");
+        $stmt = $this->conn->prepare("UPDATE categories SET category_name = :name, category_des = :desc, category_origin = :origin, category_type = :type, status = :status WHERE category_id = :id");
         return $stmt->execute([
             ':id' => $data['category_id'],
             ':name' => htmlspecialchars(strip_tags(trim($data['category_name'] ?? ''))),
-            ':desc' => htmlspecialchars(strip_tags(trim($data['category_description'] ?? ''))),
+            ':desc' => htmlspecialchars(strip_tags(trim($data['category_des'] ?? ''))),
             ':origin' => htmlspecialchars(strip_tags(trim($data['category_origin'] ?? ''))),
-            ':type' => $data['category_type']
+            ':type' => $data['category_type'],
+            ':status' => $data['status'] ?? 'draft'
         ]);
     }
 
     public function delete($id) {
-        $stmt = $this->conn->prepare("DELETE FROM category WHERE category_id = :id");
+        $stmt = $this->conn->prepare("DELETE FROM categories WHERE category_id = :id");
         return $stmt->execute([':id' => $id]);
+    }
+
+    public function updateStatus($id, $status) {
+        $stmt = $this->conn->prepare("UPDATE categories SET status = :status WHERE category_id = :id");
+        return $stmt->execute([
+            ':id' => $id,
+            ':status' => $status
+        ]);
     }
 }

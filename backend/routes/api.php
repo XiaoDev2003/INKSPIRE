@@ -11,6 +11,10 @@ switch (true) {
         require_once __DIR__ . '/../controllers/AuthController.php';
         (new AuthController())->login();
         break;
+        
+    case preg_match('/\/api\/users/', $request):
+        require_once __DIR__ . '/../controllers/UserController.php';
+        break;    
 
     case preg_match('/\/api\/categories/', $request):
         require_once __DIR__ . '/../controllers/CategoryController.php';
@@ -26,6 +30,10 @@ switch (true) {
 
     case preg_match('/\/api\/feedback/', $request):
         require_once __DIR__ . '/../controllers/FeedbackController.php';
+        break;
+        
+    case preg_match('/\/api\/comments/', $request):
+        require_once __DIR__ . '/../controllers/CommentsController.php';
         break;
 
     case preg_match('/\/api\/queries/', $request):
