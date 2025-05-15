@@ -1,7 +1,10 @@
 RewriteEngine On
-RewriteBase /INKSPIRE/backend/
+RewriteBase /Workspace/Project/Inkspire/backend/
 
 # Chuyển mọi request dạng /api/... về index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^api/ index.php [QSA,L]
+
+# Cho phép OPTIONS request cho CORS preflight
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

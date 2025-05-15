@@ -1,6 +1,7 @@
 <?php
 // 📁 backend/models/Auth.php
 
+
 class Auth {
     private $conn;
     private $lastError;
