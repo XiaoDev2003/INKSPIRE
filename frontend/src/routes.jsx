@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home'
-import Login from './pages/Auth/Login'
 import NotFound from './pages/Error/NotFound'
 import About from './pages/About';
 import FAQ from './pages/FAQ';
@@ -8,7 +7,6 @@ import React from 'react'
 import Gallery from './pages/Gallery';
 import Feedback from './pages/Feedback';
 import Calligraphy from './pages/Calligraphy';
-import Register from './pages/Auth/Register';
 import Category from './pages/Category';
 import Test from './pages/Test';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -39,9 +37,7 @@ const MainRouter = () => {
       <Route path='/category/:type' element={<Category />} />
       <Route path='/category/:type/:itemId' element={<Category />} />
 
-      {/* Auth Routers */}
-      <Route path='/auth/login' element={<Login />}/>
-      <Route path='/auth/register' element={<Register />}/>
+
 
       {/* Admin Routes - Được bảo vệ bởi ProtectedRoute */}
       <Route path='/admin' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

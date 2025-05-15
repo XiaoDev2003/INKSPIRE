@@ -15,28 +15,28 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [username, setUsername] = useState("");
-  
+
   // Kiểm tra thông tin đăng nhập từ localStorage khi component được tải
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     const storedLoginStatus = localStorage.getItem('isLoggedIn');
-    
+
     if (storedLoginStatus === 'true' && storedUsername) {
       setIsLoggedIn(true);
       setUsername(storedUsername);
     }
   }, []);
-  
+
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
     // Xóa thông tin đăng nhập khỏi localStorage
     localStorage.removeItem('username');
     localStorage.removeItem('isLoggedIn');
-    
+
     // Cập nhật state
     setIsLoggedIn(false);
     setUsername("");
-    
+
     // Tải lại trang sau khi đăng xuất
     window.location.reload();
   };
@@ -302,14 +302,14 @@ const Navbar = () => {
       </div>
 
       {/* Modal đăng nhập */}
-      <LoginModal 
-        isOpen={loginModalOpen} 
-        onClose={() => setLoginModalOpen(false)} 
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
         onLogin={(user) => {
           // Lưu thông tin đăng nhập vào localStorage
           localStorage.setItem('username', user);
           localStorage.setItem('isLoggedIn', 'true');
-          
+
           // Cập nhật state
           setUsername(user);
           setIsLoggedIn(true);

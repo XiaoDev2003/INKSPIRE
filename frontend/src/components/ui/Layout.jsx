@@ -61,7 +61,7 @@ const Container = ({
   );
 };
 
-// Section component: Bao ngoài phần nội dung
+
 const Section = ({
   children,
   py = 'py-12'
