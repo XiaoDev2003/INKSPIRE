@@ -19,3 +19,5 @@ npm install react-countup
 npm install prop-types
 
 npm install classnames
+
+npm install vite@latest @vitejs/plugin-react@latest

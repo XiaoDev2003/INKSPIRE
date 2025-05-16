@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <Section
       as="header"
-      className="flex h-24 items-center justify-center bg-amber-50 md:pr-20"
+      className="flex h-24 items-center justify-center bg-amber-50 md:pl-15"
     >
         <Link to="/">
           <img

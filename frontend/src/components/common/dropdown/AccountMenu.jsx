@@ -22,26 +22,30 @@ const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <div className="flex items-center gap-3">
-        {/* Lời chào và tên người dùng */}
-        <div className="hidden md:block text-amber-900 font-medium">
-          Xin chào, {username}
-        </div>
-        
-        {/* Avatar người dùng */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-center h-10 w-10 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors duration-200"
-          aria-expanded={isOpen}
-          aria-haspopup="true"
-        >
-          <FaUserCircle className="h-6 w-6" />
-        </button>
-      </div>
+      {/* Avatar người dùng */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-center h-10 w-10 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors duration-200"
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+      >
+        <FaUserCircle className="h-6 w-6" />
+      </button>
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+          {/* Logo + Tên người dùng */}
+          <div className="p-3 flex items-center gap-2">
+            <div className="flex items-center justify-center h-10 w-10 rounded-full bg-amber-100 text-amber-700">
+              <FaUserCircle className="h-6 w-6" />
+            </div>
+            <div className="text-amber-900 font-medium">{username}</div>
+          </div>
+          
+          {/* Thanh gạch ngang */}
+          <div className="border-t border-gray-200 my-1"></div>
+          
           <div className="py-1" role="menu" aria-orientation="vertical">
             <Link
               to="/profile"
