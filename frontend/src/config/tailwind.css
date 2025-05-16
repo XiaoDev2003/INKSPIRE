@@ -1,6 +1,6 @@
 
-@import "tailwindcss";
 @import "./fonts.css";
+@import "tailwindcss";
 
 @keyframes marquee {
   0% { transform: translateX(0); }
