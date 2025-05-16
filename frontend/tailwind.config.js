@@ -5,7 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        heading: ['Dancing Script', 'cursive'],
+        body: ['Be Vietnam Pro', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };

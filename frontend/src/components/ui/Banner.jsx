@@ -30,6 +30,7 @@ const Banner = ({
           weight="bold"
           color="text-amber-900"
           className="mx-auto max-w-2xl text-center"
+          isHeading={true}
         >
           {title}
         </Text>
