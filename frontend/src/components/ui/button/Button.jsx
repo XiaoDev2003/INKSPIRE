@@ -17,6 +17,7 @@ const Button = ({
   children,
   ...props
 }) => {
+  // Định nghĩa các biến thể màu sắc với cách tiếp cận nhất quán
   const variants = {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white',
     secondary: 'bg-transparent border border-amber-600 text-amber-600 hover:bg-amber-50',
@@ -27,23 +28,27 @@ const Button = ({
     default: 'bg-amber-600 hover:bg-amber-700 text-white',
   };
 
+  // Định nghĩa các kích thước
   const sizes = {
     sm: 'px-2 py-1 text-sm',
     md: 'px-4 py-2 text-base',
     lg: 'px-6 py-3 text-lg',
   };
 
+  // Xác định lớp hình dạng dựa trên props
   const shapeClass = isRound
     ? 'rounded-full flex items-center justify-center'
     : isSquare
       ? 'rounded-none flex items-center justify-center'
       : 'rounded-md';
 
+  // Xác định lớp kích thước
   const sizeClass = isRound
     ? 'w-12 h-12'
     : sizes[size] || sizes.md;
 
-  const baseClass = 'inline-flex font-medium transition-colors focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed';
+  // Lớp cơ bản cho tất cả các nút
+  const baseClass = 'inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-60 disabled:cursor-not-allowed';
   const colorClass = variants[variant] || variants.default;
 
   const buttonClass = clsx(
