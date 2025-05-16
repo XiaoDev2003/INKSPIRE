@@ -6,8 +6,8 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
-import AccountMenu from "../common/AccountMenu";
-import LoginModal from "../common/LoginModal";
+import AccountMenu from "../common/dropdown/AccountMenu";
+import { LoginModal } from "../common/common";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 // Dùng lại component Banner đã có sẵn
-import Banner from '../../../ui/Banner'; // hoặc '../components/Banner' tùy cấu trúc dự án
+import { Banner } from '../../../common/common'; // Import từ file common.js
 
 import AboutTeam from './AboutTeam';
 import AboutHistory from './AboutHistory';

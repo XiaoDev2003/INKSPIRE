@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Box, Container, Section } from "../ui/Layout"
+import { Box, Container, Section } from "../ui/ui"
 
 const Header = () => {
   return (

@@ -1,6 +1,6 @@
 import React from "react";
-import { Box, Container, Section } from "../components/ui/Layout";
-import Banner from "../components/ui/Banner";
+import { Box, Container, Section} from "../components/ui/ui";
+import { Banner } from '../components/common/common';
 
 const Test = () => {
   return (
