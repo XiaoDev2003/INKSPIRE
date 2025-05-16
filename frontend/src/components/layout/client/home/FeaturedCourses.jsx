@@ -47,7 +47,7 @@ const FeaturedCourses = () => {
       id: 1,
       title: "Thư pháp cơ bản",
       description: "Khóa học dành cho người mới bắt đầu, giúp bạn làm quen với nghệ thuật viết chữ thư pháp",
-      image: "https://images.unsplash.com/photo-1596611479435-f171e4e88e17?q=80&w=1974&auto=format&fit=crop",
+      image: "./pages/home/classic.png",
       level: "Cơ bản",
       duration: "4 tuần",
       link: "/courses/basic-calligraphy"
@@ -56,7 +56,7 @@ const FeaturedCourses = () => {
       id: 2,
       title: "Thư pháp chữ Hán",
       description: "Tìm hiểu về nghệ thuật viết chữ Hán truyền thống và các phong cách khác nhau",
-      image: "https://images.unsplash.com/photo-1617178388553-a9d22e36d849?q=80&w=1974&auto=format&fit=crop",
+      image: "./pages/home/china.png",
       level: "Trung cấp",
       duration: "6 tuần",
       link: "/courses/chinese-calligraphy"

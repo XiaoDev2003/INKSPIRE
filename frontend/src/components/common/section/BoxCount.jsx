@@ -1,5 +1,5 @@
-// src/components/BoxCount.jsx
-import React from 'react';
+// src/components/common/section/BoxCount.jsx
+import React, { useEffect, useState } from 'react';
 import CountUp from 'react-countup';
 import clsx from 'clsx';
 
@@ -11,6 +11,14 @@ import clsx from 'clsx';
  * @param {string} props.className - Các lớp CSS bổ sung
  */
 const BoxCount = ({ count, title, className = '' }) => {
+  // Sử dụng state để lưu giá trị hiển thị
+  const [displayCount, setDisplayCount] = useState(0);
+  
+  // Cập nhật giá trị hiển thị khi count thay đổi
+  useEffect(() => {
+    setDisplayCount(count);
+  }, [count]);
+  
   const boxClasses = clsx(
     'bg-gray-100 bg-opacity-60 p-6 rounded-lg shadow-md text-center mx-2 transition-all hover:shadow-lg hover:bg-opacity-80',
     className
@@ -20,7 +28,7 @@ const BoxCount = ({ count, title, className = '' }) => {
     <div className={boxClasses}>
       <CountUp
         start={0}
-        end={count}
+        end={displayCount}
         duration={2}
         separator=","
         decimals={0}

@@ -7,14 +7,14 @@ const galleryItems = [
     id: 1,
     title: "Chữ Phúc",
     artist: "Nguyễn Văn Minh",
-    image: "https://images.unsplash.com/photo-1581345628965-9a5d438b4f4b?q=80&w=1974&auto=format&fit=crop",
+    image: "./pages/home/phuc.png",
     category: "Thư pháp truyền thống"
   },
   {
     id: 2,
     title: "Tĩnh Tâm",
     artist: "Trần Thị Hương",
-    image: "https://images.unsplash.com/photo-1580087256394-dc596e1c8f0f?q=80&w=1974&auto=format&fit=crop",
+    image: "./pages/home/tinhtam.png",
     category: "Thư pháp hiện đại"
   },
   {
@@ -49,14 +49,14 @@ const galleryItems = [
 
 const GalleryItem = ({ item, onClick }) => {
   return (
-    <div 
+    <div
       className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md"
       onClick={() => onClick(item)}
     >
-      <img 
-        src={item.image} 
-        alt={item.title} 
-        className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110" 
+      <img
+        src={item.image}
+        alt={item.title}
+        className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
         <h3 className="text-white font-bold text-lg">{item.title}</h3>
@@ -89,20 +89,20 @@ const CalligraphyGallery = () => {
             Khám phá những tác phẩm thư pháp đẹp mắt từ các nghệ nhân tài năng trong cộng đồng của chúng tôi
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {galleryItems.map(item => (
-            <GalleryItem 
-              key={item.id} 
-              item={item} 
-              onClick={openModal} 
+            <GalleryItem
+              key={item.id}
+              item={item}
+              onClick={openModal}
             />
           ))}
         </div>
-        
+
         <div className="text-center mt-10">
-          <Link 
-            to="/gallery" 
+          <Link
+            to="/gallery"
             className="inline-flex items-center px-6 py-3 bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium rounded-md transition-colors duration-300"
           >
             Xem tất cả tác phẩm
@@ -118,12 +118,12 @@ const CalligraphyGallery = () => {
         <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-auto">
             <div className="relative">
-              <img 
-                src={selectedItem.image} 
-                alt={selectedItem.title} 
-                className="w-full h-auto max-h-[60vh] object-contain" 
+              <img
+                src={selectedItem.image}
+                alt={selectedItem.title}
+                className="w-full h-auto max-h-[60vh] object-contain"
               />
-              <button 
+              <button
                 onClick={closeModal}
                 className="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-70 transition-colors"
                 aria-label="Close modal"
@@ -133,19 +133,19 @@ const CalligraphyGallery = () => {
                 </svg>
               </button>
             </div>
-            
+
             <div className="p-6">
               <h3 className="text-2xl font-bold text-gray-800 mb-2">{selectedItem.title}</h3>
               <p className="text-gray-600 mb-1">Nghệ nhân: {selectedItem.artist}</p>
               <p className="text-amber-600 text-sm mb-4">Thể loại: {selectedItem.category}</p>
-              
+
               <p className="text-gray-700 mb-4">
-                Tác phẩm thư pháp này thể hiện sự kết hợp hài hòa giữa nét bút truyền thống và cảm xúc hiện đại. 
+                Tác phẩm thư pháp này thể hiện sự kết hợp hài hòa giữa nét bút truyền thống và cảm xúc hiện đại.
                 Mỗi nét chữ đều được thể hiện với sự tỉ mỉ và tâm huyết của nghệ nhân.
               </p>
-              
+
               <div className="flex justify-end">
-                <button 
+                <button
                   onClick={closeModal}
                   className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition-colors"
                 >

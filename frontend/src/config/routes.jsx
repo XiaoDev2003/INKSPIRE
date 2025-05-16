@@ -9,7 +9,6 @@ import Gallery from '../pages/Gallery';
 import Feedback from '../pages/Feedback';
 import Calligraphy from '../pages/Calligraphy';
 import Category from '../pages/Category';
-import Test from '../pages/Test';
 import { ProtectedRoute } from '../components/common/common';
 
 // Admin pages
@@ -51,7 +50,6 @@ const MainRouter = () => {
       <Route path='/admin/faq' element={<ProtectedRoute><AdminFAQ /></ProtectedRoute>} />
       <Route path='/admin/statistics' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-      <Route path='/test' element={<Test />}/>
       {/* Trang chức năng đang phát triển */}
       <Route path='/under-development' element={<UnderDevelopment />} />
       {/* 404 route */}

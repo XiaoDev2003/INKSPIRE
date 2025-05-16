@@ -6,20 +6,30 @@ import FeaturedCourses from "../components/layout/client/home/FeaturedCourses";
 import TestimonialSlider from "../components/layout/client/home/TestimonialSlider";
 import CalligraphyGallery from "../components/layout/client/home/CalligraphyGallery";
 
+
 function Home() {
   const [viewCount, setViewCount] = React.useState(0);
 
-  // Tính lượt truy cập từ LocalStorage
+  // Tính lượt truy cập từ LocalStorage và kiểm tra phiên truy cập
   useEffect(() => {
+    // Kiểm tra xem người dùng đã có phiên truy cập chưa
+    const hasSession = sessionStorage.getItem("hasVisited");
+
+    // Lấy số lượt truy cập hiện tại từ localStorage
     const storedCount = localStorage.getItem("pageViews");
     const count = storedCount ? parseInt(storedCount, 10) : 0;
 
-    if (!storedCount || isNaN(count)) {
-      localStorage.setItem("pageViews", "1");
-      setViewCount(1);
+    if (!hasSession) {
+      // Nếu chưa có phiên truy cập, tăng số lượt truy cập
+      const newCount = count + 1;
+      localStorage.setItem("pageViews", String(newCount));
+      setViewCount(newCount);
+
+      // Đánh dấu đã có phiên truy cập
+      sessionStorage.setItem("hasVisited", "true");
     } else {
-      setViewCount(count + 1); // Tăng lên mỗi lần truy cập
-      localStorage.setItem("pageViews", String(count + 1));
+      // Nếu đã có phiên truy cập, chỉ hiển thị số lượt truy cập hiện tại
+      setViewCount(count);
     }
   }, []);
 
@@ -39,29 +49,29 @@ function Home() {
       </Section>
 
       {/* Phần mới: AccordionItem */}
-      <div className="container mx-auto mt-8 max-w-screen-lg px-4 md:px-6">
+      <Section py={8} px={4} className="mx-auto max-w-screen-lg md:px-6">
         <AccordionItem
           title="Nguồn gốc thư pháp"
-          imageSrc="/images/calligraphy-origin.jpg"
+          imageSrc="./pages/home/acor.png"
           content="Thư pháp bắt nguồn từ Trung Quốc cổ đại, phát triển qua nhiều triều đại..."
           link="/calligraphy/history"
         />
         <AccordionItem
           title="Lịch sử thư pháp"
-          imageSrc="/images/calligraphy-history.jpg"
+          imageSrc="./pages/home/acor.png"
           content="Thư pháp Việt Nam chịu ảnh hưởng sâu sắc từ thư pháp Trung Hoa..."
           link="/calligraphy/vietnamese-history"
         />
         <AccordionItem
           title="Các loại bút lông"
-          imageSrc="/images/calligraphy-brushes.jpg"
+          imageSrc="./pages/home/acor.png"
           content="Bút lông là công cụ quan trọng nhất trong thư pháp..."
           link="/calligraphy/brushes"
         />
-      </div>
+      </Section>
 
       {/* Khóa học nổi bật */}
-      <FeaturedCourses />
+      <FeaturedCourses/>
 
       {/* Đánh giá từ người học */}
       <TestimonialSlider />

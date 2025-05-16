@@ -1,4 +1,3 @@
-// src/components/ui/Image/Image.jsx
 import React from 'react';
 
 const Image = ({ src, alt, ratio = '16/9', className = '' }) => {

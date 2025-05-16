@@ -13,6 +13,9 @@ import FormModal from './modals/FormModal';
 import LoginModal from './modals/LoginModal';
 import RegisterModal from './modals/RegisterModal';
 
+// Popups
+import VisitorPopup from './popup/VisitorPopup';
+
 export {
   Banner,
   BoxCount,
@@ -22,7 +25,8 @@ export {
   ConfirmModal,
   FormModal,
   LoginModal,
-  RegisterModal
+  RegisterModal,
+  VisitorPopup
 };
 
 // Export mặc định tất cả các components
@@ -35,5 +39,6 @@ export default {
   ConfirmModal,
   FormModal,
   LoginModal,
-  RegisterModal
+  RegisterModal,
+  VisitorPopup
 };
