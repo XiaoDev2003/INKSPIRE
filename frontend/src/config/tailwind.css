@@ -1,6 +1,14 @@
 
+@import "./fonts.css";
 @import "tailwindcss";
 
+/* Biến CSS cho animation */
+:root {
+  --marquee-duration: 20s;
+  --fade-duration: 2s;
+}
+
+/* Animation cho chữ chạy */
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -9,10 +17,11 @@
 .animate-marquee {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee 20s linear infinite;
+  animation: marquee var(--marquee-duration) linear infinite;
+  will-change: transform; /* Tối ưu hiệu suất animation */
 }
 
-/* Custom animations */
+/* Animation hiệu ứng fade */
 @keyframes fadeInOut {
   0% { opacity: 0; }
   10% { opacity: 1; }
@@ -21,5 +30,6 @@
 }
 
 .animate-fade-in-out {
-  animation: fadeInOut 2s ease-in-out;
+  animation: fadeInOut var(--fade-duration) ease-in-out;
+  will-change: opacity; /* Tối ưu hiệu suất animation */
 }

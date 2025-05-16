@@ -1,6 +1,6 @@
 // src/pages/FAQ.jsx
 import React, { useState, useEffect } from 'react';
-import Banner from '../components/ui/Banner';
+import { Banner } from '../components/common/common';
 import FAQCategories from '../components/layout/client/faq/FAQCategories';
 import FAQSearch from '../components/layout/client/faq/FAQSearch';
 import FAQAccordion from '../components/layout/client/faq/FAQAccordion';

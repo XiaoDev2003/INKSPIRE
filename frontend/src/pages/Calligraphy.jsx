@@ -1,6 +1,6 @@
 // src/pages/Calligraphy.jsx
 import React, { useState, useEffect, useRef } from "react";
-import Banner from "../components/ui/Banner";
+import { Banner } from '../components/common/common';
 import CalligraphyTypes from "../components/layout/client/calligraphy/CalligraphyTypes";
 import CalligraphyTools from "../components/layout/client/calligraphy/CalligraphyTools";
 import CalligraphyTechniques from "../components/layout/client/calligraphy/CalligraphyTechniques";
@@ -78,7 +78,7 @@ const Calligraphy = () => {
         {/* Carousel section */}
         <div className="py-12">
           <h2 className="text-3xl font-bold text-center text-amber-900 mb-8">Khám phá các phong cách thư pháp</h2>
-          
+
           {/* Carousel controls */}
           <div className="mb-8 flex justify-center">
             <button
@@ -96,8 +96,8 @@ const Calligraphy = () => {
           </div>
 
           {/* Carousel content */}
-          <div 
-            className="relative overflow-hidden rounded-lg shadow-lg" 
+          <div
+            className="relative overflow-hidden rounded-lg shadow-lg"
             ref={carouselRef}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -128,7 +128,7 @@ const Calligraphy = () => {
                 </div>
               ))}
             </div>
-            
+
             {/* Carousel indicators */}
             <div className="absolute bottom-4 left-0 right-0">
               <div className="flex justify-center space-x-2">
@@ -144,7 +144,7 @@ const Calligraphy = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Integrate new components */}
         <CalligraphyCategory />
         <CalligraphyTypes types={calligraphyTypes} />

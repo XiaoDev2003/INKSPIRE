@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import GalleryFilter from "../components/layout/client/gallery/GalleryFilter";
 import GalleryMasonry from "../components/layout/client/gallery/GalleryMasonry";
 import GalleryUpload from "../components/layout/client/gallery/GalleryUpload";
-import Banner from "../components/ui/Banner";
+import { Banner } from '../components/common/common';
 
 const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState("all");

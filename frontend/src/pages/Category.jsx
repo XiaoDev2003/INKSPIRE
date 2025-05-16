@@ -1,8 +1,9 @@
 // src/pages/Category.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import Banner from '../components/ui/Banner';
-import Card from '../components/common/Card';
+import { Card } from '../components/ui/ui';
+import { Banner } from '../components/common/common';
+
 
 const Category = () => {
   // State cho việc hiển thị/ẩn bộ lọc

@@ -6,8 +6,8 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
-import AccountMenu from "../common/AccountMenu";
-import LoginModal from "../common/LoginModal";
+import AccountMenu from "../common/dropdown/AccountMenu";
+import { LoginModal } from "../common/common";
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -15,28 +15,28 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [username, setUsername] = useState("");
-  
+
   // Kiểm tra thông tin đăng nhập từ localStorage khi component được tải
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     const storedLoginStatus = localStorage.getItem('isLoggedIn');
-    
+
     if (storedLoginStatus === 'true' && storedUsername) {
       setIsLoggedIn(true);
       setUsername(storedUsername);
     }
   }, []);
-  
+
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
     // Xóa thông tin đăng nhập khỏi localStorage
     localStorage.removeItem('username');
     localStorage.removeItem('isLoggedIn');
-    
+
     // Cập nhật state
     setIsLoggedIn(false);
     setUsername("");
-    
+
     // Tải lại trang sau khi đăng xuất
     window.location.reload();
   };
@@ -59,7 +59,7 @@ const Navbar = () => {
           </div>
 
           {/* Center Menu with Home Icon in middle */}
-          <ul className="flex items-center space-x-1 rounded-full bg-amber-50 px-4 py-2 shadow-sm">
+          <ul className="flex items-center space-x-2 rounded-full bg-amber-50 px-6 py-2 shadow-sm">
 
             {/* Dropdown Thư pháp */}
             <li className="group relative">
@@ -109,12 +109,12 @@ const Navbar = () => {
             <li>
               <Link
                 to="/"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-amber-700 transition-colors duration-200 hover:bg-amber-200"
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-amber-700 transition-colors duration-200 hover:bg-amber-200"
                 aria-label="Trang chủ"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
+                  className="h-6 w-6"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -302,14 +302,14 @@ const Navbar = () => {
       </div>
 
       {/* Modal đăng nhập */}
-      <LoginModal 
-        isOpen={loginModalOpen} 
-        onClose={() => setLoginModalOpen(false)} 
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
         onLogin={(user) => {
           // Lưu thông tin đăng nhập vào localStorage
           localStorage.setItem('username', user);
           localStorage.setItem('isLoggedIn', 'true');
-          
+
           // Cập nhật state
           setUsername(user);
           setIsLoggedIn(true);

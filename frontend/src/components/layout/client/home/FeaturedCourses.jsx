@@ -1,33 +1,33 @@
 // src/components/layout/client/calligraphy/FeaturedCourses.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Card from '../../../common/Card';
+import { Card } from '../../../ui/ui';
 
 const CourseCard = ({ title, description, image, level, duration, link }) => {
   return (
     <Card className="h-full transition-transform duration-300 hover:shadow-lg hover:-translate-y-1">
       <div className="relative overflow-hidden rounded-lg mb-4 h-48">
-        <img 
-          src={image} 
-          alt={title} 
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" 
+        <img
+          src={image}
+          alt={title}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
         />
         <div className="absolute top-2 right-2 bg-amber-100 text-amber-800 text-xs font-medium px-2 py-1 rounded">
           {level}
         </div>
       </div>
-      
+
       <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
-      
+
       <p className="text-gray-600 text-sm mb-4 line-clamp-2">{description}</p>
-      
+
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-500">
           <i className="fa-regular fa-clock mr-1"></i> {duration}
         </span>
-        
-        <Link 
-          to={link} 
+
+        <Link
+          to={link}
           className="text-amber-600 hover:text-amber-800 font-medium text-sm inline-flex items-center"
         >
           Xem chi tiết
@@ -81,10 +81,10 @@ const FeaturedCourses = () => {
             Khám phá các khóa học thư pháp được thiết kế cho mọi trình độ, từ người mới bắt đầu đến những người đã có kinh nghiệm
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map(course => (
-            <CourseCard 
+            <CourseCard
               key={course.id}
               title={course.title}
               description={course.description}
@@ -95,10 +95,10 @@ const FeaturedCourses = () => {
             />
           ))}
         </div>
-        
+
         <div className="text-center mt-10">
-          <Link 
-            to="/courses" 
+          <Link
+            to="/courses"
             className="inline-flex items-center px-6 py-3 bg-amber-100 hover:bg-amber-200 text-amber-800 font-medium rounded-md transition-colors duration-300"
           >
             Xem tất cả khóa học
