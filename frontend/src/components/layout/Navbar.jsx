@@ -42,7 +42,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-2">
         {/* Desktop navbar */}
         <div className="hidden h-16 items-center justify-between md:flex">

@@ -284,7 +284,7 @@ const Category = () => {
         return {
           title: "Thư pháp truyền thống",
           subtitle: "Nghệ thuật viết chữ truyền thống với bút lông và mực Tàu, thể hiện vẻ đẹp của văn hóa Á Đông",
-          imageSrc: "./banner/traditional.png"
+          imageSrc: "/banner/traditional.png"
         };
       case 'modern':
         return {

@@ -1,8 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaUser, FaSignOutAlt, FaUserCircle, FaExchangeAlt } from 'react-icons/fa';
+import { FaUser, FaSignOutAlt, FaUserCircle, FaExchangeAlt, FaUserCog } from 'react-icons/fa';
 
 const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Kiểm tra xem người dùng có phải là admin không
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (userData && userData.role === 'admin') {
+      setIsAdmin(true);
+    }
+  }, []);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -66,6 +75,18 @@ const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
               <FaExchangeAlt className="h-4 w-4" />
               <span>Đổi tài khoản</span>
             </Link>
+            
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-amber-900 hover:bg-amber-100"
+                role="menuitem"
+                onClick={() => setIsOpen(false)}
+              >
+                <FaUserCog className="h-4 w-4" />
+                <span>Trang quản trị</span>
+              </Link>
+            )}
             
             <button
               className="flex w-full items-center gap-2 px-4 py-2 text-sm text-amber-900 hover:bg-amber-100 text-left"
