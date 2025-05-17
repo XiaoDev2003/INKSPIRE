@@ -9,6 +9,7 @@ import Gallery from '../pages/Gallery';
 import Feedback from '../pages/Feedback';
 import Calligraphy from '../pages/Calligraphy';
 import Category from '../pages/Category';
+import Profile from '../pages/Profile';
 import { ProtectedRoute } from '../components/common/common';
 
 // Admin pages
@@ -32,6 +33,7 @@ const MainRouter = () => {
       <Route path='/calligraphy' element={<Calligraphy />} />
       <Route path='/feedbackandquestion' element={<FAQ />} />
       <Route path='/feedback' element={<Feedback />} />
+      <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
       {/* Calligraphy Routers */}
       <Route path='/category/:type' element={<Category />} />

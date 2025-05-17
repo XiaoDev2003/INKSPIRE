@@ -1,4 +1,4 @@
-// ui/ui.jsx
+// ui/scroll/Marquee.jsx
 import React, { useRef, useEffect, useState } from "react";
 
 /**
@@ -9,7 +9,7 @@ import React, { useRef, useEffect, useState } from "react";
  * @param {number} props.gap - Khoảng cách giữa các lần lặp lại (px, default: 50)
  * @param {boolean} props.pauseOnHover - Dừng khi hover (default: true)
  */
-export const Marquee = ({ children, speed = 50, gap = 50, pauseOnHover = true }) => {
+const Marquee = ({ children, speed = 50, gap = 50, pauseOnHover = true }) => {
   const marqueeRef = useRef(null);
   const [animationDuration, setAnimationDuration] = useState(0);
   const [isPaused, setIsPaused] = useState(false);

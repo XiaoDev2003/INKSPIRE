@@ -9,6 +9,7 @@ import Grid from './layout/Grid';
 import Section from './layout/Section';
 import Image from './section/Image';
 import Modal from './section/Modal';
+import TabNav from './section/TabNav';
 import Flex from './layout/Flex';
 import Text from './text/Text';
 import Marquee from './scroll/Marquee';
@@ -24,7 +25,8 @@ export {
   Modal,
   Flex,
   Text,
-  Marquee
+  Marquee,
+  TabNav
 };
 
 // Export mặc định tất cả các components
@@ -39,5 +41,6 @@ export default {
   Modal,
   Flex,
   Text,
-  Marquee
+  Marquee,
+  TabNav
 };

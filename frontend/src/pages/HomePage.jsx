@@ -36,60 +36,55 @@ function Home() {
   return (
     <>
       {/* Banner */}
-      <Section py="0" className="md:py-12">
-        <Container className="container">
-          <Banner
-            title="Bút lông cổ điển"
-            subtitle="Hiểu hơn về công cụ truyền thống"
-            ctaText="Tìm hiểu thêm"
-            ctaLink="/brushes"
-            imageSrc="./banner/home.png"
+        <Section py="0" className="md:py-12">
+          <Container className="container">
+            <Banner
+              title="Bút lông cổ điển"
+              subtitle="Hiểu hơn về công cụ truyền thống"
+              ctaText="Tìm hiểu thêm"
+              ctaLink="/brushes"
+              imageSrc="./banner/home.png"
+            />
+          </Container>
+        </Section>
+        {/* Phần mới: AccordionItem */}
+        <Section py={8} px={4} className="mx-auto max-w-screen-lg md:px-6">
+          <AccordionItem
+            title="Nguồn gốc thư pháp"
+            imageSrc="./pages/home/acor.png"
+            content="Thư pháp bắt nguồn từ Trung Quốc cổ đại, phát triển qua nhiều triều đại..."
+            link="/calligraphy/history"
           />
-        </Container>
-      </Section>
-
-      {/* Phần mới: AccordionItem */}
-      <Section py={8} px={4} className="mx-auto max-w-screen-lg md:px-6">
-        <AccordionItem
-          title="Nguồn gốc thư pháp"
-          imageSrc="./pages/home/acor.png"
-          content="Thư pháp bắt nguồn từ Trung Quốc cổ đại, phát triển qua nhiều triều đại..."
-          link="/calligraphy/history"
-        />
-        <AccordionItem
-          title="Lịch sử thư pháp"
-          imageSrc="./pages/home/acor.png"
-          content="Thư pháp Việt Nam chịu ảnh hưởng sâu sắc từ thư pháp Trung Hoa..."
-          link="/calligraphy/vietnamese-history"
-        />
-        <AccordionItem
-          title="Các loại bút lông"
-          imageSrc="./pages/home/acor.png"
-          content="Bút lông là công cụ quan trọng nhất trong thư pháp..."
-          link="/calligraphy/brushes"
-        />
-      </Section>
-
-      {/* Khóa học nổi bật */}
-      <FeaturedCourses/>
-
-      {/* Đánh giá từ người học */}
-      <TestimonialSlider />
-
-      {/* Bộ sưu tập tác phẩm */}
-      <CalligraphyGallery />
-
-      {/* Phần mới: Thống kê - bao ngoài là container to hơn, có padding và nền xám */}
-      <div className="w-full rounded-lg bg-gray-50 px-4 py-10 shadow-inner sm:px-6 md:px-8">
-        <div className="container mx-auto max-w-screen-xl">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-            <BoxCount count={50} title="Font Chữ" />
-            <BoxCount count={150} title="Nghệ Nhân" />
-            <BoxCount count={1520} title="Tương Tác" />
-            <BoxCount count={viewCount} title="Truy Cập" />
+          <AccordionItem
+            title="Lịch sử thư pháp"
+            imageSrc="./pages/home/acor.png"
+            content="Thư pháp Việt Nam chịu ảnh hưởng sâu sắc từ thư pháp Trung Hoa..."
+            link="/calligraphy/vietnamese-history"
+          />
+          <AccordionItem
+            title="Các loại bút lông"
+            imageSrc="./pages/home/acor.png"
+            content="Bút lông là công cụ quan trọng nhất trong thư pháp..."
+            link="/calligraphy/brushes"
+          />
+        </Section>
+        {/* Khóa học nổi bật */}
+        <FeaturedCourses/>
+        {/* Đánh giá từ người học */}
+        <TestimonialSlider />
+        {/* Bộ sưu tập tác phẩm */}
+        <CalligraphyGallery />
+        {/* Phần mới: Thống kê - bao ngoài là container to hơn, có padding và nền xám */}
+        <div className="w-full rounded-lg bg-gray-50 px-4 py-10 shadow-inner sm:px-6 md:px-8">
+          <div className="container mx-auto max-w-screen-xl">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+              <BoxCount count={50} title="Font Chữ" />
+              <BoxCount count={150} title="Nghệ Nhân" />
+              <BoxCount count={1520} title="Tương Tác" />
+              <BoxCount count={viewCount} title="Truy Cập" />
+            </div>
           </div>
         </div>
-      </div>
     </>
   );
 }

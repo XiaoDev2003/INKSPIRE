@@ -4,31 +4,38 @@ import { Text } from '../../../ui/ui';
 const AboutTeam = () => {
   const teamMembers = [
     {
-      name: 'Nguyễn Văn A',
+      name: 'NGUYỄN DUY QUÂN',
       role: 'Sáng lập & Giám đốc',
       bio: 'Chuyên gia thư pháp với hơn 15 năm kinh nghiệm, tốt nghiệp Đại học Mỹ thuật Hà Nội',
-      avatar: '/images/team/member1.jpg',
+      avatar: '/pages/about/user.png',
       placeholder: 'bg-amber-200'
     },
     {
-      name: 'Trần Thị B',
+      name: 'VŨ HOÀI NAM',
       role: 'Trưởng bộ phận Nội dung',
       bio: 'Nhà nghiên cứu văn hóa và lịch sử thư pháp, tác giả của nhiều bài viết chuyên sâu',
-      avatar: '/images/team/member2.jpg',
+      avatar: '/pages/about/user.png',
       placeholder: 'bg-amber-300'
     },
     {
-      name: 'Lê Văn C',
+      name: 'NGUYỄN THÀNH VINH',
       role: 'Giảng viên cao cấp',
       bio: 'Nghệ nhân thư pháp trẻ với nhiều giải thưởng quốc gia và quốc tế',
-      avatar: '/images/team/member3.jpg',
+      avatar: '/pages/about/member3.jpg',
       placeholder: 'bg-amber-400'
     },
     {
-      name: 'Phạm Thị D',
+      name: 'ĐỖ THÀNH TRUNG',
       role: 'Quản lý cộng đồng',
       bio: 'Chuyên gia truyền thông với đam mê kết nối những người yêu thích thư pháp',
-      avatar: '/images/team/member4.jpg',
+      avatar: '/pages/about/member4.jpg',
+      placeholder: 'bg-amber-200'
+    },
+    {
+      name: 'BÙI ĐĂNG TUẤN',
+      role: 'Quản lý cộng đồng',
+      bio: 'Chuyên gia truyền thông với đam mê kết nối những người yêu thích thư pháp',
+      avatar: '/pages/about/member4.jpg',
       placeholder: 'bg-amber-200'
     },
   ];
@@ -53,13 +60,17 @@ const AboutTeam = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {teamMembers.map((member, index) => (
-          <div key={index} className="flex bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div key={index} className="flex bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
             <div className={`w-1/3 ${member.placeholder} flex items-center justify-center`}>
               {member.avatar ? (
                 <img
                   src={member.avatar}
                   alt={member.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/pages/about/user.png';
+                  }}
                 />
               ) : (
                 <div className="text-4xl text-amber-600">

@@ -1,4 +1,3 @@
-// Footer.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -60,12 +59,20 @@ const Footer = () => {
           const { latitude, longitude } = position.coords;
           try {
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat= ${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
             );
             const data = await response.json();
-            setUserLocation(
-              data.display_name || "Không xác định được địa điểm",
-            );
+
+            let displayName = data.display_name || "Không xác định được địa điểm";
+
+            // Loại bỏ các phần chứa số ở cuối như ", 12910"
+            const cleanedLocation = displayName
+              .split(",")
+              .filter((part) => !/\d/.test(part.trim()))
+              .join(", ")
+              .trim();
+
+            setUserLocation(cleanedLocation);
           } catch (error) {
             console.error("Lỗi geocoding:", error);
             setUserLocation("Không thể lấy tên địa điểm");
@@ -99,9 +106,9 @@ const Footer = () => {
     return date.toLocaleDateString("vi-VN", options);
   };
 
-  // Format thời gian (không hiển thị giây)
+  // Format thời gian
   const formatTime = (date) => {
-    return date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString("vi-VN");
   };
 
   // Yêu cầu cấp quyền vị trí lại
@@ -112,10 +119,19 @@ const Footer = () => {
         const { latitude, longitude } = position.coords;
         try {
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat= ${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
           );
           const data = await response.json();
-          setUserLocation(data.display_name || "Không xác định được địa điểm");
+
+          let displayName = data.display_name || "Không xác định được địa điểm";
+
+          const cleanedLocation = displayName
+            .split(",")
+            .filter((part) => !/\d/.test(part.trim()))
+            .join(", ")
+            .trim();
+
+          setUserLocation(cleanedLocation);
         } catch (error) {
           console.error("Lỗi geocoding:", error);
           setUserLocation("Không thể lấy tên địa điểm");
@@ -150,8 +166,7 @@ const Footer = () => {
               className="mb-4 w-32 object-contain drop-shadow-lg"
             />
             <p className="mb-6 text-sm leading-relaxed tracking-wide text-indigo-200 italic">
-              Nơi lưu giữ và phát triển nghệ thuật thư pháp truyền thống với
-              trái tim yêu cái đẹp.
+              Nơi lưu giữ và phát triển nghệ thuật thư pháp truyền thống với trái tim yêu cái đẹp.
             </p>
             <div className="flex space-x-4">
               <a
@@ -218,22 +233,22 @@ const Footer = () => {
         {/* Hiển thị thời gian và vị trí - Marquee hiệu ứng cuộn */}
         <div className="mt-12 overflow-hidden border-t border-indigo-900 pt-6">
           <div className="text-sm text-amber-300 italic">
-            <Marquee speed={80} gap={80} pauseOnHover={true}>
-              <span className="inline-flex items-center gap-8">
-                {/* Ngày tháng luôn hiển thị */}
-                <span className="flex items-center whitespace-nowrap">
+            <Marquee speed={80} pauseOnHover={true}>
+              <span className="mr-12 inline-flex items-center gap-6 sm:gap-4 md:gap-6">
+                {/* Ngày tháng chỉ hiển thị từ sm trở lên */}
+                <span className="hidden items-center sm:flex">
                   <FaCalendarAlt className="mr-2" />
                   <span>{formatDate(currentTime)}</span>
                 </span>
 
-                {/* Đồng hồ không hiển thị giây */}
-                <span className="flex items-center whitespace-nowrap">
+                {/* Đồng hồ luôn hiện */}
+                <span className="flex items-center">
                   <FaClock className="mr-2" />
                   <span>{formatTime(currentTime)}</span>
                 </span>
 
                 {/* Địa điểm luôn hiện */}
-                <span className="flex items-center whitespace-nowrap">
+                <span className="flex items-center">
                   <FaMapMarkedAlt className="mr-2" />
                   <span>{userLocation}</span>
                 </span>

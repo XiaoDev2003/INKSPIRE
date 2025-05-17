@@ -27,7 +27,7 @@ const Gallery = () => {
       technique: "Bút lông trên giấy dó",
     },
     {
-      src: "/images/gallery/candle-and-pen.jpg",
+      src: "/pages/gallery/candle.png",
       alt: "You're the One",
       description: 'Một bức thư pháp với dòng chữ "You\'re the One".',
       category: "modern",
@@ -36,7 +36,7 @@ const Gallery = () => {
       technique: "Mực tàu trên giấy thủ công",
     },
     {
-      src: "/images/gallery/dream-bigger.jpg",
+      src: "/pages/gallery/candle.png",
       alt: "Let Your Dream Be Bigger Than Your Fears",
       description:
         'Bức thư pháp truyền cảm hứng với câu nói "Let Your Dream Be Bigger Than Your Fears".',
@@ -46,7 +46,7 @@ const Gallery = () => {
       technique: "Bút sắt trên giấy mỹ thuật",
     },
     {
-      src: "/images/gallery/writing-process.jpg",
+      src: "/pages/gallery/candle.png",
       alt: "Writing Process",
       description: "Quá trình viết thư pháp đang diễn ra.",
       category: "traditional",
@@ -55,7 +55,7 @@ const Gallery = () => {
       technique: "Bút lông truyền thống",
     },
     {
-      src: "/images/gallery/brush-lettering.jpg",
+      src: "/pages/gallery/candle.png",
       alt: "Digital Calligraphy",
       description: "Tác phẩm thư pháp số được tạo bằng công nghệ kỹ thuật số.",
       category: "digital",
@@ -64,7 +64,7 @@ const Gallery = () => {
       technique: "iPad Pro với Apple Pencil",
     },
     {
-      src: "/images/gallery/candle-and-pen.jpg",
+      src: "/pages/gallery/candle.png",
       alt: "Hành trình",
       description:
         "Tác phẩm thể hiện hành trình của cuộc sống qua những nét chữ uốn lượn.",
@@ -132,23 +132,7 @@ const Gallery = () => {
               </svg>
               Đóng góp tác phẩm
             </button>
-            <button className="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-2 font-medium text-gray-800 shadow-sm transition-colors duration-300 hover:bg-gray-100 hover:shadow-md">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="mr-2 h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              Xem tất cả
-            </button>
+
           </div>
         </div>
 
@@ -163,7 +147,7 @@ const Gallery = () => {
         <GalleryMasonry images={filteredImages} />
 
         {/* Pagination section */}
-        <div className="mt-12 flex justify-center">
+        <div className="mt-12 flex justify-center py-12">
           <nav className="inline-flex rounded-md shadow">
             <a
               href="#"

@@ -1,36 +1,38 @@
-// src/pages/Calligraphy.jsx
-import React, { useState, useEffect, useRef } from "react";
-import { Banner } from '../components/common/common';
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect } from "react";
+import { Banner } from "../components/common/common";
 import CalligraphyTypes from "../components/layout/client/calligraphy/CalligraphyTypes";
 import CalligraphyTools from "../components/layout/client/calligraphy/CalligraphyTools";
 import CalligraphyTechniques from "../components/layout/client/calligraphy/CalligraphyTechniques";
 import CalligraphyCategory from "../components/layout/client/calligraphy/CalligraphyCategory";
+import { Container, Section, Text, Button } from "../components/ui/ui";
 
 const Calligraphy = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const carouselRef = useRef(null);
 
   const calligraphyTypes = [
     {
       id: 1,
       title: "Thư pháp truyền thống",
-      description: "Nghệ thuật viết chữ truyền thống với bút lông và mực Tàu, thể hiện vẻ đẹp của văn hóa Á Đông.",
-      imageSrc: "/images/calligraphy-type-1.jpg",
+      description:
+        "Nghệ thuật viết chữ truyền thống với bút lông và mực Tàu, thể hiện vẻ đẹp của văn hóa Á Đông.",
+      imageSrc: "/banner/traditional.png",
     },
     {
       id: 2,
       title: "Thư pháp hiện đại",
-      description: "Kết hợp giữa kỹ thuật truyền thống và phong cách đương đại, tạo nên những tác phẩm độc đáo và sáng tạo.",
+      description:
+        "Kết hợp giữa kỹ thuật truyền thống và phong cách đương đại, tạo nên những tác phẩm độc đáo và sáng tạo.",
       imageSrc: "/images/calligraphy-type-2.jpg",
     },
     {
       id: 3,
       title: "Thư pháp Latinh",
-      description: "Nghệ thuật viết chữ đẹp với bảng chữ cái Latinh, sử dụng nhiều loại bút và phong cách khác nhau.",
+      description:
+        "Nghệ thuật viết chữ đẹp với bảng chữ cái Latinh, sử dụng nhiều loại bút và phong cách khác nhau.",
       imageSrc: "/images/calligraphy-type-3.jpg",
     },
-    // Thêm nhiều kiểu thư pháp nếu cần
   ];
 
   useEffect(() => {
@@ -39,7 +41,7 @@ const Calligraphy = () => {
     if (!isHovered) {
       intervalId = setInterval(() => {
         setCurrentIndex((prevIndex) =>
-          prevIndex === calligraphyTypes.length - 1 ? 0 : prevIndex + 1,
+          prevIndex === calligraphyTypes.length - 1 ? 0 : prevIndex + 1
         );
       }, 5000);
     }
@@ -49,23 +51,23 @@ const Calligraphy = () => {
 
   const handlePrev = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? calligraphyTypes.length - 1 : prevIndex - 1,
+      prevIndex === 0 ? calligraphyTypes.length - 1 : prevIndex - 1
     );
   };
 
   const handleNext = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === calligraphyTypes.length - 1 ? 0 : prevIndex + 1,
+      prevIndex === calligraphyTypes.length - 1 ? 0 : prevIndex + 1
     );
   };
 
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => setIsHovered(false);
+  const currentType = calligraphyTypes[currentIndex];
 
   return (
-    <div className="bg-gray-50">
-      <div className="container mx-auto px-4 md:px-8 lg:px-16">
-        <div className="py-8">
+    <>
+      {/* Banner */}
+      <Section py="0" className="md:py-12">
+        <Container>
           <Banner
             title="Nghệ thuật thư pháp"
             subtitle="InkSpire là nền tảng chia sẻ nội dung về thư pháp, giúp các độc giả tìm hiểu về nét đẹp của thư pháp đại chúng và khám phá nghệ thuật viết chữ truyền thống"
@@ -73,85 +75,115 @@ const Calligraphy = () => {
             ctaLink="/courses"
             imageSrc="./banner/home.png"
           />
-        </div>
+        </Container>
+      </Section>
 
-        {/* Carousel section */}
-        <div className="py-12">
-          <h2 className="text-3xl font-bold text-center text-amber-900 mb-8">Khám phá các phong cách thư pháp</h2>
+      {/* Slideshow + Controls */}
+      <Section className="bg-white" py={12}>
+        <Container>
+          <div className="text-center">
+            <Text
+              as="h2"
+              size="3xl"
+              weight="bold"
+              color="text-gray-800"
+              className="mb-6"
+              isHeading={true}
+              line={true}
+            >
+              Khám phá các phong cách thư pháp
+            </Text>
 
-          {/* Carousel controls */}
-          <div className="mb-8 flex justify-center">
-            <button
-              onClick={handlePrev}
-              className="rounded-l-md bg-amber-500 px-4 py-2 font-bold text-white transition-colors duration-300 hover:bg-amber-700"
-            >
-              ← Trước
-            </button>
-            <button
-              onClick={handleNext}
-              className="rounded-r-md bg-amber-500 px-4 py-2 font-bold text-white transition-colors duration-300 hover:bg-amber-700"
-            >
-              Tiếp →
-            </button>
+            <div className="mb-8 flex justify-center space-x-2">
+              <Button
+                variant="default"
+                size="md"
+                className="rounded-l-md px-4 py-2 font-bold"
+                onClick={handlePrev}
+              >
+                ← Trước
+              </Button>
+
+              <Button
+                variant="default"
+                size="md"
+                className="rounded-r-md px-4 py-2 font-bold"
+                onClick={handleNext}
+              >
+                Tiếp →
+              </Button>
+            </div>
           </div>
 
-          {/* Carousel content */}
-          <div
-            className="relative overflow-hidden rounded-lg shadow-lg"
-            ref={carouselRef}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
+          <div className="relative overflow-hidden rounded-lg shadow-lg transition-all duration-500 ease-in-out">
             <div
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-              className="flex transition-transform duration-700 ease-in-out"
+              className="relative h-64 w-full overflow-hidden bg-cover bg-center sm:h-96"
+              style={{ backgroundImage: `url(${currentType.imageSrc})` }}
             >
-              {calligraphyTypes.map((type) => (
-                <div
-                  key={type.id}
-                  className="relative h-64 w-full overflow-hidden sm:h-96"
-                >
-                  <img
-                    src={type.imageSrc}
-                    alt={type.title}
-                    className="h-full w-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                    <div className="text-center text-white p-6 max-w-lg">
-                      <h2 className="text-2xl md:text-3xl font-bold mb-3">{type.title}</h2>
-                      <p className="text-sm md:text-base mb-4">{type.description}</p>
-                      <button className="inline-block rounded-md bg-amber-500 px-4 py-2 font-bold text-white transition-colors duration-300 hover:bg-amber-700">
-                        Tìm hiểu thêm
-                      </button>
-                    </div>
-                  </div>
+              {/* Overlay màu đen mờ */}
+              <div className="bg-black bg-opacity-50 absolute inset-0 flex items-center justify-center">
+                <div className="max-w-lg p-6 text-center text-white">
+                  <h2 className="mb-3 text-2xl font-bold md:text-3xl">
+                    {currentType.title}
+                  </h2>
+                  <p className="mb-4 text-sm md:text-base">
+                    {currentType.description}
+                  </p>
+                  <Button
+                    variant="default"
+                    size="md"
+                    className="rounded-md font-bold"
+                  >
+                    Tìm hiểu thêm
+                  </Button>
                 </div>
-              ))}
+              </div>
             </div>
 
-            {/* Carousel indicators */}
-            <div className="absolute bottom-4 left-0 right-0">
+            {/* Indicators */}
+            <div className="absolute right-0 bottom-4 left-0">
               <div className="flex justify-center space-x-2">
                 {calligraphyTypes.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
-                    className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-amber-500' : 'bg-white bg-opacity-50'}`}
+                    className={`h-3 w-3 rounded-full ${
+                      index === currentIndex ? "bg-amber-500" : "bg-opacity-50 bg-white"
+                    }`}
                     aria-label={`Slide ${index + 1}`}
                   />
                 ))}
               </div>
             </div>
           </div>
-        </div>
+        </Container>
+      </Section>
 
-        {/* Integrate new components */}
-        <CalligraphyCategory />
-        <CalligraphyTypes types={calligraphyTypes} />
-        <CalligraphyTools />
-        <CalligraphyTechniques />
-      </div>
-    </div>
+      {/* Các phần còn lại */}
+      <Section className="bg-gray-50" py={12}>
+        <Container>
+          <CalligraphyCategory />
+        </Container>
+      </Section>
+
+      <Section className="bg-white" py={12}>
+        <Container>
+          <CalligraphyTypes types={calligraphyTypes} />
+        </Container>
+      </Section>
+
+      <Section className="bg-gray-50" py={12}>
+        <Container>
+          <CalligraphyTools />
+        </Container>
+      </Section>
+
+      <Section className="bg-white" py={12}>
+        <Container>
+          <CalligraphyTechniques />
+        </Container>
+      </Section>
+    </>
   );
 };
 

@@ -8,8 +8,8 @@ import clsx from 'clsx';
  * @param {React.ElementType} props.as - Element type to render (p, h1, h2, etc.)
  * @param {string} props.size - Text size (xs, sm, base, lg, xl, 2xl, 3xl, 4xl)
  * @param {string} props.weight - Font weight (thin, light, normal, medium, semibold, bold)
- * @param {string} props.color - Text color class
- * @param {string} props.className - Additional CSS classes
+ * @param {string} props.color - Text color class (e.g. text-white, text-gray-700)
+ * @param {string} props.className - Additional CSS classes for custom styling
  * @param {boolean} props.isHeading - Force heading font family
  * @param {boolean} props.line - Hiển thị đường kẻ ngang dưới văn bản
  * @param {React.ReactNode} props.children - Child elements
@@ -22,7 +22,7 @@ const Text = ({
   className = '',
   isHeading = false,
   line = false,
-  children
+  children,
 }) => {
   // Định nghĩa các kích thước văn bản
   const sizes = {
@@ -60,7 +60,7 @@ const Text = ({
     color,
     fontFamily,
     lineStyle,
-    className
+    className // <-- Đây là nơi className được kết hợp vào
   );
 
   return (

@@ -2,6 +2,18 @@
 @import "./fonts.css";
 @import "tailwindcss";
 
+/* Biến CSS cho animation và các chức năng */
+:root {
+  --fade-duration: 3s;
+  --primary-color: #43302b;
+  --secondary-color: #bfa094;
+  --accent-color: #e0cec7;
+  --success-color: #4CAF50;
+  --error-color: #F44336;
+  --warning-color: #FF9800;
+  --info-color: #2196F3;
+}
+
 /* Animation cuộn marquee chuyên nghiệp */
 @keyframes marqueeScroll {
   from { transform: translateX(0); }
@@ -12,9 +24,13 @@
 .marquee-container {
   width: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 .marquee-content {
+  display: flex;
+  animation: marqueeScroll var(--animation-duration, 20s) linear infinite;
+  animation-play-state: var(--play-state, running);
   will-change: transform;
 }
 
@@ -29,4 +45,45 @@
 .animate-fade-in-out {
   animation: fadeInOut var(--fade-duration) ease-in-out;
   will-change: opacity; /* Tối ưu hiệu suất animation */
+}
+
+/* Animation cho các chức năng mới */
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Hiệu ứng cho accordion trong FAQ */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.accordion-active .accordion-content {
+  max-height: 500px;
+}
+
+/* Hiệu ứng cho avatar upload */
+.avatar-upload-container {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.avatar-upload-container:hover::after {
+  content: "Cập nhật";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 0.875rem;
+  cursor: pointer;
 }
