@@ -1,25 +1,21 @@
-
+/* global.css */
 @import "./fonts.css";
 @import "tailwindcss";
 
-/* Biến CSS cho animation */
-
-
-/* Animation cho chữ chạy */
-.marquee {
-  display: flex;
-  gap: 2rem;
-  min-width: 100%;
-  animation: scroll-left 20s linear infinite;
+/* Animation cuộn marquee chuyên nghiệp */
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-@keyframes scroll-left {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
+/* Tối ưu hiệu suất marquee */
+.marquee-container {
+  width: 100%;
+  position: relative;
+}
+
+.marquee-content {
+  will-change: transform;
 }
 
 /* Animation hiệu ứng fade */

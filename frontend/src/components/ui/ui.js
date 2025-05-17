@@ -11,6 +11,7 @@ import Image from './section/Image';
 import Modal from './section/Modal';
 import Flex from './layout/Flex';
 import Text from './text/Text';
+import Marquee from './scroll/Marquee';
 
 export {
   Button,
@@ -22,7 +23,8 @@ export {
   Section,
   Modal,
   Flex,
-  Text
+  Text,
+  Marquee
 };
 
 // Export mặc định tất cả các components
@@ -36,5 +38,6 @@ export default {
   Section,
   Modal,
   Flex,
-  Text
+  Text,
+  Marquee
 };
