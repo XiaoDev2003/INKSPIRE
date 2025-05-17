@@ -13,14 +13,12 @@ const Gallery = () => {
   const categories = [
     { id: "traditional", name: "Thư pháp truyền thống" },
     { id: "modern", name: "Thư pháp hiện đại" },
-    { id: "brush", name: "Bút lông" },
-    { id: "calligraphy", name: "Calligraphy" },
-    { id: "digital", name: "Thư pháp số" },
+    { id: "calligraphy", name: "Viết tay & Thiết kế" },
   ];
 
   const images = [
     {
-      src: "/images/gallery/brush-lettering.jpg",
+      src: "/pages/gallery/brush.png",
       alt: "Brush Lettering",
       description: "Hình ảnh minh họa về nghệ thuật thư pháp bằng cọ.",
       category: "brush",
@@ -108,6 +106,7 @@ const Gallery = () => {
           />
         </Container>
       </Section>
+
       <div className="container mx-auto px-4 md:px-8 lg:px-16">
         {/* Header section with upload button handler */}
         <div className="mb-12 text-center">
