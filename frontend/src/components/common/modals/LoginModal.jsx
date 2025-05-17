@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
 import { FaSignInAlt, FaTimes } from 'react-icons/fa';
 import axiosClient from '../../../api/axiosClient';

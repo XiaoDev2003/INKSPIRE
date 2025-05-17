@@ -33,7 +33,7 @@ const MainRouter = () => {
       <Route path='/calligraphy' element={<Calligraphy />} />
       <Route path='/feedbackandquestion' element={<FAQ />} />
       <Route path='/feedback' element={<Feedback />} />
-      <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path='/profile/*' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
       {/* Calligraphy Routers */}
       <Route path='/category/:type' element={<Category />} />

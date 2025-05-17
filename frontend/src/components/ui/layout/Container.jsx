@@ -24,7 +24,7 @@ const Container = ({
 
   // Kết hợp các lớp CSS
   const containerClass = clsx(
-    'mx-auto w-full max-w-screen-xl', // Thêm max-width để đảm bảo tính nhất quán
+    'mx-auto w-full', // Thêm max-width để đảm bảo tính nhất quán
     paddingY,
     paddingX,
     className

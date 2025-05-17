@@ -1,6 +1,6 @@
 // src/components/pages/Home.jsx
 import React, { useEffect } from "react";
-import { Banner , AccordionItem , BoxCount } from "../components/common/common";
+import { Banner , AccordionItem , BoxCount , Banner2 } from "../components/common/common";
 import { Container, Section } from "../components/ui/ui";
 import FeaturedCourses from "../components/layout/client/home/FeaturedCourses";
 import TestimonialSlider from "../components/layout/client/home/TestimonialSlider";
@@ -36,14 +36,14 @@ function Home() {
   return (
     <>
       {/* Banner */}
-        <Section py="0" className="md:py-12">
-          <Container className="container">
-            <Banner
-              title="Bút lông cổ điển"
-              subtitle="Hiểu hơn về công cụ truyền thống"
+        <Section className="md:py-4">
+          <Container className="px-4 sm:px-6 md:px-8">
+            <Banner2
+              title="Chào mừng đến với inkspire"
+              subtitle="Hiểu hơn về thư pháp với inkspire"
               ctaText="Tìm hiểu thêm"
-              ctaLink="/brushes"
-              imageSrc="./banner/home.png"
+              ctaLink="/calligraphy"
+              imageSrc="./banner/home.jpg"
             />
           </Container>
         </Section>

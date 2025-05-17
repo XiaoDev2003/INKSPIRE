@@ -67,7 +67,7 @@ const Calligraphy = () => {
     <>
       {/* Banner */}
       <Section py="0" className="md:py-12">
-        <Container>
+        <Container className="px-4 sm:px-6 md:px-8">
           <Banner
             title="Nghệ thuật thư pháp"
             subtitle="InkSpire là nền tảng chia sẻ nội dung về thư pháp, giúp các độc giả tìm hiểu về nét đẹp của thư pháp đại chúng và khám phá nghệ thuật viết chữ truyền thống"
@@ -80,14 +80,14 @@ const Calligraphy = () => {
 
       {/* Slideshow + Controls */}
       <Section className="bg-white" py={12}>
-        <Container>
+        <Container className="px-4 sm:px-6 md:px-8">
           <div className="text-center">
             <Text
               as="h2"
               size="3xl"
               weight="bold"
               color="text-gray-800"
-              className="mb-6"
+              className="mb-6 text-xl sm:text-2xl md:text-3xl"
               isHeading={true}
               line={true}
             >
@@ -98,7 +98,7 @@ const Calligraphy = () => {
               <Button
                 variant="default"
                 size="md"
-                className="rounded-l-md px-4 py-2 font-bold"
+                className="rounded-l-md px-2 py-1 sm:px-4 sm:py-2 font-bold text-sm sm:text-base"
                 onClick={handlePrev}
               >
                 ← Trước
@@ -107,7 +107,7 @@ const Calligraphy = () => {
               <Button
                 variant="default"
                 size="md"
-                className="rounded-r-md px-4 py-2 font-bold"
+                className="rounded-r-md px-2 py-1 sm:px-4 sm:py-2 font-bold text-sm sm:text-base"
                 onClick={handleNext}
               >
                 Tiếp →
@@ -117,22 +117,22 @@ const Calligraphy = () => {
 
           <div className="relative overflow-hidden rounded-lg shadow-lg transition-all duration-500 ease-in-out">
             <div
-              className="relative h-64 w-full overflow-hidden bg-cover bg-center sm:h-96"
+              className="relative h-48 w-full overflow-hidden bg-cover bg-center sm:h-64 md:h-96"
               style={{ backgroundImage: `url(${currentType.imageSrc})` }}
             >
               {/* Overlay màu đen mờ */}
               <div className="bg-black bg-opacity-50 absolute inset-0 flex items-center justify-center">
-                <div className="max-w-lg p-6 text-center text-white">
-                  <h2 className="mb-3 text-2xl font-bold md:text-3xl">
+                <div className="w-full max-w-lg p-3 sm:p-6 text-center text-white">
+                  <h2 className="mb-2 sm:mb-3 text-xl sm:text-2xl md:text-3xl font-bold">
                     {currentType.title}
                   </h2>
-                  <p className="mb-4 text-sm md:text-base">
+                  <p className="mb-3 sm:mb-4 text-xs sm:text-sm md:text-base">
                     {currentType.description}
                   </p>
                   <Button
                     variant="default"
                     size="md"
-                    className="rounded-md font-bold"
+                    className="rounded-md font-bold text-sm sm:text-base px-3 py-1 sm:px-4 sm:py-2"
                   >
                     Tìm hiểu thêm
                   </Button>
@@ -141,13 +141,13 @@ const Calligraphy = () => {
             </div>
 
             {/* Indicators */}
-            <div className="absolute right-0 bottom-4 left-0">
+            <div className="absolute right-0 bottom-2 sm:bottom-4 left-0">
               <div className="flex justify-center space-x-2">
                 {calligraphyTypes.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
-                    className={`h-3 w-3 rounded-full ${
+                    className={`h-2 w-2 sm:h-3 sm:w-3 rounded-full ${
                       index === currentIndex ? "bg-amber-500" : "bg-opacity-50 bg-white"
                     }`}
                     aria-label={`Slide ${index + 1}`}
@@ -161,25 +161,25 @@ const Calligraphy = () => {
 
       {/* Các phần còn lại */}
       <Section className="bg-gray-50" py={12}>
-        <Container>
+        <Container className="px-4 sm:px-6 md:px-8">
           <CalligraphyCategory />
         </Container>
       </Section>
 
       <Section className="bg-white" py={12}>
-        <Container>
+        <Container className="px-4 sm:px-6 md:px-8">
           <CalligraphyTypes types={calligraphyTypes} />
         </Container>
       </Section>
 
       <Section className="bg-gray-50" py={12}>
-        <Container>
+        <Container className="px-4 sm:px-6 md:px-8">
           <CalligraphyTools />
         </Container>
       </Section>
 
       <Section className="bg-white" py={12}>
-        <Container>
+        <Container className="px-4 sm:px-6 md:px-8">
           <CalligraphyTechniques />
         </Container>
       </Section>

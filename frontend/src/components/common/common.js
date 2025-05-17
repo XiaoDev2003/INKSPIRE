@@ -2,6 +2,7 @@
 // File này export tất cả các components từ thư mục common
 
 import Banner from './section/Banner';
+import Banner2 from './section/Banner2';
 import BoxCount from './section/BoxCount';
 import AccordionItem from './section/AccordionItem';
 import ProtectedRoute from './ProtectedRoute';
@@ -26,7 +27,8 @@ export {
   FormModal,
   LoginModal,
   RegisterModal,
-  VisitorPopup
+  VisitorPopup,
+  Banner2
 };
 
 // Export mặc định tất cả các components
@@ -40,5 +42,6 @@ export default {
   FormModal,
   LoginModal,
   RegisterModal,
-  VisitorPopup
+  VisitorPopup,
+  Banner2
 };
