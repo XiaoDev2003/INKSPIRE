@@ -17,7 +17,8 @@ const Users = () => {
     gender: 'male',
     first_name: '',
     last_name: '',
-    status: 'active'
+    status: 'active',
+    password: ''
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -60,7 +61,8 @@ const Users = () => {
       gender: 'male',
       first_name: '',
       last_name: '',
-      status: 'active'
+      status: 'active',
+      password: ''
     });
     setShowModal(true);
     setError(null);
@@ -148,21 +150,27 @@ const Users = () => {
         last_name: formData.last_name,
         status: formData.status
       };
+
+      // Thêm mật khẩu vào payload nếu đang thêm mới người dùng
+      if (!currentUser && formData.password) {
+        payload.password = formData.password;
+      }
+
       console.log('Submitting user:', payload);
 
       if (currentUser) {
         payload.user_id = currentUser.user_id;
         const response = await axiosClient.put('/api/users', payload);
         console.log('Update response:', response.data);
-        setUsers(users.map(user => 
+        setUsers(users.map(user =>
           user.user_id === currentUser.user_id ? { ...user, ...payload } : user
         ));
         setSuccess('Cập nhật người dùng thành công!');
       } else {
         const response = await axiosClient.post('/api/users', payload);
         console.log('Create response:', response.data);
-        const newUser = { 
-          user_id: response.data.user_id || (users.length + 1), 
+        const newUser = {
+          user_id: response.data.user_id || (users.length + 1),
           ...payload,
           created_at: new Date().toISOString().split('T')[0]
         };
@@ -250,7 +258,10 @@ const Users = () => {
   return (
     <AdminLayout>
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-amber-900">Quản lý người dùng</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-amber-900">Quản lý người dùng</h1>
+          <div className="h-1 w-32 bg-amber-500 mt-2"></div>
+        </div>
         <button
           onClick={handleAddUser}
           className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
@@ -434,6 +445,20 @@ const Users = () => {
                       <option value="admin">Quản trị viên</option>
                     </select>
                   </div>
+                  {!currentUser && (
+                    <div>
+                      <label htmlFor="password" className="block text-sm font-medium text-gray-700">Mật khẩu</label>
+                      <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                        required
+                      />
+                    </div>
+                  )}
                   <div>
                     <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">Tên</label>
                     <input

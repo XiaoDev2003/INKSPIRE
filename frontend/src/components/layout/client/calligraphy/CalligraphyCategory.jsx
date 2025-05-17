@@ -1,6 +1,7 @@
 // src/components/layout/client/calligraphy/CalligraphyCategory.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Text } from '../../../../components/ui/ui';
 
 const CalligraphyCategory = () => {
   // Dữ liệu cho các loại thư pháp
@@ -31,7 +32,17 @@ const CalligraphyCategory = () => {
   return (
     <section className="py-12 bg-white">
       <div className="container mx-auto px-4 md:px-8">
-        <h2 className="text-3xl font-bold text-center text-amber-900 mb-8">Các danh mục thư pháp</h2>
+        <Text
+        as="h2"
+        size="3xl"
+        weight="bold"
+        color="text-amber-900"
+        className="text-center mb-10"
+        isHeading={true}
+        line={true}
+      >
+        Các danh mục thư pháp
+      </Text>
         <p className="text-gray-600 text-center max-w-3xl mx-auto mb-12">
           Khám phá các phong cách thư pháp đa dạng từ truyền thống đến hiện đại, mỗi phong cách đều mang đến những nét đẹp và ý nghĩa riêng biệt.
         </p>
@@ -40,17 +51,17 @@ const CalligraphyCategory = () => {
           {categories.map((category) => (
             <div key={category.id} className="bg-gray-50 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
               <div className="h-48 overflow-hidden">
-                <img 
-                  src={category.imageSrc} 
-                  alt={category.title} 
+                <img
+                  src={category.imageSrc}
+                  alt={category.title}
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
                 />
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-bold text-amber-800 mb-2">{category.title}</h3>
                 <p className="text-gray-600 mb-4">{category.description}</p>
-                <Link 
-                  to={category.link} 
+                <Link
+                  to={category.link}
                   className="inline-block px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors duration-300"
                 >
                   Xem danh mục

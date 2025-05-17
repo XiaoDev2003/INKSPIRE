@@ -1,5 +1,6 @@
 // src/components/layout/client/calligraphy/TestimonialSlider.jsx
 import React, { useState, useEffect } from 'react';
+import { Text } from '../../../../components/ui/ui';
 
 const testimonials = [
   {
@@ -39,14 +40,14 @@ const TestimonialSlider = () => {
 
   // Chuyển đến slide trước đó
   const prevSlide = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
     );
   };
 
   // Chuyển đến slide tiếp theo
   const nextSlide = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       (prevIndex + 1) % testimonials.length
     );
   };
@@ -55,7 +56,17 @@ const TestimonialSlider = () => {
     <section className="py-12 bg-amber-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Người học nói gì về chúng tôi</h2>
+          <Text
+            as="h2"
+            size="3xl"
+            weight="bold"
+            color="text-gray-800"
+            className="text-center mb-2"
+            isHeading={true}
+            line={true}
+          >
+            Người học nói gì về chúng tôi
+          </Text>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Khám phá trải nghiệm của những người đã tham gia các khóa học thư pháp tại Inkspire
           </p>
@@ -63,7 +74,7 @@ const TestimonialSlider = () => {
 
         <div className="relative max-w-4xl mx-auto">
           {/* Nút điều hướng trái */}
-          <button 
+          <button
             onClick={prevSlide}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors duration-300 focus:outline-none"
             aria-label="Previous testimonial"
@@ -77,22 +88,22 @@ const TestimonialSlider = () => {
           <div className="bg-white rounded-xl shadow-md p-8 md:p-10 transition-all duration-500 transform">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="flex-shrink-0">
-                <img 
-                  src={testimonials[currentIndex].image} 
+                <img
+                  src={testimonials[currentIndex].image}
                   alt={testimonials[currentIndex].name}
-                  className="w-20 h-20 rounded-full object-cover border-2 border-amber-200" 
+                  className="w-20 h-20 rounded-full object-cover border-2 border-amber-200"
                 />
               </div>
-              
+
               <div className="flex-grow">
                 <div className="text-amber-500 mb-4">
                   <i className="fa-solid fa-quote-left text-3xl opacity-50"></i>
                 </div>
-                
+
                 <p className="text-gray-700 italic mb-6">
                   {testimonials[currentIndex].content}
                 </p>
-                
+
                 <div>
                   <h4 className="font-bold text-gray-800">{testimonials[currentIndex].name}</h4>
                   <p className="text-gray-500 text-sm">{testimonials[currentIndex].role}</p>
@@ -102,7 +113,7 @@ const TestimonialSlider = () => {
           </div>
 
           {/* Nút điều hướng phải */}
-          <button 
+          <button
             onClick={nextSlide}
             className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors duration-300 focus:outline-none"
             aria-label="Next testimonial"

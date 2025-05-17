@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 // Dùng lại component Banner đã có sẵn
 import { Banner } from '../../../common/common'; // Import từ file common.js
+import { Text } from '../../../ui/ui';
 
 import AboutTeam from './AboutTeam';
 import AboutHistory from './AboutHistory';
@@ -22,7 +23,17 @@ const AboutContent = () => {
 
       {/* Phần sứ mệnh */}
       <div className="bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-serif font-bold text-gray-800 mb-4 text-center">Sứ mệnh của chúng tôi</h2>
+        <Text
+          as="h2"
+          size="2xl"
+          weight="bold"
+          color="text-gray-800"
+          className="text-center mb-6"
+          isHeading={true}
+          line={true}
+        >
+          Sứ mệnh của chúng tôi
+        </Text>
         <p className="text-gray-600 leading-relaxed mb-4">
           Inkspire được thành lập với mục tiêu bảo tồn và phát triển nghệ thuật thư pháp Việt Nam.
           Chúng tôi tin rằng thư pháp không chỉ là một nghệ thuật viết chữ mà còn là cầu nối văn hóa giữa quá khứ và hiện tại.
@@ -73,7 +84,17 @@ const AboutContent = () => {
 
       {/* Phần liên hệ */}
       <div className="bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-serif font-bold text-gray-800 mb-6 text-center">Liên hệ với chúng tôi</h2>
+        <Text
+          as="h2"
+          size="2xl"
+          weight="bold"
+          color="text-gray-800"
+          className="text-center mb-8"
+          isHeading={true}
+          line={true}
+        >
+          Liên hệ với chúng tôi
+        </Text>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <p className="text-gray-600 mb-4">

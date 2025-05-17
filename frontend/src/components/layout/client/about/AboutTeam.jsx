@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from '../../../ui/ui';
 
 const AboutTeam = () => {
   const teamMembers = [
@@ -34,7 +35,17 @@ const AboutTeam = () => {
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-md mt-8">
-      <h2 className="text-2xl font-serif font-bold text-gray-800 mb-6">Đội ngũ của chúng tôi</h2>
+      <Text
+        as="h2"
+        size="2xl"
+        weight="bold"
+        color="text-gray-800"
+        className="mb-8"
+        isHeading={true}
+        line={true}
+      >
+        Đội ngũ của chúng tôi
+      </Text>
       <p className="text-gray-600 mb-8">
         Inkspire được xây dựng bởi những người đam mê thư pháp và nghệ thuật truyền thống.
         Chúng tôi kết hợp kiến thức chuyên môn với tầm nhìn hiện đại để mang đến trải nghiệm tốt nhất cho cộng đồng.

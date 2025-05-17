@@ -4,6 +4,7 @@ import GalleryFilter from "../components/layout/client/gallery/GalleryFilter";
 import GalleryMasonry from "../components/layout/client/gallery/GalleryMasonry";
 import GalleryUpload from "../components/layout/client/gallery/GalleryUpload";
 import { Banner } from '../components/common/common';
+import { Container, Section } from "../components/ui/ui";
 
 const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -95,14 +96,18 @@ const Gallery = () => {
   };
 
   return (
-    <div className="py-12">
-      <Banner
-        title="Nghệ thuật thư pháp"
-        subtitle="InkSpire là nền tảng chia sẻ nội dung về thư pháp, giúp các độc giả tìm hiểu về nét đẹp của thư pháp đại chúng và khám phá nghệ thuật viết chữ truyền thống"
-        ctaText="Tìm hiểu thêm"
-        ctaLink="/courses"
-        imageSrc="./banner/home.png"
-      />
+    <>
+     <Section py="0" className="md:py-12">
+        <Container className="container">
+          <Banner
+            title="Bút lông cổ điển"
+            subtitle="Hiểu hơn về công cụ truyền thống"
+            ctaText="Tìm hiểu thêm"
+            ctaLink="/brushes"
+            imageSrc="./banner/home.png"
+          />
+        </Container>
+      </Section>
       <div className="container mx-auto px-4 md:px-8 lg:px-16">
         {/* Header section with upload button handler */}
         <div className="mb-12 text-center">
@@ -197,7 +202,7 @@ const Gallery = () => {
 
       {/* Upload Modal */}
       <GalleryUpload isOpen={isUploadModalOpen} onClose={closeUploadModal} />
-    </div>
+    </>
   );
 };
 

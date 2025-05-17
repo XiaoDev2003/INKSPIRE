@@ -14,6 +14,7 @@ import {
   FaHome,
   FaTachometerAlt,
   FaCog,
+  FaArrowLeft,
 } from 'react-icons/fa';
 
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
@@ -125,7 +126,16 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
           </nav>
         </div>
 
-        <div className="absolute bottom-6 left-0 w-full px-4">
+        <div className="absolute bottom-16 left-0 w-full px-4">
+          <Link
+            to="/"
+            className="flex items-center text-amber-200 hover:text-white transition-colors w-full mb-3"
+          >
+            <span className={`flex items-center p-2 rounded-md hover:bg-amber-800 ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
+              <FaArrowLeft />
+              {sidebarOpen && <span className="ml-3">Quay về trang chính</span>}
+            </span>
+          </Link>
           <button
             onClick={onLogout}
             className="flex items-center text-red-200 hover:text-white transition-colors w-full"
@@ -228,7 +238,16 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
           </nav>
         </div>
 
-        <div className="absolute bottom-6 left-0 w-full px-4">
+        <div className="absolute bottom-16 left-0 w-full px-4">
+          <Link
+            to="/"
+            className="flex items-center text-amber-200 hover:text-white transition-colors w-full mb-3"
+          >
+            <span className="flex items-center p-2 rounded-md hover:bg-amber-800 w-full">
+              <FaArrowLeft />
+              <span className="ml-3">Quay về trang chính</span>
+            </span>
+          </Link>
           <button
             onClick={onLogout}
             className="flex items-center text-red-200 hover:text-white transition-colors w-full"

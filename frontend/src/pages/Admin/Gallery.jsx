@@ -169,7 +169,10 @@ const Gallery = () => {
   return (
     <AdminLayout>
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-amber-900">Quản lý thư viện hình ảnh</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-amber-900">Quản lý thư viện hình ảnh</h1>
+          <div className="h-1 w-32 bg-amber-500 mt-2"></div>
+        </div>
         <button
           onClick={handleAddImage}
           className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md flex items-center gap-2"

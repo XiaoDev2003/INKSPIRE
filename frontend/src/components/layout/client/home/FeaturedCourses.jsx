@@ -1,7 +1,7 @@
 // src/components/layout/client/calligraphy/FeaturedCourses.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card } from '../../../ui/ui';
+import { Card, Text } from '../../../ui/ui';
 
 const CourseCard = ({ title, description, image, level, duration, link }) => {
   return (
@@ -76,7 +76,17 @@ const FeaturedCourses = () => {
     <section className="py-12 bg-white">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Khóa học nổi bật</h2>
+          <Text
+            as="h2"
+            size="3xl"
+            weight="bold"
+            color="text-gray-800"
+            className="text-center mb-2"
+            isHeading={true}
+            line={true}
+          >
+            Khóa học nổi bật
+          </Text>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Khám phá các khóa học thư pháp được thiết kế cho mọi trình độ, từ người mới bắt đầu đến những người đã có kinh nghiệm
           </p>

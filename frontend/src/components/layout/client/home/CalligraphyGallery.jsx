@@ -1,6 +1,7 @@
 // src/components/layout/client/calligraphy/CalligraphyGallery.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Text } from '../../../../components/ui/ui';
 
 const galleryItems = [
   {
@@ -84,7 +85,17 @@ const CalligraphyGallery = () => {
     <section className="py-12 bg-gray-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Bộ sưu tập tác phẩm</h2>
+          <Text
+            as="h2"
+            size="3xl"
+            weight="bold"
+            color="text-gray-800"
+            className="text-center mb-2"
+            isHeading={true}
+            line={true}
+          >
+            Bộ sưu tập tác phẩm
+          </Text>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Khám phá những tác phẩm thư pháp đẹp mắt từ các nghệ nhân tài năng trong cộng đồng của chúng tôi
           </p>

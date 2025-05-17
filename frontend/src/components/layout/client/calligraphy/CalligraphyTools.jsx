@@ -1,5 +1,6 @@
 // src/components/layout/client/calligraphy/CalligraphyTools.jsx
 import React from 'react';
+import { Text } from '../../../../components/ui/ui';
 
 const CalligraphyTools = () => {
   const tools = [
@@ -32,7 +33,17 @@ const CalligraphyTools = () => {
   return (
     <section className="py-12 bg-gray-50">
       <div className="container mx-auto px-4 md:px-8">
-        <h2 className="text-3xl font-bold text-center text-amber-900 mb-8">Công cụ thư pháp</h2>
+        <Text
+        as="h2"
+        size="3xl"
+        weight="bold"
+        color="text-amber-900"
+        className="text-center mb-10"
+        isHeading={true}
+        line={true}
+      >
+        Công cụ thư pháp
+      </Text>
         <p className="text-gray-600 text-center max-w-3xl mx-auto mb-12">
           Khám phá các công cụ cơ bản và thiết yếu để bắt đầu hành trình thư pháp của bạn. Mỗi công cụ đều có vai trò riêng trong việc tạo nên những tác phẩm thư pháp đẹp mắt.
         </p>

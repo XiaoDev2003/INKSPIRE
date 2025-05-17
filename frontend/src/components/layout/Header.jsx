@@ -12,12 +12,12 @@ const Header = () => {
       <Container className="flex justify-center items-center">
         <Link to="/" className="flex justify-center">
           <img
-            src="./logo.png"
+            src="/logo.png"
             alt="Logo Inkspire"
             className="w-42 object-cover md:ml-15"
           />
         </Link>
-        <VisitorPopup />
+        <VisitorPopup  />
       </Container>
     </Section>
   );

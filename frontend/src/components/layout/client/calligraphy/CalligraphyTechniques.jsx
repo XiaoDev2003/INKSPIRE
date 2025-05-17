@@ -1,5 +1,6 @@
 // src/components/layout/client/calligraphy/CalligraphyTechniques.jsx
 import React from 'react';
+import { Text } from '../../../../components/ui/ui';
 
 const CalligraphyTechniques = () => {
   const techniques = [
@@ -41,7 +42,17 @@ const CalligraphyTechniques = () => {
   return (
     <section className="py-12 bg-white">
       <div className="container mx-auto px-4 md:px-8">
-        <h2 className="text-3xl font-bold text-center text-amber-900 mb-8">Kỹ thuật thư pháp cơ bản</h2>
+        <Text
+        as="h2"
+        size="3xl"
+        weight="bold"
+        color="text-amber-900"
+        className="text-center mb-10"
+        isHeading={true}
+        line={true}
+      >
+        Kỹ thuật thư pháp cơ bản
+      </Text>
         <p className="text-gray-600 text-center max-w-3xl mx-auto mb-12">
           Khám phá các kỹ thuật cơ bản để bắt đầu hành trình thư pháp của bạn. Việc nắm vững những kỹ thuật này sẽ giúp bạn tạo ra những tác phẩm thư pháp đẹp mắt và ý nghĩa.
         </p>
@@ -51,16 +62,16 @@ const CalligraphyTechniques = () => {
             <div key={technique.id} className="bg-gray-50 rounded-lg overflow-hidden shadow-md p-6 md:p-8">
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="md:w-1/3">
-                  <img 
-                    src={technique.imageSrc} 
-                    alt={technique.title} 
+                  <img
+                    src={technique.imageSrc}
+                    alt={technique.title}
                     className="w-full h-64 object-cover rounded-lg"
                   />
                 </div>
                 <div className="md:w-2/3">
                   <h3 className="text-2xl font-bold text-amber-800 mb-4">{technique.title}</h3>
                   <p className="text-gray-600 mb-6">{technique.description}</p>
-                  
+
                   <h4 className="text-lg font-semibold text-amber-700 mb-3">Các bước thực hiện:</h4>
                   <ol className="list-decimal list-inside space-y-2 text-gray-700">
                     {technique.steps.map((step, index) => (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from '../../../ui/ui';
 
 const AboutHistory = () => {
   const milestones = [
@@ -42,7 +43,17 @@ const AboutHistory = () => {
 
   return (
     <div className="bg-white p-8 rounded-lg shadow-md">
-      <h2 className="text-2xl font-serif font-bold text-gray-800 mb-6">Lịch sử phát triển</h2>
+      <Text
+        as="h2"
+        size="2xl"
+        weight="bold"
+        color="text-gray-800"
+        className="mb-8"
+        isHeading={true}
+        line={true}
+      >
+        Lịch sử phát triển
+      </Text>
       <p className="text-gray-600 mb-8">
         Hành trình của Inkspire là câu chuyện về niềm đam mê, sự kiên trì và không ngừng đổi mới.
         Cùng nhìn lại những cột mốc quan trọng trong quá trình phát triển của chúng tôi.

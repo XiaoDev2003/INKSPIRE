@@ -45,13 +45,14 @@ const Dashboard = () => {
     <AdminLayout>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-amber-900 mb-2">Bảng điều khiển</h1>
+        <div className="w-32 h-1 bg-amber-500 mb-4"></div>
         <p className="text-gray-600">Chào mừng đến với trang quản trị Inkspire</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((card, index) => (
-          <Link 
-            to={card.link} 
+          <Link
+            to={card.link}
             key={index}
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300"
           >
@@ -68,7 +69,8 @@ const Dashboard = () => {
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-amber-900 mb-4">Hoạt động gần đây</h2>
+          <h2 className="text-xl font-bold text-amber-900 mb-2">Hoạt động gần đây</h2>
+          <div className="w-24 h-0.5 bg-amber-500 mb-4"></div>
           <div className="space-y-4">
             {/* Danh sách hoạt động mẫu */}
             {[
@@ -90,7 +92,8 @@ const Dashboard = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-amber-900 mb-4">Font chữ phổ biến</h2>
+          <h2 className="text-xl font-bold text-amber-900 mb-2">Font chữ phổ biến</h2>
+          <div className="w-24 h-0.5 bg-amber-500 mb-4"></div>
           <div className="space-y-4">
             {/* Danh sách font chữ phổ biến mẫu */}
             {[

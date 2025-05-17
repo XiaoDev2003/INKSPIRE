@@ -11,6 +11,7 @@ import clsx from 'clsx';
  * @param {string} props.color - Text color class
  * @param {string} props.className - Additional CSS classes
  * @param {boolean} props.isHeading - Force heading font family
+ * @param {boolean} props.line - Hiển thị đường kẻ ngang dưới văn bản
  * @param {React.ReactNode} props.children - Child elements
  */
 const Text = ({
@@ -20,6 +21,7 @@ const Text = ({
   color = 'text-gray-700',
   className = '',
   isHeading = false,
+  line = false,
   children
 }) => {
   // Định nghĩa các kích thước văn bản
@@ -48,12 +50,16 @@ const Text = ({
   const isHeadingTag = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(Tag);
   const fontFamily = isHeading || isHeadingTag ? 'font-heading' : 'font-body';
 
+  // Xác định style cho đường kẻ ngang
+  const lineStyle = line ? 'border-b-2 border-amber-500 pb-2 inline-block' : '';
+
   // Kết hợp các lớp CSS
   const textClasses = clsx(
     sizes[size] || sizes.base,
     weights[weight] || weights.normal,
     color,
     fontFamily,
+    lineStyle,
     className
   );
 
