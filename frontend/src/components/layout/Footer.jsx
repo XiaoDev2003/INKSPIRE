@@ -146,22 +146,13 @@ const Footer = () => {
 
   return (
     <footer className="relative overflow-hidden bg-indigo-950 text-white">
-      {/* Nền giả giấy cổ */}
-      <div className="pointer-events-none absolute inset-0 opacity-5">
-        <img
-          src="/images/paper-bg.png"
-          alt="Background"
-          className="h-full w-full object-cover"
-        />
-      </div>
-
       <div className="relative z-10 container mx-auto max-w-7xl px-6 py-12">
         {/* Grid layout */}
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3 lg:gap-16">
           {/* Logo & Mô tả ngắn */}
           <div className="flex flex-col items-center text-center">
             <img
-              src="./logo_white.png"
+              src="/logo_white.png"
               alt="Logo Inkspire"
               className="mb-4 w-32 object-contain drop-shadow-lg"
             />

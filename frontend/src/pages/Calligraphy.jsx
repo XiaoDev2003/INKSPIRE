@@ -73,7 +73,8 @@ const Calligraphy = () => {
             subtitle="InkSpire là nền tảng chia sẻ nội dung về thư pháp, giúp các độc giả tìm hiểu về nét đẹp của thư pháp đại chúng và khám phá nghệ thuật viết chữ truyền thống"
             ctaText="Tìm hiểu thêm"
             ctaLink="/courses"
-            imageSrc="./banner/home.png"
+            imageSrc="/banner/calligraphy.png"
+            ClassName="aspect-[10/4]"
           />
         </Container>
       </Section>
