@@ -13,12 +13,26 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case 'GET':
-        $comments = $commentModel->getAll();
+        $item_id = isset($_GET['item_id']) ? (int)$_GET['item_id'] : null;
+        $category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
+        $comments = $commentModel->getAll($item_id, $category_id);
         jsonResponse($comments);
         break;
 
+    case 'POST':
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['comment_content']) || empty(trim($data['comment_content']))) {
+            jsonResponse(['error' => 'Nội dung bình luận không được để trống'], 400);
+        }
+        if (!isset($data['user_id'])) {
+            jsonResponse(['error' => 'Thiếu user_id'], 400);
+        }
+        $result = $commentModel->create($data);
+        jsonResponse($result ? ['message' => 'Thêm bình luận thành công'] : ['error' => 'Thêm bình luận thất bại'], $result ? 201 : 500);
+        break;
+
     case 'PUT':
-        $data = json_decode(file_get_contents("php://input"), true); // Sử dụng json_decode thay vì parse_str
+        $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['comment_id'])) {
             jsonResponse(['error' => 'Thiếu comment_id'], 400);
         }
@@ -30,7 +44,7 @@ switch ($method) {
         break;
 
     case 'DELETE':
-        $data = json_decode(file_get_contents("php://input"), true); // Sử dụng json_decode thay vì parse_str
+        $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['comment_id'])) {
             jsonResponse(['error' => 'Thiếu comment_id'], 400);
         }
@@ -41,3 +55,4 @@ switch ($method) {
     default:
         jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
 }
+?>
