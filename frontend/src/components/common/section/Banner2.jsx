@@ -10,7 +10,7 @@ const Banner2 = ({
   imageSrc = "/images/banner-foundation.jpg",
 }) => {
   return (
-    <div className="relative overflow-hidden shadow-lg h-[600px]">
+    <div className="relative overflow-hidden shadow-lg h-[600px] rounded-2xl">
       {/* Hình nền */}
       <Image
         src={imageSrc}
