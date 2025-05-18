@@ -9,28 +9,28 @@ const CalligraphyTools = () => {
       name: "Bút lông truyền thống",
       description:
         "Bút lông truyền thống được làm từ lông động vật, thường là lông thỏ hoặc lông dê, với thân bút làm từ tre hoặc gỗ.",
-      imageSrc: "/images/tools/traditional-brush.jpg",
+      imageSrc: "/pages/calligraphy/pen.png",
     },
     {
       id: 2,
       name: "Mực Tàu",
       description:
         "Mực Tàu truyền thống được làm từ muội than, keo và hương liệu, tạo ra màu đen sâu thẳm và bền màu.",
-      imageSrc: "/images/tools/ink.jpg",
+      imageSrc: "/pages/calligraphy/ink.png",
     },
     {
       id: 3,
       name: "Giấy Xuyến Chỉ",
       description:
         "Loại giấy đặc biệt có khả năng hút mực tốt, tạo ra hiệu ứng lan tỏa đặc trưng cho thư pháp Á Đông.",
-      imageSrc: "/images/tools/rice-paper.jpg",
+      imageSrc: "/pages/calligraphy/paper.png",
     },
     {
       id: 4,
       name: "Nghiên Mực",
       description:
         "Dụng cụ để mài mực khối thành mực nước, thường được làm từ đá và có thiết kế tinh xảo.",
-      imageSrc: "/images/tools/ink-stone.jpg",
+      imageSrc: "/pages/calligraphy/inkstone.png",
     },
   ];
 

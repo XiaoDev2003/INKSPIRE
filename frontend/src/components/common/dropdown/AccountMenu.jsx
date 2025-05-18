@@ -1,19 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaUser, FaSignOutAlt, FaUserCircle, FaExchangeAlt, FaUserCog } from 'react-icons/fa';
+import useAuth from '../../../hooks/useAuth';
 
 const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
-  const [isAdmin, setIsAdmin] = useState(false);
-  
-  // Kiểm tra xem người dùng có phải là admin không
-  useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('user'));
-    if (userData && userData.role === 'admin') {
-      setIsAdmin(true);
-    }
-  }, []);
+  const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  // Kiểm tra quyền admin dựa trên role từ context
+  const isAdmin = user && (user.role === 'admin' || user.is_admin === true);
 
   // Đóng dropdown khi click ra ngoài
   useEffect(() => {
@@ -49,12 +44,12 @@ const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
             <div className="flex items-center justify-center h-10 w-10 rounded-full bg-amber-100 text-amber-700">
               <FaUserCircle className="h-6 w-6" />
             </div>
-            <div className="text-amber-900 font-medium">{username}</div>
+            <div className="text-amber-900 font-medium">{user?.username || username}</div>
           </div>
-          
+
           {/* Thanh gạch ngang */}
           <div className="border-t border-gray-200 my-1"></div>
-          
+
           <div className="py-1" role="menu" aria-orientation="vertical">
             <Link
               to="/profile"
@@ -65,7 +60,7 @@ const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
               <FaUser className="h-4 w-4" />
               <span>Truy cập hồ sơ</span>
             </Link>
-            
+
             <Link
               to="/switch-account"
               className="flex items-center gap-2 px-4 py-2 text-sm text-amber-900 hover:bg-amber-100"
@@ -75,7 +70,7 @@ const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
               <FaExchangeAlt className="h-4 w-4" />
               <span>Đổi tài khoản</span>
             </Link>
-            
+
             {isAdmin && (
               <Link
                 to="/admin"
@@ -87,12 +82,13 @@ const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
                 <span>Trang quản trị</span>
               </Link>
             )}
-            
+
             <button
               className="flex w-full items-center gap-2 px-4 py-2 text-sm text-amber-900 hover:bg-amber-100 text-left"
               role="menuitem"
               onClick={() => {
                 setIsOpen(false);
+                logout();
                 if (onLogout) onLogout();
               }}
             >

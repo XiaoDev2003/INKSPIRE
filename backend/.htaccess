@@ -8,3 +8,6 @@ RewriteRule ^api/ index.php [QSA,L]
 
 # Cho phép OPTIONS request cho CORS preflight
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Đảm bảo header Authorization được truyền đúng
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1

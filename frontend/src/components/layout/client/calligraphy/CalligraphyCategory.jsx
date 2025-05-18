@@ -11,7 +11,7 @@ const CalligraphyCategory = () => {
       title: "Thư pháp truyền thống",
       description:
         "Nghệ thuật viết chữ truyền thống với bút lông và mực Tàu, thể hiện vẻ đẹp của văn hóa Á Đông.",
-      imageSrc: "/images/calligraphy-type-1.jpg",
+      imageSrc: "/banner/traditional.png",
       link: "/category/traditional",
     },
     {
@@ -19,7 +19,7 @@ const CalligraphyCategory = () => {
       title: "Thư pháp hiện đại",
       description:
         "Kết hợp giữa kỹ thuật truyền thống và phong cách đương đại, tạo nên những tác phẩm độc đáo và sáng tạo.",
-      imageSrc: "/images/calligraphy-type-2.jpg",
+      imageSrc: "/banner/modern.png",
       link: "/category/modern",
     },
     {
@@ -27,7 +27,7 @@ const CalligraphyCategory = () => {
       title: "Viết tay thiết kế",
       description:
         "Nghệ thuật viết tay kết hợp với thiết kế hiện đại, tạo nên những tác phẩm độc đáo và cá nhân hóa.",
-      imageSrc: "/images/calligraphy-type-3.jpg",
+      imageSrc: "/banner/design.png",
       link: "/category/handwriting",
     },
   ];

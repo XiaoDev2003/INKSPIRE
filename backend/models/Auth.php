@@ -37,8 +37,11 @@ class Auth {
         }
     }
 
-    public function verifyLogin($email, $password) {
-        $user = $this->findByEmail($email);
+    public function verifyLogin($login, $password) {
+        // Cho phép đăng nhập bằng email hoặc username
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = :login OR username = :login");
+        $stmt->execute([':login' => $login]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user && isset($user['password_hash']) && password_verify($password, $user['password_hash'])) {
             return $user;
         }
@@ -46,8 +49,10 @@ class Auth {
     }
 
     public function isAdmin($userId) {
-        $user = $this->findById($userId);
-        return ($user && $user['role'] === 'admin');
+        $stmt = $this->conn->prepare("SELECT role FROM users WHERE user_id = :user_id");
+        $stmt->execute([':user_id' => $userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return ($result && $result['role'] === 'admin');
     }
 
     public function lastError() {

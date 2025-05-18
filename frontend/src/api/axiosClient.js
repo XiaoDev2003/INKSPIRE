@@ -8,6 +8,7 @@ const axiosClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Cho phép gửi cookies với mỗi request
 });
 
 export default axiosClient;

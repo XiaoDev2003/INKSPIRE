@@ -24,14 +24,14 @@ const Calligraphy = () => {
       title: "Thư pháp hiện đại",
       description:
         "Kết hợp giữa kỹ thuật truyền thống và phong cách đương đại, tạo nên những tác phẩm độc đáo và sáng tạo.",
-      imageSrc: "/images/calligraphy-type-2.jpg",
+      imageSrc: "/banner/modern.png",
     },
     {
       id: 3,
-      title: "Thư pháp Latinh",
+      title: "Thư pháp thiết kế",
       description:
         "Nghệ thuật viết chữ đẹp với bảng chữ cái Latinh, sử dụng nhiều loại bút và phong cách khác nhau.",
-      imageSrc: "/images/calligraphy-type-3.jpg",
+      imageSrc: "/banner/design.png",
     },
   ];
 

@@ -21,6 +21,11 @@ switch (true) {
         require_once __DIR__ . '/../controllers/AuthController.php';
         (new AuthController())->getCurrentUser();
         break;
+        
+    case preg_match('/\/api\/auth\/verify-admin$/', $request):
+        require_once __DIR__ . '/../controllers/AuthController.php';
+        (new AuthController())->verifyAdmin();
+        break;
 
     case preg_match('/\/api\/admin\/(.*?)$/', $request, $matches):
         // Kiểm tra quyền admin trước khi cho phép truy cập

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaBars, FaBell, FaSearch, FaUser, FaCog, FaTimes } from 'react-icons/fa';
 import AdminSidebar from './AdminSidebar';
+import axiosClient from '../../../api/axiosClient';
+import { AuthContext } from '../../../contexts/AuthContext';
 
 const AdminLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -9,21 +11,37 @@ const AdminLayout = ({ children }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const navigate = useNavigate();
+  const { user: authUser, isAdmin, logout } = useContext(AuthContext);
 
-  // Kiểm tra xác thực người dùng
+  // Sử dụng thông tin từ AuthContext thay vì kiểm tra lại
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('user'));
-    if (!userData || userData.role !== 'admin') {
-      navigate('/auth/login');
-      return;
+    // Nếu đã có thông tin người dùng từ AuthContext, sử dụng nó
+    if (authUser) {
+      console.log('AdminLayout - Sử dụng thông tin người dùng từ AuthContext');
+      setUser(authUser);
+    } else if (!authUser) {
+      // Chỉ chuyển hướng khi không có người dùng
+      console.log('AdminLayout - Không có thông tin người dùng trong AuthContext');
+      // Không hiển thị thông báo "Không tìm thấy thông tin đăng nhập" nữa
+      // vì ProtectedRoute đã xử lý việc chuyển hướng
     }
-    setUser(userData);
-  }, [navigate]);
+  }, [authUser]);
+
+  // Kiểm tra quyền admin
+  useEffect(() => {
+    if (authUser && !isAdmin) {
+      console.log('AdminLayout - Người dùng không có quyền admin');
+      navigate('/');
+    }
+  }, [authUser, isAdmin, navigate]);
+
+
 
   // Xử lý đăng xuất
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    navigate('/auth/login');
+    // Sử dụng logout từ AuthContext
+    logout();
+    navigate('/');
   };
 
   // Dữ liệu thông báo mẫu

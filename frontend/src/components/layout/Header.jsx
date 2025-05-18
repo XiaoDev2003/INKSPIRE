@@ -14,7 +14,7 @@ const Header = () => {
           <img
             src="/logo.png"
             alt="Logo Inkspire"
-            className="w-42 object-cover md:ml-15"
+            className="w-42 object-cover "
           />
         </Link>
         <VisitorPopup  />

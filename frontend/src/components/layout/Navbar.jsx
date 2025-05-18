@@ -17,10 +17,24 @@ const Navbar = () => {
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
     const storedLoginStatus = localStorage.getItem('isLoggedIn');
+    const userData = localStorage.getItem('user');
 
-    if (storedLoginStatus === 'true' && storedUsername) {
+    if (storedLoginStatus === 'true') {
       setIsLoggedIn(true);
-      setUsername(storedUsername);
+
+      // Ưu tiên sử dụng thông tin từ đối tượng user đầy đủ nếu có
+      if (userData) {
+        try {
+          const parsedUserData = JSON.parse(userData);
+          setUsername(parsedUserData.username || storedUsername || 'Người dùng');
+          console.log('Đã tải thông tin người dùng từ localStorage:', parsedUserData);
+        } catch (error) {
+          console.error('Lỗi khi đọc dữ liệu người dùng:', error);
+          setUsername(storedUsername || 'Người dùng');
+        }
+      } else if (storedUsername) {
+        setUsername(storedUsername);
+      }
     }
   }, []);
 
@@ -29,6 +43,7 @@ const Navbar = () => {
     // Xóa thông tin đăng nhập khỏi localStorage
     localStorage.removeItem('username');
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
 
     // Cập nhật state
     setIsLoggedIn(false);
@@ -44,7 +59,7 @@ const Navbar = () => {
         {/* Desktop navbar */}
         <div className="hidden h-16 items-center justify-between md:flex">
           {/* Left Side - Sự kiện */}
-          <div>
+          <div className="w-42">
             <Link
               to="/events"
               className="flex items-center gap-2 rounded-md px-4 py-2 font-medium text-amber-800 transition-colors duration-200 hover:bg-amber-100"
@@ -146,7 +161,7 @@ const Navbar = () => {
           </ul>
 
           {/* Right Side - Đăng nhập hoặc Account Menu */}
-          <div>
+          <div className="w-40">
             {isLoggedIn ? (
               <AccountMenu username={username || "Người dùng"} onLogout={handleLogout} />
             ) : (
@@ -194,8 +209,21 @@ const Navbar = () => {
           localStorage.setItem('username', user);
           localStorage.setItem('isLoggedIn', 'true');
 
+          // Lấy thông tin người dùng từ localStorage nếu có
+          const userData = localStorage.getItem('user');
+          if (userData) {
+            try {
+              const parsedUserData = JSON.parse(userData);
+              setUsername(parsedUserData.username || user);
+            } catch (error) {
+              console.error('Lỗi khi đọc dữ liệu người dùng:', error);
+              setUsername(user);
+            }
+          } else {
+            setUsername(user);
+          }
+
           // Cập nhật state
-          setUsername(user);
           setIsLoggedIn(true);
         }}
       />

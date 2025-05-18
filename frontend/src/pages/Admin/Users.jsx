@@ -26,9 +26,7 @@ const Users = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        console.log('Fetching users from /api/users');
         const response = await axiosClient.get('/api/users');
-        console.log('Users response:', response.data);
         setUsers(response.data);
       } catch (err) {
         console.error('Error fetching users:', err.response || err.message);
@@ -89,11 +87,9 @@ const Users = () => {
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
       try {
-        console.log('Deleting user with ID:', userId);
         const response = await axiosClient.delete('/api/users', {
           data: { user_id: userId },
         });
-        console.log('Delete response:', response.data);
         setUsers(users.filter(user => user.user_id !== userId));
         setSuccess('Xóa người dùng thành công!');
       } catch (err) {

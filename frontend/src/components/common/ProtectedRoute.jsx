@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../../contexts/AuthContext';
 
 /**
  * Component bảo vệ route, chỉ cho phép người dùng đã đăng nhập với quyền phù hợp truy cập
@@ -11,42 +12,60 @@ import { Navigate, useLocation } from 'react-router-dom';
 const ProtectedRoute = ({
   children,
   requiredRole = 'admin',
-  redirectPath = '/auth/login'
+  redirectPath = '/'
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
   const location = useLocation();
+  const { user: authUser, isAdmin, role: userRole, loading: authLoading } = useContext(AuthContext);
 
   useEffect(() => {
-    // Kiểm tra thông tin người dùng từ localStorage
-    const checkAuth = () => {
-      try {
-        const userData = JSON.parse(localStorage.getItem('user'));
-        setUser(userData);
+    // Sử dụng thông tin từ AuthContext thay vì gọi API riêng
+    if (!authLoading) {
+      console.log('ProtectedRoute - AuthLoading đã hoàn tất');
 
-        if (!userData) {
-          setIsAuthenticated(false);
-          return;
-        }
-
-        // Kiểm tra nếu requiredRole là mảng các vai trò
-        if (Array.isArray(requiredRole)) {
-          setIsAuthenticated(requiredRole.includes(userData.role));
-        } else {
-          // Kiểm tra nếu requiredRole là một chuỗi đơn
-          setIsAuthenticated(userData.role === requiredRole);
-        }
-      } catch (error) {
-        console.error('Lỗi khi kiểm tra xác thực:', error);
+      if (!authUser) {
+        console.log('ProtectedRoute - Không có user, chuyển hướng đến:', redirectPath);
         setIsAuthenticated(false);
-      } finally {
         setIsLoading(false);
+        return;
       }
-    };
 
-    checkAuth();
-  }, [requiredRole]);
+      console.log('ProtectedRoute - User:', authUser);
+      console.log('ProtectedRoute - Role:', userRole);
+      console.log('ProtectedRoute - IsAdmin:', isAdmin);
+      console.log('ProtectedRoute - RequiredRole:', requiredRole);
+
+      let hasAccess = false;
+
+      // Nếu requiredRole là 'admin' và user có isAdmin = true, cho phép truy cập
+      if (requiredRole === 'admin' && isAdmin === true) {
+        console.log('ProtectedRoute - User có quyền admin, cho phép truy cập');
+        hasAccess = true;
+      }
+      // Kiểm tra role thông thường
+      else if (Array.isArray(requiredRole)) {
+        hasAccess = requiredRole.includes(userRole);
+        console.log('ProtectedRoute - Kiểm tra mảng role:', hasAccess);
+      } else {
+        hasAccess = userRole === requiredRole;
+        console.log('ProtectedRoute - Kiểm tra role đơn:', hasAccess);
+      }
+
+      setIsAuthenticated(hasAccess);
+      setIsLoading(false);
+    }
+  }, [authUser, userRole, isAdmin, requiredRole, authLoading, redirectPath]);
+
+  // Log trạng thái hiện tại để debug
+  console.log('ProtectedRoute - Trạng thái hiện tại:', {
+    isLoading,
+    isAuthenticated,
+    authUser,
+    isAdmin,
+    userRole,
+    requiredRole
+  });
 
   // Hiển thị loading khi đang kiểm tra xác thực
   if (isLoading) {
@@ -57,12 +76,14 @@ const ProtectedRoute = ({
     );
   }
 
-  // Chuyển hướng về trang đăng nhập nếu chưa xác thực
+  // Chuyển hướng về trang chủ nếu chưa xác thực
   if (!isAuthenticated) {
+    console.log('ProtectedRoute - Không có quyền truy cập, chuyển hướng đến:', redirectPath);
     return <Navigate to={redirectPath} state={{ from: location }} replace />;
   }
 
   // Hiển thị component con nếu đã xác thực
+  console.log('ProtectedRoute - Đã xác thực, hiển thị component con');
   return children;
 };
 

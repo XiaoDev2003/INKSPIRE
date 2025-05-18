@@ -3,45 +3,38 @@ import React, { useState } from 'react';
 import { FaSignInAlt, FaTimes } from 'react-icons/fa';
 import axiosClient from '../../../api/axiosClient';
 import {RegisterModal} from '../common';
+import useAuth from '../../../hooks/useAuth';
 
 const LoginModal = ({ isOpen, onClose, onLogin }) => {
-  const [username, setUsername] = useState(''); // Sử dụng username nhưng gửi email
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [loginVisible, setLoginVisible] = useState(true);
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Kiểm tra người dùng mẫu (admin/admin123)
-    if (username === 'admin' && password === 'admin123') {
-      // Tạo dữ liệu người dùng mẫu
-      const adminUser = {
-        id: 'admin-sample',
-        username: 'admin',
-        email: 'admin@example.com',
-        role: 'admin'
-      };
-
-      // Lưu thông tin người dùng vào localStorage
-      localStorage.setItem('user', JSON.stringify(adminUser));
-      onLogin('admin'); // Gọi onLogin với username admin
-      onClose(); // Đóng modal
-      return;
-    }
-
-    // Xử lý đăng nhập thông thường qua API
+    // Xử lý đăng nhập qua API
     try {
       const res = await axiosClient.post('/api/login', {
         email: username, // Gửi username như email để khớp với backend
         password,
       });
-      localStorage.setItem('user', JSON.stringify(res.data));
-      onLogin(res.data.username || username); // Gọi onLogin với username từ response hoặc input
-      onClose(); // Đóng modal
+
+      // Kiểm tra phản hồi từ server
+      if (res.data && res.data.success) {
+        login(res.data.user); // Sử dụng context để cập nhật trạng thái toàn cục
+        onLogin(res.data.user.username || username);
+        onClose();
+      } else {
+        // Nếu server trả về lỗi trong phản hồi
+        setError(res.data?.error || 'Đăng nhập không thành công');
+      }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.error || 'Tên đăng nhập hoặc mật khẩu không đúng');
     }
   };
@@ -75,9 +68,9 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
             <div className="mb-4">
               <label
                 htmlFor="username"
-                className="mb-2 block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Tên đăng nhập
+                Email hoặc Tên đăng nhập
               </label>
               <input
                 type="text"
@@ -85,7 +78,7 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                placeholder="Nhập tên đăng nhập hoặc email"
+                placeholder="Nhập email hoặc tên đăng nhập"
                 required
               />
             </div>
@@ -135,9 +128,6 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
                 Đăng ký ngay
               </button>
             </p>
-            <p className="mt-2 text-gray-500 italic">
-              Tài khoản mẫu: <span className="font-medium">admin</span> / <span className="font-medium">admin123</span>
-            </p>
           </div>
         </div>
       )}
@@ -152,7 +142,8 @@ const LoginModal = ({ isOpen, onClose, onLogin }) => {
         onRegister={(data) => {
           console.log('Đăng ký:', data);
           setRegisterModalOpen(false);
-          onLogin(data.username); // Tự động đăng nhập sau khi đăng ký
+          login(data); // Sử dụng context để cập nhật trạng thái toàn cục
+          onLogin(data.username);
           onClose();
         }}
         onBackToLogin={() => {

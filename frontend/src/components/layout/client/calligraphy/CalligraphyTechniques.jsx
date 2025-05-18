@@ -14,7 +14,7 @@ const CalligraphyTechniques = () => {
         "Giữ bút ở góc 90 độ so với mặt giấy",
         "Giữ cổ tay thẳng và thả lỏng",
       ],
-      imageSrc: "/images/techniques/brush-holding.jpg",
+      imageSrc: "/pages/calligraphy/pentech.png",
     },
     {
       id: 2,
@@ -26,7 +26,7 @@ const CalligraphyTechniques = () => {
         "Luyện nét sổ từ trên xuống dưới",
         "Kết hợp các nét cơ bản thành chữ đơn giản",
       ],
-      imageSrc: "/images/techniques/basic-strokes.jpg",
+      imageSrc: "/pages/calligraphy/line.png",
     },
     {
       id: 3,
@@ -38,7 +38,7 @@ const CalligraphyTechniques = () => {
         "Mài mực khối theo chuyển động tròn",
         "Kiểm tra độ đặc của mực trên giấy thử",
       ],
-      imageSrc: "/images/techniques/ink-preparation.jpg",
+      imageSrc: "/pages/calligraphy/ink1.png",
     },
   ];
 
