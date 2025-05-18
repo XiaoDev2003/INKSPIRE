@@ -1,4 +1,9 @@
 <?php
+// Định nghĩa các routes cho API
+
+// Nhập các controllers
+require_once __DIR__ . '/../controllers/CommentController.php';
+
 $request = $_SERVER['REQUEST_URI'];
 
 switch (true) {
@@ -77,6 +82,21 @@ switch (true) {
         (new AuthController())->getCurrentUser();
         break;
 
+    case preg_match('/\/api\/user\/profile$/', $request):
+        require_once __DIR__ . '/../controllers/UserController.php';
+        (new UserController())->getUserProfile();
+        break;
+        
+    case preg_match('/\/api\/user\/update-profile$/', $request):
+        require_once __DIR__ . '/../controllers/UserController.php';
+        (new UserController())->updateProfile();
+        break;
+        
+    case preg_match('/\/api\/user\/change-password$/', $request):
+        require_once __DIR__ . '/../controllers/UserController.php';
+        (new UserController())->changePassword();
+        break;
+
     case preg_match('/\/api\/auth\/verify-admin$/', $request):
         require_once __DIR__ . '/../controllers/AuthController.php';
         (new AuthController())->verifyAdmin();
@@ -111,6 +131,7 @@ switch (true) {
 
     case preg_match('/\/api\/users/', $request):
         require_once __DIR__ . '/../controllers/UserController.php';
+        (new UserController())->handleRequest();
         break;
 
     case preg_match('/\/api\/categories/', $request):
@@ -129,8 +150,9 @@ switch (true) {
         require_once __DIR__ . '/../controllers/FeedbackController.php';
         break;
 
-    case preg_match('/\/api\/comments/', $request):
-        require_once __DIR__ . '/../controllers/CommentsController.php';
+    // Đã require CommentController ở đầu file, không cần require lại
+    case preg_match('/\/api\/comments/', $request) && !preg_match('/\/api\/comments(\/|$)/', $request):
+        // Xử lý các route comments khác nếu cần
         break;
 
     case preg_match('/\/api\/queries/', $request):
@@ -141,7 +163,34 @@ switch (true) {
     case preg_match('/\/backend(\/)?$/', $request):
         echo json_encode(['message' => 'Chào mừng bạn đến với Inkspire API. Vui lòng sử dụng các endpoint bắt đầu bằng /api/']);
         break;
+    // Comments API endpoints
+    case preg_match('/\/api\/comments$/', $request) && $_SERVER['REQUEST_METHOD'] === 'GET':
+        $commentController = new CommentController();
+        $commentController->getComments();
+        break;
+
+    case preg_match('/\/api\/comments$/', $request) && $_SERVER['REQUEST_METHOD'] === 'POST':
+        $commentController = new CommentController();
+        $commentController->addComment();
+        break;
+
+    case preg_match('/\/api\/comments\/(\d+)$/', $request, $matches) && $_SERVER['REQUEST_METHOD'] === 'PUT':
+        $commentController = new CommentController();
+        $commentController->updateComment($matches[1]);
+        break;
+
+    case preg_match('/\/api\/comments\/(\d+)$/', $request, $matches) && $_SERVER['REQUEST_METHOD'] === 'DELETE':
+        $commentController = new CommentController();
+        $commentController->deleteComment($matches[1]);
+        break;
+
+    // Comment Reactions API endpoints
+    case preg_match('/\/api\/comment-reactions$/', $request) && $_SERVER['REQUEST_METHOD'] === 'POST':
+        $commentController = new CommentController();
+        $commentController->addReaction();
+        break;
+
     default:
         http_response_code(404);
-        echo json_encode(['error' => 'API route not found']);
+        echo json_encode(['error' => 'API endpoint not found']);
 }

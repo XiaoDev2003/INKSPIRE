@@ -43,15 +43,7 @@ const UserSidebar = ({ onLogout }) => {
               </Link>
             </li>
           ))}
-          <li>
-            <button
-              onClick={onLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-md transition-colors hover:bg-gray-100 text-left"
-            >
-              <span className="text-red-600"><FaSignOutAlt /></span>
-              <span>Đăng xuất</span>
-            </button>
-          </li>
+
         </ul>
       </nav>
     </div>

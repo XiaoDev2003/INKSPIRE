@@ -3,8 +3,8 @@ import axios from 'axios';
 
 // 👉 Tạo một client axios có sẵn baseURL và headers
 const axiosClient = axios.create({
-  baseURL: 'http://localhost/Inkspire/backend',
-  // baseURL: 'http://localhost/Workspace/Project/Inkspire/backend/',
+  // baseURL: 'http://localhost/Inkspire/backend',
+  baseURL: 'http://localhost/Workspace/Project/Inkspire/backend/',
   headers: {
     'Content-Type': 'application/json',
   },

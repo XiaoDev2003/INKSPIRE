@@ -50,7 +50,6 @@ const MainRouter = () => {
       <Route path='/admin/comments' element={<ProtectedRoute><Comments /></ProtectedRoute>} />
       <Route path='/admin/feedback' element={<ProtectedRoute><AdminFeedback /></ProtectedRoute>} />
       <Route path='/admin/faq' element={<ProtectedRoute><AdminFAQ /></ProtectedRoute>} />
-      <Route path='/admin/statistics' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
       {/* Trang chức năng đang phát triển */}
       <Route path='/under-development' element={<UnderDevelopment />} />

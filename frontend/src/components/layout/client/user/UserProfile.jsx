@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaEdit, FaCamera } from 'react-icons/fa';
+import axiosClient from '../../../../api/axiosClient';
 
 const UserProfile = ({ user, onUpdateProfile }) => {
   const [editMode, setEditMode] = useState(false);
@@ -8,6 +9,12 @@ const UserProfile = ({ user, onUpdateProfile }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [updateSuccess, setUpdateSuccess] = useState(false);
+
+  // Cập nhật formData khi user prop thay đổi
+  useEffect(() => {
+    setFormData(user);
+  }, [user]);
+
 
   // Xử lý khi click vào nút chỉnh sửa
   const handleEditClick = () => {
@@ -43,23 +50,30 @@ const UserProfile = ({ user, onUpdateProfile }) => {
     setUpdateSuccess(false);
 
     try {
-      // Trong thực tế, đây là nơi gửi dữ liệu lên server
-      // await axiosClient.post('/api/users/update-profile', formData);
-
-      // Cập nhật dữ liệu người dùng
-      const updatedUser = {
+      // Chuẩn bị dữ liệu để gửi lên server
+      const updatedData = {
         ...formData,
         avatar_url: avatarPreview || user.avatar_url
       };
 
-      // Gọi hàm callback để cập nhật state ở component cha
-      if (onUpdateProfile) {
-        onUpdateProfile(updatedUser);
-      }
+      // Gửi dữ liệu lên server
+      const response = await axiosClient.post('/api/user/update-profile', updatedData);
 
-      setUpdateSuccess(true);
-      setEditMode(false);
-      setAvatarPreview(null);
+      if (response.data.success) {
+        // Cập nhật dữ liệu người dùng
+        const updatedUser = response.data.user || updatedData;
+
+        // Gọi hàm callback để cập nhật state ở component cha
+        if (onUpdateProfile) {
+          onUpdateProfile(updatedUser);
+        }
+
+        setUpdateSuccess(true);
+        setEditMode(false);
+        setAvatarPreview(null);
+      } else {
+        setError(response.data.error || 'Cập nhật thất bại. Vui lòng thử lại.');
+      }
     } catch (err) {
       setError('Cập nhật thất bại. Vui lòng thử lại.');
       console.error('Error updating profile:', err);
@@ -85,7 +99,6 @@ const UserProfile = ({ user, onUpdateProfile }) => {
         {/* Form thông tin */}
         <div className="w-full">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-6">Thông tin tài khoản</h3>
 
             {updateSuccess && (
               <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
@@ -137,40 +150,20 @@ const UserProfile = ({ user, onUpdateProfile }) => {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">Website</label>
-                  <input
-                    type="url"
-                    name="website"
-                    value={formData.website}
-                    onChange={handleInputChange}
-                    disabled={!editMode}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
 
                 <div>
-                  <label className="block text-gray-700 font-medium mb-2">Facebook</label>
-                  <input
-                    type="url"
-                    name="facebook"
-                    value={formData.facebook}
+                  <label className="block text-gray-700 font-medium mb-2">Giới tính</label>
+                  <select
+                    name="gender"
+                    value={formData.gender || 'other'}
                     onChange={handleInputChange}
                     disabled={!editMode}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">Twitter</label>
-                  <input
-                    type="url"
-                    name="twitter"
-                    value={formData.twitter}
-                    onChange={handleInputChange}
-                    disabled={!editMode}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
+                  >
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                    <option value="other">Khác</option>
+                  </select>
                 </div>
               </div>
 

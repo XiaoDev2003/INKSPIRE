@@ -64,6 +64,7 @@ CREATE TABLE items (
 CREATE TABLE gallery (
     image_id INT AUTO_INCREMENT PRIMARY KEY,
     image_title VARCHAR(100),
+    image_description TEXT DEFAULT NULL,
     image_url VARCHAR(255) NOT NULL,
     category_id INT,
     item_id INT,
@@ -100,6 +101,12 @@ CREATE TABLE comments (
     parent_comment_id INT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    -- Cột đếm số lượt like và dislike
+    likes_count INT DEFAULT 0,
+    dislikes_count INT DEFAULT 0,
+
+    -- Khóa ngoại
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (item_id) REFERENCES items(item_id),
     FOREIGN KEY (category_id) REFERENCES categories(category_id),
@@ -109,14 +116,17 @@ CREATE TABLE comments (
 -- -----------------------------
 -- BẢNG COMMENT_LIKES
 -- -----------------------------
-CREATE TABLE comment_likes (
-    like_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE comment_reactions (
+    reaction_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     comment_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (user_id, comment_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (comment_id) REFERENCES comments(comment_id)
+    reaction_type ENUM('like', 'dislike') NOT NULL,
+    reacted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE (user_id, comment_id), -- Mỗi người chỉ có 1 phản ứng trên 1 comment
+
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (comment_id) REFERENCES comments(comment_id) ON DELETE CASCADE
 );
 
 -- -----------------------------

@@ -61,7 +61,7 @@ const Navbar = () => {
           {/* Left Side - Sự kiện */}
           <div className="w-42">
             <Link
-              to="/events"
+              to="/under-development"
               className="flex items-center gap-2 rounded-md px-4 py-2 font-medium text-amber-800 transition-colors duration-200 hover:bg-amber-100"
               aria-label="Xem sự kiện"
             >

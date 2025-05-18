@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaKey, FaEye, FaEyeSlash } from 'react-icons/fa';
+import axiosClient from '../../../../api/axiosClient';
 
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
@@ -45,25 +46,26 @@ const ChangePassword = () => {
     }
 
     try {
-      // Trong thực tế, đây là nơi gửi dữ liệu lên server
-      // await axiosClient.post('/api/users/change-password', {
-      //   current_password: formData.currentPassword,
-      //   new_password: formData.newPassword
-      // });
+      // Gửi dữ liệu lên server
+      const response = await axiosClient.post('/api/user/change-password', {
+        current_password: formData.currentPassword,
+        new_password: formData.newPassword
+      });
 
-      // Giả lập API call thành công
-      setTimeout(() => {
+      if (response.data.success) {
         setSuccess(true);
         setFormData({
           currentPassword: '',
           newPassword: '',
           confirmPassword: ''
         });
-        setLoading(false);
-      }, 1000);
+      } else {
+        setError(response.data.error || 'Đổi mật khẩu thất bại. Vui lòng thử lại.');
+      }
     } catch (err) {
-      setError('Đổi mật khẩu thất bại. Vui lòng thử lại.');
+      setError(err.response?.data?.error || 'Đổi mật khẩu thất bại. Vui lòng thử lại.');
       console.error('Error changing password:', err);
+    } finally {
       setLoading(false);
     }
   };

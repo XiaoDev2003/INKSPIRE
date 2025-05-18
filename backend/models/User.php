@@ -19,6 +19,12 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getUserById($id) {
+        $stmt = $this->conn->prepare("SELECT user_id, username, email, phone, role, gender, first_name, last_name, status, avatar_url, created_at FROM users WHERE user_id = :id");
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function create($data) {
         $stmt = $this->conn->prepare("INSERT INTO users (username, email, phone, role, gender, first_name, last_name, status, password_hash) VALUES (:username, :email, :phone, :role, :gender, :first_name, :last_name, :status, :password_hash)");
         return $stmt->execute([
@@ -49,6 +55,44 @@ class User {
         ]);
     }
 
+    public function updateUser($userId, $data) {
+        // Xây dựng câu lệnh SQL động dựa trên dữ liệu cần cập nhật
+        $sql = "UPDATE users SET ";
+        $params = [':id' => $userId];
+        $updateFields = [];
+
+        foreach ($data as $field => $value) {
+            $updateFields[] = "$field = :$field";
+            $params[":$field"] = $value;
+        }
+
+        $sql .= implode(", ", $updateFields);
+        $sql .= " WHERE user_id = :id";
+
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute($params);
+    }
+
+    public function updatePassword($userId, $newPasswordHash) {
+        $stmt = $this->conn->prepare("UPDATE users SET password_hash = :password_hash WHERE user_id = :id");
+        return $stmt->execute([
+            ':id' => $userId,
+            ':password_hash' => $newPasswordHash
+        ]);
+    }
+
+    public function verifyPassword($userId, $password) {
+        $stmt = $this->conn->prepare("SELECT password_hash FROM users WHERE user_id = :id");
+        $stmt->execute([':id' => $userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user && isset($user['password_hash'])) {
+            return password_verify($password, $user['password_hash']);
+        }
+
+        return false;
+    }
+
     public function delete($id) {
         $stmt = $this->conn->prepare("DELETE FROM users WHERE user_id = :id");
         return $stmt->execute([':id' => $id]);
@@ -66,5 +110,9 @@ class User {
         $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = :email");
         $stmt->execute([':email' => $email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getLastInsertId() {
+        return $this->conn->lastInsertId();
     }
 }

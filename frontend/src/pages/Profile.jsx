@@ -5,48 +5,49 @@ import UserSidebar from '../components/layout/client/user/UserSidebar';
 import UserDashboard from '../components/layout/client/user/UserDashboard';
 import UserProfile from '../components/layout/client/user/UserProfile';
 import ChangePassword from '../components/layout/client/user/ChangePassword';
+import axiosClient from '../api/axiosClient';
+import useAuth from '../hooks/useAuth';
+import { FaSignOutAlt } from 'react-icons/fa';
 
 const Profile = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user: authUser, isLoggedIn, logout } = useAuth();
 
-  // Dữ liệu mẫu cho người dùng khi chưa có API
-  const defaultUser = {
-    first_name: 'John',
-    last_name: 'Doe',
-    username: 'johndoe',
-    email: 'support@profilepress.net',
-    website: 'https://profilepress.net',
-    facebook: 'https://www.facebook.com/profilepress',
-    twitter: 'https://twitter.com/profilepress',
-    avatar_url: null,
-    gender: 'male'
-  };
-
-  const [user, setUser] = useState(defaultUser);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Kiểm tra nếu người dùng chưa đăng nhập thì chuyển hướng về trang đăng nhập
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
+    }
+
     const fetchUserProfile = async () => {
       try {
-        // Bỏ comment dòng dưới khi có API
-        // const response = await axiosClient.get('/api/users/profile');
-        // const userData = response.data;
-        // setUser(userData);
+        // Gọi API để lấy thông tin chi tiết của người dùng
+        const response = await axiosClient.get('/api/user/profile');
 
-        // Dùng dữ liệu mẫu khi chưa có API
-        setUser(defaultUser);
+        if (response.data.success) {
+          setUser(response.data.user);
+        } else {
+          // Nếu không lấy được từ API, sử dụng dữ liệu từ context auth
+          setUser(authUser);
+        }
       } catch (err) {
-        setError('Không thể tải thông tin người dùng. Vui lòng đăng nhập lại.');
         console.error('Error fetching user profile:', err);
+        // Nếu có lỗi, vẫn sử dụng dữ liệu từ context auth
+        setUser(authUser);
+        setError('Không thể tải thông tin chi tiết người dùng.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, []);
+  }, [isLoggedIn, navigate, authUser]);
 
   // Xử lý cập nhật thông tin người dùng
   const handleUpdateProfile = (updatedUser) => {
@@ -54,15 +55,24 @@ const Profile = () => {
   };
 
   // Xử lý đăng xuất
-  const handleLogout = () => {
-    // Trong thực tế, đây là nơi xử lý đăng xuất
-    // await axiosClient.post('/api/auth/logout');
+  const handleLogout = async () => {
+    try {
+      // Gọi API đăng xuất
+      await axiosClient.post('/api/logout');
 
-    // Chuyển hướng về trang chủ
-    navigate('/');
+      // Sử dụng context để đăng xuất
+      logout();
+
+      // Chuyển hướng về trang chủ
+      navigate('/');
+    } catch (err) {
+      console.error('Lỗi khi đăng xuất:', err);
+      // Vẫn chuyển hướng về trang chủ ngay cả khi có lỗi
+      navigate('/');
+    }
   };
 
-  if (loading && !user) {
+  if (loading || !user) {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-600"></div>
@@ -70,7 +80,7 @@ const Profile = () => {
     );
   }
 
-  if (error && !user) {
+  if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
@@ -93,8 +103,15 @@ const Profile = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <h2 className="text-xl font-bold mb-2">{user.first_name} {user.last_name}</h2>
+            <h2 className="text-xl font-bold mb-2">{user.first_name || ''} {user.last_name || ''}</h2>
             <p className="text-gray-600 mb-4">@{user.username}</p>
+            <button
+              onClick={handleLogout}
+              className="mt-2 flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+            >
+              <span className="text-red-600"><FaSignOutAlt /></span>
+              <span>Đăng xuất</span>
+            </button>
           </div>
 
           {/* Menu sidebar */}
@@ -102,13 +119,14 @@ const Profile = () => {
         </div>
 
         {/* Nội dung chính */}
-        <div className="lg:w-3/4">
+        <div className="lg:w-3/4 mb-50">
           <Routes>
             <Route path="/dashboard" element={<UserDashboard user={user} />} />
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/" element={<UserProfile user={user} onUpdateProfile={handleUpdateProfile} />} />
           </Routes>
         </div>
+
       </div>
     </div>
   );

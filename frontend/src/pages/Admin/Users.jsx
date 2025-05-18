@@ -27,10 +27,13 @@ const Users = () => {
     const fetchUsers = async () => {
       try {
         const response = await axiosClient.get('/api/users');
-        setUsers(response.data);
+        // Đảm bảo dữ liệu trả về là một mảng
+        const userData = Array.isArray(response.data) ? response.data : [];
+        setUsers(userData);
       } catch (err) {
         console.error('Error fetching users:', err.response || err.message);
         setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu người dùng.');
+        setUsers([]); // Đặt users là mảng rỗng khi có lỗi
       } finally {
         setLoading(false);
       }
@@ -43,11 +46,12 @@ const Users = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredUsers = users.filter(user =>
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  // Đảm bảo users luôn là một mảng trước khi áp dụng filter
+  const filteredUsers = Array.isArray(users) ? users.filter(user =>
+    (user.username?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
     (user.phone && user.phone.includes(searchTerm))
-  );
+  ) : [];
 
   const handleAddUser = () => {
     setCurrentUser(null);
