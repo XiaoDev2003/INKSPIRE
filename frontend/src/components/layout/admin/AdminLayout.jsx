@@ -61,12 +61,12 @@ const AdminLayout = ({ children }) => {
       />
 
       {/* Main Content */}
-      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
+      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'} overflow-x-hidden`}>
         {/* Top Navigation Bar */}
         <header className="bg-white shadow-sm sticky top-0 z-10">
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3">
             {/* Left side - Toggle button & Search */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="text-gray-600 hover:text-amber-600 focus:outline-none flex items-center justify-center"
@@ -75,7 +75,7 @@ const AdminLayout = ({ children }) => {
                 {sidebarOpen ? <FaTimes /> : <FaBars />}
               </button>
 
-              <div className="relative hidden md:block">
+              <div className="relative hidden lg:block">
                 <input
                   type="text"
                   placeholder="Tìm kiếm..."
@@ -86,7 +86,7 @@ const AdminLayout = ({ children }) => {
             </div>
 
             {/* Right side - Notifications & User */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Notifications */}
               <div className="relative">
                 <button
@@ -170,10 +170,10 @@ const AdminLayout = ({ children }) => {
                     </a>
                     <div className="border-t border-gray-100 my-1"></div>
                     <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700"
+                      onClick={() => navigate('/')}
+                      className="block w-full text-left px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 hover:text-amber-700"
                     >
-                      Đăng xuất
+                      Quay về trang chính
                     </button>
                   </div>
                 )}
@@ -183,7 +183,7 @@ const AdminLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-3 sm:p-4 md:p-6">
           {/* Breadcrumb */}
           <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="mb-4 sm:mb-0">
@@ -193,7 +193,7 @@ const AdminLayout = ({ children }) => {
           </div>
 
           {/* Main Content */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 md:p-6 overflow-x-auto">
             {children}
           </div>
         </main>

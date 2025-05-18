@@ -49,10 +49,9 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
     <>
       {/* Sidebar Desktop */}
       <div
-        className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-amber-800 to-amber-900 text-white transition-all duration-300 ease-in-out hidden md:block h-full fixed left-0 top-0 z-30 shadow-lg`}
+        className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-amber-800 to-amber-900 text-white transition-all duration-300 ease-in-out hidden md:block fixed left-0 top-0 z-30 shadow-lg overflow-y-auto h-screen`}
       >
         <div className="p-4">
-          {/* Logo */}
           <div className="w-full">
             <img src="/logo_white.png" alt="Inkspire" className="h-18 w-full object-contain" />
           </div>
@@ -62,7 +61,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
           <div className="w-full h-0.5 bg-amber-700/50 rounded"></div>
         </div>
 
-        <div className="px-3 py-2">
+        <div className="px-3 py-2 overflow-y-auto">
           <nav className="space-y-6">
             {/* Menu chính */}
             <div>
@@ -126,26 +125,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
           </nav>
         </div>
 
-        <div className="absolute bottom-16 left-0 w-full px-4">
-          <Link
-            to="/"
-            className="flex items-center text-amber-200 hover:text-white transition-colors w-full mb-3"
-          >
-            <span className={`flex items-center p-2 rounded-md hover:bg-amber-800 ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
-              <FaArrowLeft />
-              {sidebarOpen && <span className="ml-3">Quay về trang chính</span>}
-            </span>
-          </Link>
-          <button
-            onClick={onLogout}
-            className="flex items-center text-red-200 hover:text-white transition-colors w-full"
-          >
-            <span className={`flex items-center p-2 rounded-md hover:bg-red-800 ${sidebarOpen ? 'w-full' : 'justify-center'}`}>
-              <FaSignOutAlt />
-              {sidebarOpen && <span className="ml-3">Đăng xuất</span>}
-            </span>
-          </button>
-        </div>
+        {/* Phần nút quay về trang chính đã được loại bỏ */}
       </div>
 
       {/* Sidebar Mobile Overlay */}
@@ -158,19 +138,25 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
 
       {/* Sidebar Mobile */}
       <div
-        className={`md:hidden fixed inset-y-0 left-0 z-30 w-64 bg-gradient-to-b from-amber-800 to-amber-900 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}
+        className={`md:hidden fixed inset-y-0 left-0 z-30 w-72 sm:w-64 bg-gradient-to-b from-amber-800 to-amber-900 transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out overflow-y-auto`}
       >
-        <div className="p-4">
+        <div className="p-4 flex items-center justify-between">
           <div className="w-full">
             <img src="/logo_white.png" alt="Inkspire" className="h-10 w-full object-contain" />
           </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="text-amber-200 hover:text-white p-2 rounded-full hover:bg-amber-700/50"
+          >
+            <FaTimes className="h-5 w-5" />
+          </button>
         </div>
 
         <div className="px-4 mt-2 mb-6">
           <div className="w-full h-0.5 bg-amber-700/50 rounded"></div>
         </div>
 
-        <div className="px-3 py-2">
+        <div className="px-3 py-2 overflow-y-auto flex-1">
           <nav className="space-y-6">
             {/* Menu chính */}
             <div>
@@ -238,26 +224,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
           </nav>
         </div>
 
-        <div className="absolute bottom-16 left-0 w-full px-4">
-          <Link
-            to="/"
-            className="flex items-center text-amber-200 hover:text-white transition-colors w-full mb-3"
-          >
-            <span className="flex items-center p-2 rounded-md hover:bg-amber-800 w-full">
-              <FaArrowLeft />
-              <span className="ml-3">Quay về trang chính</span>
-            </span>
-          </Link>
-          <button
-            onClick={onLogout}
-            className="flex items-center text-red-200 hover:text-white transition-colors w-full"
-          >
-            <span className="flex items-center p-2 rounded-md hover:bg-red-800 w-full">
-              <FaSignOutAlt />
-              <span className="ml-3">Đăng xuất</span>
-            </span>
-          </button>
-        </div>
+        {/* Phần nút quay về trang chính và đăng xuất đã được loại bỏ */}
       </div>
     </>
   );

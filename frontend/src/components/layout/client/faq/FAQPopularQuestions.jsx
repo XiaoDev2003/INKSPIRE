@@ -9,7 +9,7 @@ const FAQPopularQuestions = ({ popularQuestions }) => {
       <ul className="space-y-3">
         {popularQuestions.map((item, index) => (
           <li key={index} className="hover:bg-amber-50 rounded-lg transition-colors duration-200">
-            <Link 
+            <Link
               to={`/faq?q=${encodeURIComponent(item.question)}`}
               className="flex items-start p-2 text-gray-700 hover:text-amber-700"
             >
@@ -22,8 +22,8 @@ const FAQPopularQuestions = ({ popularQuestions }) => {
         ))}
       </ul>
       <div className="mt-4 pt-3 border-t border-gray-100 text-center">
-        <Link 
-          to="/faq" 
+        <Link
+          to="/faq"
           className="text-amber-600 hover:text-amber-800 text-sm font-medium hover:underline inline-flex items-center"
         >
           Xem tất cả câu hỏi
