@@ -2,6 +2,61 @@
 $request = $_SERVER['REQUEST_URI'];
 
 switch (true) {
+    // Page Views API endpoints
+    case preg_match('/\/api\/page-views\/get$/', $request):
+        require_once __DIR__ . '/../controllers/PageViewController.php';
+        (new PageViewController())->getPageViews();
+        break;
+
+    case preg_match('/\/api\/page-views\/increment$/', $request):
+        require_once __DIR__ . '/../controllers/PageViewController.php';
+        (new PageViewController())->incrementPageViews();
+        break;
+
+    case preg_match('/\/api\/admin\/page-views\/all$/', $request):
+        require_once __DIR__ . '/../middleware/AdminMiddleware.php';
+        $adminMiddleware = new AdminMiddleware();
+        $adminMiddleware->checkAdminAccess();
+
+        require_once __DIR__ . '/../controllers/PageViewController.php';
+        (new PageViewController())->getAllCounters();
+        break;
+
+    case preg_match('/\/api\/admin\/page-views\/get$/', $request):
+        require_once __DIR__ . '/../middleware/AdminMiddleware.php';
+        $adminMiddleware = new AdminMiddleware();
+        $adminMiddleware->checkAdminAccess();
+
+        require_once __DIR__ . '/../controllers/PageViewController.php';
+        (new PageViewController())->getCounterById();
+        break;
+
+    case preg_match('/\/api\/admin\/page-views\/create$/', $request):
+        require_once __DIR__ . '/../middleware/AdminMiddleware.php';
+        $adminMiddleware = new AdminMiddleware();
+        $adminMiddleware->checkAdminAccess();
+
+        require_once __DIR__ . '/../controllers/PageViewController.php';
+        (new PageViewController())->createCounter();
+        break;
+
+    case preg_match('/\/api\/admin\/page-views\/update$/', $request):
+        require_once __DIR__ . '/../middleware/AdminMiddleware.php';
+        $adminMiddleware = new AdminMiddleware();
+        $adminMiddleware->checkAdminAccess();
+
+        require_once __DIR__ . '/../controllers/PageViewController.php';
+        (new PageViewController())->updateCounter();
+        break;
+
+    case preg_match('/\/api\/admin\/page-views\/delete$/', $request):
+        require_once __DIR__ . '/../middleware/AdminMiddleware.php';
+        $adminMiddleware = new AdminMiddleware();
+        $adminMiddleware->checkAdminAccess();
+
+        require_once __DIR__ . '/../controllers/PageViewController.php';
+        (new PageViewController())->deleteCounter();
+        break;
     case preg_match('/\/api\/register$/', $request):
         require_once __DIR__ . '/../controllers/AuthController.php';
         (new AuthController())->register();
@@ -21,7 +76,7 @@ switch (true) {
         require_once __DIR__ . '/../controllers/AuthController.php';
         (new AuthController())->getCurrentUser();
         break;
-        
+
     case preg_match('/\/api\/auth\/verify-admin$/', $request):
         require_once __DIR__ . '/../controllers/AuthController.php';
         (new AuthController())->verifyAdmin();

@@ -61,16 +61,6 @@ const AccountMenu = ({ username = 'Người dùng', onLogout }) => {
               <span>Truy cập hồ sơ</span>
             </Link>
 
-            <Link
-              to="/switch-account"
-              className="flex items-center gap-2 px-4 py-2 text-sm text-amber-900 hover:bg-amber-100"
-              role="menuitem"
-              onClick={() => setIsOpen(false)}
-            >
-              <FaExchangeAlt className="h-4 w-4" />
-              <span>Đổi tài khoản</span>
-            </Link>
-
             {isAdmin && (
               <Link
                 to="/admin"

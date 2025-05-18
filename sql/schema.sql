@@ -136,5 +136,6 @@ CREATE TABLE queries_link (
 -- -----------------------------
 CREATE TABLE page_views (
     view_id INT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT ,
     total_views INT DEFAULT 0
 );

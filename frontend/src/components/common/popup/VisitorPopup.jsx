@@ -1,23 +1,46 @@
 // src/components/common/popup/VisitorPopup.jsx
 import React, { useState, useEffect } from "react";
+import pageViewsApi from "../../../api/pageViewsApi";
 
 /**
  * VisitorPopup component: Hiển thị popup số lượt truy cập ở góc phải header
  * Popup sẽ biến mất khi người dùng cuộn xuống
  * Có hiệu ứng fadein/fadeout tự động
+ * Sử dụng dữ liệu từ bảng page_views với id=1
  */
 const VisitorPopup = () => {
   const [viewCount, setViewCount] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isFading, setIsFading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Lấy số lượt truy cập từ localStorage
+  // Lấy và tăng số lượt truy cập từ API
   useEffect(() => {
-    const storedCount = localStorage.getItem("pageViews");
-    if (storedCount) {
-      setViewCount(parseInt(storedCount, 10));
-    }
+    const fetchAndIncrementPageViews = async () => {
+      try {
+        // Gọi API để tăng số lượt truy cập
+        const response = await pageViewsApi.incrementPageViews();
+        if (response.data && response.data.success) {
+          setViewCount(response.data.data.total_views);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tăng số lượt truy cập:", error);
+        // Nếu có lỗi khi tăng, vẫn thử lấy số lượt truy cập hiện tại
+        try {
+          const getResponse = await pageViewsApi.getPageViews();
+          if (getResponse.data && getResponse.data.success) {
+            setViewCount(getResponse.data.data.total_views);
+          }
+        } catch (getError) {
+          console.error("Lỗi khi lấy số lượt truy cập:", getError);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAndIncrementPageViews();
   }, []);
 
   // Xử lý sự kiện cuộn trang để ẩn/hiện popup

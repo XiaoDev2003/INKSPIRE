@@ -22,4 +22,4 @@ npm install classnames
 
 npm install vite@latest @vitejs/plugin-react@latest
 
-npm install react-chartjs-2 chart.js
+npm install framer-motion

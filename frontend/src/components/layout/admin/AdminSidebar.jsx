@@ -15,6 +15,7 @@ import {
   FaTachometerAlt,
   FaCog,
   FaArrowLeft,
+  FaEye
 } from 'react-icons/fa';
 
 const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
