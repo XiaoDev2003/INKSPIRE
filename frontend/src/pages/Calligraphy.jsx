@@ -167,11 +167,11 @@ const Calligraphy = () => {
         </Container>
       </Section>
 
-      <Section className="bg-white" py={12}>
+      {/* <Section className="bg-white" py={12}>
         <Container className="px-4 sm:px-6 md:px-8">
           <CalligraphyTypes types={calligraphyTypes} />
         </Container>
-      </Section>
+      </Section> */}
 
       <Section className="bg-gray-50" py={12}>
         <Container className="px-4 sm:px-6 md:px-8">

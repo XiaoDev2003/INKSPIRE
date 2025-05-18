@@ -1,6 +1,6 @@
 // src/components/layout/client/gallery/GalleryMasonry.jsx
-import React, { useState } from 'react';
-import GalleryModal from './GalleryModal';
+import React, { useState } from "react";
+import GalleryModal from "./GalleryModal";
 
 const GalleryMasonry = ({ images }) => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -16,28 +16,33 @@ const GalleryMasonry = ({ images }) => {
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {images.map((image, index) => (
-          <div 
-            key={index} 
+        {images.map((image) => (
+          <div
+            key={image.image_id}
             className="relative overflow-hidden rounded-lg shadow-md group cursor-pointer transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
             onClick={() => openModal(image)}
           >
             <img
-              src={image.src}
-              alt={image.alt}
+              src={image.image_url}
+              alt={image.image_title || "Hình ảnh"}
               className="w-full h-64 object-cover transition-transform duration-500 ease-in-out group-hover:scale-105"
+              onError={(e) => {
+                e.target.src = "/images/placeholder.jpg";
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-              <h3 className="text-white text-lg font-medium">{image.alt}</h3>
-              <p className="text-gray-200 text-sm mt-1 line-clamp-2">{image.description}</p>
+              <h3 className="text-white text-lg font-medium">
+                {image.image_title || "Không có tiêu đề"}
+              </h3>
+              <p className="text-gray-200 text-sm mt-1 line-clamp-2">
+                {image.category_name || "Không có danh mục"}
+              </p>
             </div>
           </div>
         ))}
       </div>
 
-      {selectedImage && (
-        <GalleryModal image={selectedImage} onClose={closeModal} />
-      )}
+      {selectedImage && <GalleryModal image={selectedImage} onClose={closeModal} />}
     </>
   );
 };

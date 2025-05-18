@@ -18,6 +18,7 @@ const Categories = () => {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [expandedCategory, setExpandedCategory] = useState(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -51,8 +52,8 @@ const Categories = () => {
 
   const filteredCategories = categories.filter(category => 
     category.category_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.category_des.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.category_origin.toLowerCase().includes(searchTerm.toLowerCase())
+    (category.category_des && category.category_des.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (category.category_origin && category.category_origin.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleAddCategory = () => {
@@ -208,8 +209,6 @@ const Categories = () => {
     }
   };
 
-  const [expandedCategory, setExpandedCategory] = useState(null);
-
   const toggleExpand = (categoryId) => {
     if (expandedCategory === categoryId) {
       setExpandedCategory(null);
@@ -314,14 +313,20 @@ const Categories = () => {
                   </div>
                   {expandedCategory === category.category_id && (
                     <div className="p-4 bg-white border-t border-gray-200">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm font-medium text-gray-500">Mô tả:</p>
-                          <p className="text-gray-700 whitespace-pre-line">{category.category_des || 'Không có'}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-500">Nguồn gốc:</p>
-                          <p className="text-gray-700">{category.category_origin || 'Không có'}</p>
+                      <div className="flex flex-col space-y-4">
+                        <div className="flex flex-col md:flex-row md:space-x-6">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-500">ID:</p>
+                            <p className="text-gray-700">{category.category_id || 'Không có'}</p>
+                          </div>
+                          <div className="flex-1 mt-2 md:mt-0">
+                            <p className="text-sm font-medium text-gray-500">Mô tả:</p>
+                            <p className="text-gray-700 whitespace-pre-line">{category.category_des || 'Không có'}</p>
+                          </div>
+                          <div className="flex-1 mt-2 md:mt-0">
+                            <p className="text-sm font-medium text-gray-500">Nguồn gốc:</p>
+                            <p className="text-gray-700">{category.category_origin || 'Không có'}</p>
+                          </div>
                         </div>
                       </div>
                     </div>

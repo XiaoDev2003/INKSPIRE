@@ -1,88 +1,58 @@
 // src/pages/Gallery.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GalleryFilter from "../components/layout/client/gallery/GalleryFilter";
 import GalleryMasonry from "../components/layout/client/gallery/GalleryMasonry";
 import GalleryUpload from "../components/layout/client/gallery/GalleryUpload";
-import { Banner } from '../components/common/common';
+import { Banner } from "../components/common/common";
 import { Container, Section } from "../components/ui/ui";
+import axiosClient from "../api/axiosClient";
 
 const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [images, setImages] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const imagesPerPage = 6; // Số ảnh mỗi trang
 
-  const categories = [
-    { id: "traditional", name: "Thư pháp truyền thống" },
-    { id: "modern", name: "Thư pháp hiện đại" },
-    { id: "calligraphy", name: "Viết tay & Thiết kế" },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [galleryResponse, categoriesResponse] = await Promise.all([
+          axiosClient.get("/api/gallery"),
+          axiosClient.get("/api/categories"),
+        ]);
+        setImages(galleryResponse.data);
+        setCategories(categoriesResponse.data);
+      } catch (err) {
+        setError(err.response?.data?.error || "Đã có lỗi khi lấy dữ liệu.");
+        console.error("Error fetching data:", err.response || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-  const images = [
-    {
-      src: "/pages/gallery/brush.png",
-      alt: "Brush Lettering",
-      description: "Hình ảnh minh họa về nghệ thuật thư pháp bằng cọ.",
-      category: "brush",
-      artist: "Nguyễn Văn A",
-      date: "15/04/2023",
-      technique: "Bút lông trên giấy dó",
-    },
-    {
-      src: "/pages/gallery/candle.png",
-      alt: "You're the One",
-      description: 'Một bức thư pháp với dòng chữ "You\'re the One".',
-      category: "modern",
-      artist: "Trần Thị B",
-      date: "22/06/2023",
-      technique: "Mực tàu trên giấy thủ công",
-    },
-    {
-      src: "/pages/gallery/candle.png",
-      alt: "Let Your Dream Be Bigger Than Your Fears",
-      description:
-        'Bức thư pháp truyền cảm hứng với câu nói "Let Your Dream Be Bigger Than Your Fears".',
-      category: "calligraphy",
-      artist: "Lê Văn C",
-      date: "10/08/2023",
-      technique: "Bút sắt trên giấy mỹ thuật",
-    },
-    {
-      src: "/pages/gallery/candle.png",
-      alt: "Writing Process",
-      description: "Quá trình viết thư pháp đang diễn ra.",
-      category: "traditional",
-      artist: "Phạm Thị D",
-      date: "05/03/2023",
-      technique: "Bút lông truyền thống",
-    },
-    {
-      src: "/pages/gallery/candle.png",
-      alt: "Digital Calligraphy",
-      description: "Tác phẩm thư pháp số được tạo bằng công nghệ kỹ thuật số.",
-      category: "digital",
-      artist: "Hoàng Văn E",
-      date: "30/09/2023",
-      technique: "iPad Pro với Apple Pencil",
-    },
-    {
-      src: "/pages/gallery/candle.png",
-      alt: "Hành trình",
-      description:
-        "Tác phẩm thể hiện hành trình của cuộc sống qua những nét chữ uốn lượn.",
-      category: "traditional",
-      artist: "Vũ Thị F",
-      date: "12/07/2023",
-      technique: "Mực nho trên lụa",
-    },
-  ];
+  // Lọc ảnh theo danh mục
+  const filteredImages = images.filter((image) => {
+    if (activeCategory === "all") return true;
+    const category = categories.find((cat) => cat.category_id === image.category_id);
+    return category && category.category_type === activeCategory;
+  });
 
-  // Lọc hình ảnh theo danh mục đang chọn
-  const filteredImages =
-    activeCategory === "all"
-      ? images
-      : images.filter((image) => image.category === activeCategory);
+  // Tính toán phân trang
+  const indexOfLastImage = currentPage * imagesPerPage;
+  const indexOfFirstImage = indexOfLastImage - imagesPerPage;
+  const currentImages = filteredImages.slice(indexOfFirstImage, indexOfLastImage);
+  const totalPages = Math.ceil(filteredImages.length / imagesPerPage);
 
   const handleCategoryChange = (categoryId) => {
     setActiveCategory(categoryId);
+    setCurrentPage(1); // Reset về trang 1 khi thay đổi category
   };
 
   const openUploadModal = () => {
@@ -93,9 +63,21 @@ const Gallery = () => {
     setIsUploadModalOpen(false);
   };
 
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
   return (
     <>
-     <Section py="0" className="md:py-12">
+      <Section py="0" className="md:py-12">
         <Container className="container">
           <Banner
             title="Bút lông cổ điển"
@@ -108,7 +90,6 @@ const Gallery = () => {
       </Section>
 
       <div className="container mx-auto px-4 md:px-8 lg:px-16">
-        {/* Header section with upload button handler */}
         <div className="mb-12 text-center">
           <div></div>
           <div className="mt-6">
@@ -132,58 +113,65 @@ const Gallery = () => {
               </svg>
               Đóng góp tác phẩm
             </button>
-
           </div>
         </div>
 
-        {/* Filter section */}
         <GalleryFilter
-          categories={categories}
+          categories={categories.map((cat) => ({
+            id: cat.category_type,
+            name: cat.category_name,
+          }))}
           activeCategory={activeCategory}
           onCategoryChange={handleCategoryChange}
         />
 
-        {/* Gallery masonry grid */}
-        <GalleryMasonry images={filteredImages} />
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-center">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
 
-        {/* Pagination section */}
-        <div className="mt-12 flex justify-center py-12">
-          <nav className="inline-flex rounded-md shadow">
-            <a
-              href="#"
-              className="border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-            >
-              Trước
-            </a>
-            <a
-              href="#"
-              className="border border-amber-500 bg-amber-500 px-4 py-2 text-sm font-medium text-white"
-            >
-              1
-            </a>
-            <a
-              href="#"
-              className="border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-            >
-              2
-            </a>
-            <a
-              href="#"
-              className="border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-            >
-              3
-            </a>
-            <a
-              href="#"
-              className="border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-            >
-              Sau
-            </a>
-          </nav>
-        </div>
+        {loading ? (
+          <div className="text-center py-4">Đang tải...</div>
+        ) : (
+          <GalleryMasonry images={currentImages} />
+        )}
+
+        {filteredImages.length > 0 && (
+          <div className="mt-12 flex justify-center py-12">
+            <nav className="inline-flex rounded-md shadow">
+              <button
+                onClick={prevPage}
+                disabled={currentPage === 1}
+                className="border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Trước
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i + 1}
+                  onClick={() => paginate(i + 1)}
+                  className={`border px-4 py-2 text-sm font-medium ${
+                    currentPage === i + 1
+                      ? "border-amber-500 bg-amber-500 text-white"
+                      : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                onClick={nextPage}
+                disabled={currentPage === totalPages}
+                className="border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Sau
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
 
-      {/* Upload Modal */}
       <GalleryUpload isOpen={isUploadModalOpen} onClose={closeUploadModal} />
     </>
   );
