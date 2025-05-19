@@ -17,7 +17,6 @@ const Comments = () => {
       setLoading(true);
       // Đơn giản hóa: chỉ lấy tất cả bình luận không có tham số
       const response = await axiosClient.get('/api/comments');
-      console.log('Dữ liệu bình luận nhận được:', response.data);
 
       // Kiểm tra dữ liệu trả về
       if (!response.data || !Array.isArray(response.data)) {
@@ -27,20 +26,23 @@ const Comments = () => {
       }
 
       // Định dạng dữ liệu bình luận
-      const formattedComments = response.data.map(comment => ({
-        comment_id: comment.comment_id || 0,
-        user_id: comment.user_id || 0,
-        user_name: comment.username || 'Ẩn danh',
-        item_id: comment.item_id || null,
-        item_name: comment.item_name || 'Không xác định',
-        category_id: comment.category_id || null,
-        category_name: comment.category_name || 'Không xác định',
-        comment_content: comment.comment_content || '',
-        created_at: comment.created_at ? new Date(comment.created_at).toLocaleString('vi-VN') : 'Không xác định',
-        likes_count: comment.likes_count || 0,
-        dislikes_count: comment.dislikes_count || 0,
-        parent_comment_id: comment.parent_comment_id || null
-      }));
+      const formattedComments = response.data.map(comment => {
+        return {
+          comment_id: comment.comment_id || 0,
+          user_id: comment.user_id || 0,
+          user_name: comment.username || 'Ẩn danh',
+          item_id: comment.item_id || null,
+          item_name: comment.item_name || 'Không xác định',
+          category_id: comment.category_id || null,
+          // Sử dụng category_name từ JOIN với bảng categories
+          category_name: comment.category_name || 'Không xác định',
+          comment_content: comment.comment_content || '',
+          created_at: comment.created_at ? new Date(comment.created_at).toLocaleString('vi-VN') : 'Không xác định',
+          likes_count: comment.likes_count || 0,
+          dislikes_count: comment.dislikes_count || 0,
+          parent_comment_id: comment.parent_comment_id || null
+        };
+      });
 
       setComments(formattedComments);
     } catch (err) {
@@ -77,9 +79,7 @@ const Comments = () => {
   const handleDeleteComment = async (commentId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
       try {
-        await axiosClient.delete('/api/comments', {
-          data: { comment_id: commentId }
-        });
+        const response = await axiosClient.delete(`/api/comments/${commentId}`);
         setComments(comments.filter(comment => comment.comment_id !== commentId));
         setSuccess('Xóa bình luận thành công!');
 

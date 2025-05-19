@@ -13,12 +13,13 @@ class Comment {
     // Lấy danh sách bình luận
     public function getComments($item_id = null, $category_id = null, $parent_only = false, $sort_field = 'created_at', $sort_direction = 'desc') {
         try {
-            $query = "SELECT c.*, u.username, u.first_name, u.last_name, i.item_name,
+            $query = "SELECT c.*, u.username, u.first_name, u.last_name, i.item_name, cat.category_name,
                       (SELECT COUNT(*) FROM comment_reactions WHERE comment_id = c.comment_id AND reaction_type = 'like') as likes_count,
                       (SELECT COUNT(*) FROM comment_reactions WHERE comment_id = c.comment_id AND reaction_type = 'dislike') as dislikes_count
                       FROM comments c 
                       LEFT JOIN users u ON c.user_id = u.user_id 
                       LEFT JOIN items i ON c.item_id = i.item_id 
+                      LEFT JOIN categories cat ON i.category_id = cat.category_id 
                       WHERE 1=1";
             $params = [];
 
@@ -46,9 +47,7 @@ class Comment {
                 $query .= " ORDER BY {$sort_field} {$sort_direction}, c.created_at DESC";
             }
 
-            // Debug: Ghi log câu truy vấn
-            error_log('Comment Model - Query: ' . $query);
-            error_log('Comment Model - Params: ' . print_r($params, true));
+            // Thực thi câu truy vấn
 
             $stmt = $this->conn->prepare($query);
             foreach ($params as $key => $value) {
@@ -58,8 +57,8 @@ class Comment {
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Đảm bảo luôn trả về mảng, ngay cả khi không có kết quả
-            if ($result === false) {
-                error_log('Comment Model - fetchAll() trả về false');
+            if ($result === false || empty($result)) {
+                error_log('Comment Model - fetchAll() trả về false hoặc mảng rỗng');
                 return [];
             }
 
@@ -77,10 +76,11 @@ class Comment {
 
     // Lấy thông tin một bình luận theo ID
     public function getCommentById($comment_id) {
-        $sql = "SELECT c.*, u.username, u.first_name, u.last_name, i.item_name 
+        $sql = "SELECT c.*, u.username, u.first_name, u.last_name, i.item_name, cat.category_name 
                FROM comments c 
                LEFT JOIN users u ON c.user_id = u.user_id 
                LEFT JOIN items i ON c.item_id = i.item_id 
+               LEFT JOIN categories cat ON i.category_id = cat.category_id 
                WHERE c.comment_id = :comment_id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':comment_id', $comment_id);

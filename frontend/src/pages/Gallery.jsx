@@ -46,6 +46,10 @@ const Gallery = () => {
     // Chỉ hiển thị hình ảnh có trạng thái 'published'
     if (image.status !== 'published') return false;
     
+    // Kiểm tra xem danh mục của hình ảnh có tồn tại và có trạng thái 'published' không
+    const imageCategory = categories.find(cat => cat.category_id === image.category_id);
+    if (!imageCategory || imageCategory.status !== 'published') return false;
+    
     // Lọc theo danh mục ID thay vì category_type
     if (activeCategory === "all") return true;
     

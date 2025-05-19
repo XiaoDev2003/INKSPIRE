@@ -152,25 +152,23 @@ const Items = () => {
         const response = await axiosClient.put('/api/gallery', galleryPayload);
         
         // Kiểm tra nếu có lỗi từ server
-        if (response.data && response.data.status === 'error') {
-          setError(response.data.error || 'Lỗi khi cập nhật hình ảnh trong Gallery');
-          return false;
-        }
-        
-        console.log('Đã cập nhật hình ảnh trong Gallery');
-        return true;
+      if (response.data && response.data.status === 'error') {
+        setError(response.data.error || 'Lỗi khi cập nhật hình ảnh trong Gallery');
+        return false;
+      }
+      
+      return true;
       } else {
         // Nếu chưa có, tạo mới
         const response = await axiosClient.post('/api/gallery', galleryPayload);
         
         // Kiểm tra nếu có lỗi từ server
-        if (response.data && response.data.status === 'error') {
-          setError(response.data.error || 'Lỗi khi tạo hình ảnh mới trong Gallery');
-          return false;
-        }
-        
-        console.log('Đã tạo hình ảnh mới trong Gallery');
-        return true;
+      if (response.data && response.data.status === 'error') {
+        setError(response.data.error || 'Lỗi khi tạo hình ảnh mới trong Gallery');
+        return false;
+      }
+      
+      return true;
       }
     } catch (error) {
       console.error('Lỗi khi xử lý hình ảnh trong Gallery:', error.response?.data || error.message);

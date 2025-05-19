@@ -49,11 +49,9 @@ const Feedback = () => {
   const handleDeleteFeedback = async (feedbackId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa phản hồi này?')) {
       try {
-        console.log('Deleting feedback with ID:', feedbackId); // Thêm log để debug
         const response = await axiosClient.delete('/api/feedback', {
           data: { feedback_id: feedbackId },
         });
-        console.log('Delete response:', response.data);
         setFeedbacks(feedbacks.filter(feedback => feedback.feedback_id !== feedbackId));
         setSuccess('Xóa phản hồi thành công!'); // Hiển thị thông báo thành công
       } catch (err) {

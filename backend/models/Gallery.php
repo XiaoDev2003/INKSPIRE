@@ -11,7 +11,7 @@ class Gallery {
     public function getAll() {
         $stmt = $this->conn->query("SELECT 
             g.image_id, g.image_title, g.image_description, g.image_url, g.category_id, g.item_id, g.uploaded_by, g.upload_date, g.status,
-            c.category_name,
+            c.category_name, c.status as category_status,
             i.item_name,
             u.username AS uploaded_by_name
         FROM gallery g
@@ -25,7 +25,7 @@ class Gallery {
     public function getById($id) {
         $stmt = $this->conn->prepare("SELECT 
             g.image_id, g.image_title, g.image_description, g.image_url, g.category_id, g.item_id, g.uploaded_by, g.upload_date, g.status,
-            c.category_name,
+            c.category_name, c.status as category_status,
             i.item_name,
             u.username AS uploaded_by_name
         FROM gallery g

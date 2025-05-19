@@ -151,7 +151,7 @@ const Category = () => {
     return data;
   };
 
-  // Lấy bình luận theo item_id khi modal mở
+  // Lấy bình luận theo item_id khi modal mở hoặc khi itemId thay đổi
   useEffect(() => {
     if (showModal && selectedFont) {
       const fetchComments = async () => {
@@ -190,6 +190,10 @@ const Category = () => {
               console.error("Lỗi khi chuyển đổi dữ liệu bình luận:", e);
               commentsData = [];
             }
+          } else {
+            // Nếu response.data là null, undefined hoặc không phải object/array
+            console.warn("Dữ liệu bình luận không hợp lệ:", response.data);
+            commentsData = [];
           }
 
           debugCommentData(commentsData, "Extracted Comments Data");
@@ -201,6 +205,10 @@ const Category = () => {
             setCommentsLoading(false);
             return;
           }
+          
+          // Thêm log để debug dữ liệu
+          console.log("Dữ liệu bình luận:", JSON.stringify(commentsData));
+          
 
           // Chuẩn hóa dữ liệu bình luận - đảm bảo mỗi phần tử là hợp lệ
           const normalizedComments = commentsData
@@ -312,7 +320,7 @@ const Category = () => {
       };
       fetchComments();
     }
-  }, [showModal, selectedFont, commentSortBy, getUserInfo]);
+  }, [showModal, selectedFont, commentSortBy, getUserInfo, itemId]);
 
   // Xác định loại thư pháp từ URL
   useEffect(() => {
@@ -327,16 +335,27 @@ const Category = () => {
       setCategoryType("all");
     }
 
-    if (itemId) {
-      const fontItem = Array.isArray(items)
-        ? items.find((item) => item.item_id === parseInt(itemId))
-        : null;
+    // Xử lý khi có itemId trong URL
+    if (itemId && items.length > 0) {
+      const fontItem = items.find((item) => item.item_id === parseInt(itemId));
       if (fontItem) {
+        console.log("Đã tìm thấy font từ URL:", fontItem.item_name);
         setSelectedFont(fontItem);
         setShowModal(true);
+      } else {
+        console.log("Không tìm thấy font với ID:", itemId);
       }
     }
-  }, [location, itemId, items]);
+  }, [location, itemId, items, categories]);
+
+  // Đảm bảo tải lại bình luận khi tải lại trang
+  useEffect(() => {
+    if (itemId && selectedFont && showModal) {
+      console.log("Tải lại bình luận khi trang được tải lại");
+      // Kích hoạt lại việc tải bình luận
+      setCommentSortBy(prev => prev);
+    }
+  }, [itemId, selectedFont, showModal]);
 
   // Lọc items dựa trên từ khóa tìm kiếm, ngôn ngữ và loại thư pháp
   const filteredFonts = items.filter((item) => {
@@ -428,6 +447,112 @@ const Category = () => {
       console.log("Sending comment data:", commentData);
       const response = await axiosClient.post("/api/comments", commentData);
       console.log("Comment response:", response.data);
+      
+      // Tải lại bình luận sau khi thêm bình luận mới
+      const refreshResponse = await axiosClient.get(
+        `/api/comments?item_id=${selectedFont.item_id}`
+      );
+      console.log("Refreshed comments:", refreshResponse.data);
+      
+      // Xử lý dữ liệu bình luận mới từ API
+      let commentsData = [];
+      
+      // Kiểm tra và chuẩn hóa cấu trúc dữ liệu trả về
+      if (Array.isArray(refreshResponse.data)) {
+        commentsData = refreshResponse.data;
+      } else if (refreshResponse.data && Array.isArray(refreshResponse.data.data)) {
+        commentsData = refreshResponse.data.data;
+      } else if (refreshResponse.data && Array.isArray(refreshResponse.data.comments)) {
+        commentsData = refreshResponse.data.comments;
+      } else if (
+        refreshResponse.data &&
+        typeof refreshResponse.data === "object" &&
+        !Array.isArray(refreshResponse.data)
+      ) {
+        try {
+          commentsData = Object.values(refreshResponse.data);
+          commentsData = commentsData.filter(
+            (item) => item && typeof item === "object"
+          );
+        } catch (e) {
+          console.error("Lỗi khi chuyển đổi dữ liệu bình luận:", e);
+        }
+      }
+      
+      // Chuẩn hóa dữ liệu bình luận
+      const normalizedComments = commentsData
+        .filter((comment) => comment && (comment.comment_id || comment.id))
+        .map(normalizeCommentData)
+        .filter(comment => comment !== null);
+      
+      // Sắp xếp bình luận
+      let sortedComments = [...normalizedComments];
+      if (commentSortBy === "likes") {
+        sortedComments.sort(
+          (a, b) => (b.likes_count || 0) - (a.likes_count || 0)
+        );
+      } else if (commentSortBy === "newest") {
+        sortedComments.sort(
+          (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+        );
+      }
+      
+      // Tách bình luận gốc và bình luận phản hồi
+      const parentComments = sortedComments.filter(
+        (comment) => !comment.parent_comment_id
+      );
+      const childComments = sortedComments.filter(
+        (comment) => comment.parent_comment_id
+      );
+      
+      // Định dạng bình luận với thông tin đầy đủ
+      const formattedComments = parentComments.map((comment) => {
+        const { name, avatar, color } = getUserInfo(
+          comment.user_id,
+          comment.username
+        );
+
+        // Tìm các bình luận phản hồi
+        const replies = childComments
+          .filter((reply) => reply.parent_comment_id === comment.comment_id)
+          .map((reply) => {
+            const replyUserInfo = getUserInfo(
+              reply.user_id,
+              reply.username
+            );
+
+            return {
+              id: reply.comment_id,
+              parent_id: reply.parent_comment_id,
+              user_id: reply.user_id,
+              name: replyUserInfo.name,
+              avatar: replyUserInfo.avatar,
+              color: replyUserInfo.color,
+              date: new Date(reply.created_at || Date.now()).toLocaleString("vi-VN"),
+              content: reply.comment_content,
+              likes_count: reply.likes_count || 0,
+              dislikes_count: reply.dislikes_count || 0,
+              user_reaction: reply.user_reaction || null,
+            };
+          });
+
+        return {
+          id: comment.comment_id,
+          user_id: comment.user_id,
+          name,
+          avatar,
+          color,
+          date: new Date(comment.created_at || Date.now()).toLocaleString("vi-VN"),
+          content: comment.comment_content,
+          likes_count: comment.likes_count || 0,
+          dislikes_count: comment.dislikes_count || 0,
+          user_reaction: comment.user_reaction || null,
+          replies,
+        };
+      });
+      
+      // Cập nhật state với dữ liệu bình luận mới
+      setComments(formattedComments);
 
       // Kiểm tra phản hồi từ API
       if (!response.data) {
@@ -437,59 +562,8 @@ const Category = () => {
         return;
       }
 
-      // Lấy comment_id từ response, đảm bảo tương thích với nhiều định dạng response
-      const commentId =
-        response.data.comment_id ||
-        response.data.id ||
-        (typeof response.data === "number" ? response.data : null);
-
-      if (!commentId) {
-        setCommentError("Không thể xác định ID bình luận. Vui lòng thử lại.");
-        return;
-      }
-
-      // Lấy thông tin người dùng hiện tại từ hàm tiện ích
-      const { name, avatar, color } = getUserInfo(
-        currentUserId,
-        users.find((u) => u.user_id === currentUserId)?.username,
-      );
-
-      // Tạo dữ liệu bình luận mới
-      const newCommentData = {
-        id: commentId,
-        user_id: currentUserId,
-        name,
-        avatar,
-        color,
-        date: new Date().toLocaleString("vi-VN"),
-        content: newComment,
-        likes_count: 0,
-        dislikes_count: 0,
-        user_reaction: null,
-        replies: [],
-      };
-
-      // Cập nhật state comments tùy thuộc vào việc đang trả lời hay bình luận mới
-      if (replyingTo) {
-        // Nếu đang trả lời, thêm vào mảng replies của bình luận gốc
-        setComments((prevComments) =>
-          prevComments.map((comment) =>
-            comment.id === replyingTo.id
-              ? {
-                  ...comment,
-                  replies: [
-                    ...comment.replies,
-                    { ...newCommentData, parent_id: replyingTo.id },
-                  ],
-                }
-              : comment,
-          ),
-        );
-        setReplyingTo(null); // Reset trạng thái trả lời
-      } else {
-        // Nếu là bình luận mới, thêm vào đầu danh sách
-        setComments((prevComments) => [newCommentData, ...prevComments]);
-      }
+      // Không cần thêm bình luận thủ công vào state vì đã tải lại từ API
+      setReplyingTo(null); // Reset trạng thái trả lời
 
       setNewComment("");
       setCommentSuccess("Gửi bình luận thành công!");
@@ -562,7 +636,7 @@ const Category = () => {
         reaction_type: reactionType, // 'like' hoặc 'dislike'
       });
 
-      // Cập nhật state comments với phản ứng mới
+      // Cập nhật UI tạm thời để phản hồi ngay lập tức
       setComments((prevComments) =>
         prevComments.map((comment) => {
           if (isReply && parentId && comment.id === parentId) {
@@ -609,6 +683,113 @@ const Category = () => {
           return comment;
         }),
       );
+      
+      // Tải lại bình luận từ API để đảm bảo dữ liệu được cập nhật đúng
+      if (selectedFont) {
+        const refreshResponse = await axiosClient.get(
+          `/api/comments?item_id=${selectedFont.item_id}`
+        );
+        
+        // Xử lý dữ liệu bình luận mới từ API
+        let commentsData = [];
+        
+        // Kiểm tra và chuẩn hóa cấu trúc dữ liệu trả về
+        if (Array.isArray(refreshResponse.data)) {
+          commentsData = refreshResponse.data;
+        } else if (refreshResponse.data && Array.isArray(refreshResponse.data.data)) {
+          commentsData = refreshResponse.data.data;
+        } else if (refreshResponse.data && Array.isArray(refreshResponse.data.comments)) {
+          commentsData = refreshResponse.data.comments;
+        } else if (
+          refreshResponse.data &&
+          typeof refreshResponse.data === "object" &&
+          !Array.isArray(refreshResponse.data)
+        ) {
+          try {
+            commentsData = Object.values(refreshResponse.data);
+            commentsData = commentsData.filter(
+              (item) => item && typeof item === "object"
+            );
+          } catch (e) {
+            console.error("Lỗi khi chuyển đổi dữ liệu bình luận:", e);
+          }
+        }
+        
+        // Chuẩn hóa dữ liệu bình luận
+        const normalizedComments = commentsData
+          .filter((comment) => comment && (comment.comment_id || comment.id))
+          .map(normalizeCommentData)
+          .filter(comment => comment !== null);
+        
+        // Sắp xếp bình luận
+        let sortedComments = [...normalizedComments];
+        if (commentSortBy === "likes") {
+          sortedComments.sort(
+            (a, b) => (b.likes_count || 0) - (a.likes_count || 0)
+          );
+        } else if (commentSortBy === "newest") {
+          sortedComments.sort(
+            (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+          );
+        }
+        
+        // Tách bình luận gốc và bình luận phản hồi
+        const parentComments = sortedComments.filter(
+          (comment) => !comment.parent_comment_id
+        );
+        const childComments = sortedComments.filter(
+          (comment) => comment.parent_comment_id
+        );
+        
+        // Định dạng bình luận với thông tin đầy đủ
+        const formattedComments = parentComments.map((comment) => {
+          const { name, avatar, color } = getUserInfo(
+            comment.user_id,
+            comment.username
+          );
+
+          // Tìm các bình luận phản hồi
+          const replies = childComments
+            .filter((reply) => reply.parent_comment_id === comment.comment_id)
+            .map((reply) => {
+              const replyUserInfo = getUserInfo(
+                reply.user_id,
+                reply.username
+              );
+
+              return {
+                id: reply.comment_id,
+                parent_id: reply.parent_comment_id,
+                user_id: reply.user_id,
+                name: replyUserInfo.name,
+                avatar: replyUserInfo.avatar,
+                color: replyUserInfo.color,
+                date: new Date(reply.created_at || Date.now()).toLocaleString("vi-VN"),
+                content: reply.comment_content,
+                likes_count: reply.likes_count || 0,
+                dislikes_count: reply.dislikes_count || 0,
+                user_reaction: reply.user_reaction || null,
+              };
+            });
+
+          return {
+            id: comment.comment_id,
+            user_id: comment.user_id,
+            name,
+            avatar,
+            color,
+            date: new Date(comment.created_at || Date.now()).toLocaleString("vi-VN"),
+            content: comment.comment_content,
+            likes_count: comment.likes_count || 0,
+            dislikes_count: comment.dislikes_count || 0,
+            user_reaction: comment.user_reaction || null,
+            replies,
+          };
+        });
+        
+        // Cập nhật state với dữ liệu bình luận mới
+        setComments(formattedComments);
+      }
     } catch (err) {
       console.error("Error reacting to comment:", err);
       setCommentError("Đã có lỗi khi thực hiện phản ứng với bình luận.");
@@ -944,7 +1125,7 @@ const Category = () => {
                         <div className="flex space-x-2">
                           <button
                             type="button"
-                            onClick={() => setCommentSortBy("likes")}
+                            onClick={() => handleSortComments("likes")}
                             className={`rounded-md px-3 py-1 text-sm ${commentSortBy === "likes" ? "bg-amber-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
                           >
                             <i className="fas fa-thumbs-up mr-1"></i> Nhiều lượt
@@ -952,7 +1133,7 @@ const Category = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => setCommentSortBy("newest")}
+                            onClick={() => handleSortComments("newest")}
                             className={`rounded-md px-3 py-1 text-sm ${commentSortBy === "newest" ? "bg-amber-500 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
                           >
                             <i className="fas fa-clock mr-1"></i> Mới nhất
@@ -970,9 +1151,10 @@ const Category = () => {
                             Đang tải bình luận...
                           </p>
                         ) : !comments || comments.length === 0 ? (
-                          <p className="text-center text-gray-500">
-                            Chưa có bình luận nào.
-                          </p>
+                          <div className="text-center py-4 text-gray-500 border border-gray-200 rounded-lg p-4 my-4 bg-gray-50">
+                            <p className="text-lg font-medium mb-2">Chưa có bình luận nào</p>
+                            <p>Hãy là người đầu tiên chia sẻ ý kiến của bạn về font chữ này!</p>
+                          </div>
                         ) : (
                           comments
                             .filter((comment) => comment && comment.id) // Đảm bảo chỉ hiển thị bình luận hợp lệ

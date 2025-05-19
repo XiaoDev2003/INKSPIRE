@@ -73,7 +73,7 @@ const FAQFeedback = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-8 transition-all duration-300">
+    <div className="bg-white rounded-lg shadow-lg p-8 transition-all duration-300 container mx-auto ">
       <h2 className="text-2xl font-serif font-bold text-gray-800 mb-6 text-center">
         <i className="fa-solid fa-comment-dots text-amber-600 mr-2"></i>
         Gửi Phản Hồi

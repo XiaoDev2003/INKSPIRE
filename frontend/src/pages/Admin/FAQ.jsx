@@ -19,7 +19,7 @@ const FAQ = () => {
   const fetchFaqs = async () => {
     try {
       const response = await axiosClient.get('/api/queries');
-      console.log('Fetched FAQs:', response.data);
+
       const formattedFaqs = response.data.map(faq => ({
         faq_id: faq.query_id,
         question: faq.question_content,
@@ -69,11 +69,9 @@ const FAQ = () => {
   const handleDeleteFaq = async (faqId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa câu hỏi này?')) {
       try {
-        console.log('Deleting FAQ with ID:', faqId); // Thêm log để debug
         const response = await axiosClient.delete('/api/queries', {
           data: { query_id: faqId },
         });
-        console.log('Delete response:', response.data);
         await fetchFaqs();
       } catch (err) {
         console.error('Error deleting FAQ:', err.response?.data || err.message);
@@ -96,16 +94,12 @@ const FAQ = () => {
         short_answer: formData.answer.substring(0, 255),
         full_answer: formData.answer,
       };
-      console.log('Payload gửi lên API:', payload);
-
       if (currentFaq) {
-        console.log('Updating FAQ with ID:', currentFaq.faq_id);
         await axiosClient.put('/api/queries', {
           query_id: currentFaq.faq_id,
           ...payload,
         });
       } else {
-        console.log('Adding new FAQ');
         await axiosClient.post('/api/queries', payload);
       }
       await fetchFaqs();

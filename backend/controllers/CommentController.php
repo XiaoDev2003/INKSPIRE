@@ -55,10 +55,9 @@ class CommentController {
                 return;
             }
 
-            // Kiểm tra xem $comments có phải là mảng không
-            if (!is_array($comments)) {
-                // Log lỗi và trả về mảng rỗng
-                error_log('CommentController: Dữ liệu trả về từ model không phải là mảng: ' . print_r($comments, true));
+            // Kiểm tra xem $comments có phải là mảng không hoặc mảng rỗng
+            if (!is_array($comments) || empty($comments)) {
+                // Trả về mảng rỗng
                 header('Content-Type: application/json');
                 echo json_encode([]);
                 return;
@@ -87,9 +86,8 @@ class CommentController {
             header('Content-Type: application/json');
             echo json_encode($comments);
         } catch (Exception $e) {
-            error_log('CommentController Exception: ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode(['error' => 'Đã xảy ra lỗi khi xử lý bình luận']);
         }
     }
 
