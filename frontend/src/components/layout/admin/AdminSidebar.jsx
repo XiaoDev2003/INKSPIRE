@@ -45,12 +45,12 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
       <div
         className={`${sidebarOpen ? "w-64" : "w-20"} fixed top-0 left-0 z-30 hidden h-screen overflow-y-auto bg-gradient-to-b from-amber-800 to-amber-900 text-white shadow-lg transition-all duration-300 ease-in-out md:block`}
       >
-        <div className="p-4">
+        <div className="p-12">
           <div className="w-full">
             <img
               src="/logo_white.png"
               alt="Inkspire"
-              className="h-18 w-full object-contain"
+              className="h-18 w-full object-cover"
             />
           </div>
         </div>

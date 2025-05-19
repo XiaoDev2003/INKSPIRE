@@ -10,7 +10,7 @@ class Gallery {
 
     public function getAll() {
         $stmt = $this->conn->query("SELECT 
-            g.image_id, g.image_title, g.image_url, g.category_id, g.item_id, g.uploaded_by, g.upload_date, g.status,
+            g.image_id, g.image_title, g.image_description, g.image_url, g.category_id, g.item_id, g.uploaded_by, g.upload_date, g.status,
             c.category_name,
             i.item_name,
             u.username AS uploaded_by_name
@@ -24,7 +24,7 @@ class Gallery {
 
     public function getById($id) {
         $stmt = $this->conn->prepare("SELECT 
-            g.image_id, g.image_title, g.image_url, g.category_id, g.item_id, g.uploaded_by, g.upload_date, g.status,
+            g.image_id, g.image_title, g.image_description, g.image_url, g.category_id, g.item_id, g.uploaded_by, g.upload_date, g.status,
             c.category_name,
             i.item_name,
             u.username AS uploaded_by_name
@@ -38,13 +38,14 @@ class Gallery {
     }
 
     public function create($data) {
-        $stmt = $this->conn->prepare("INSERT INTO gallery (image_title, image_url, category_id, item_id, uploaded_by, status) VALUES (:title, :url, :cat, :item, :by, :status)");
+        $stmt = $this->conn->prepare("INSERT INTO gallery (image_title, image_description, image_url, category_id, item_id, uploaded_by, status) VALUES (:title, :description, :url, :cat, :item, :by, :status)");
         $success = $stmt->execute([
             ':title' => htmlspecialchars(strip_tags(trim($data['image_title']))),
+            ':description' => isset($data['image_description']) ? htmlspecialchars(strip_tags($data['image_description'])) : null,
             ':url' => htmlspecialchars(strip_tags(trim($data['image_url']))),
             ':cat' => $data['category_id'] ?? null,
             ':item' => $data['item_id'] ?? null,
-            ':by' => $data['uploaded_by'] ?? 1, // Mặc định user_id = 1 nếu không có giá trị
+            ':by' => $data['uploaded_by'], // Sử dụng user_id được gửi từ client
             ':status' => $data['status'] ?? 'draft'
         ]);
         if ($success) {
@@ -55,10 +56,11 @@ class Gallery {
     }
 
     public function update($data) {
-        $stmt = $this->conn->prepare("UPDATE gallery SET image_title = :title, image_url = :url, category_id = :cat, item_id = :item, status = :status WHERE image_id = :id");
+        $stmt = $this->conn->prepare("UPDATE gallery SET image_title = :title, image_description = :description, image_url = :url, category_id = :cat, item_id = :item, status = :status WHERE image_id = :id");
         $success = $stmt->execute([
             ':id' => $data['image_id'],
             ':title' => htmlspecialchars(strip_tags(trim($data['image_title']))),
+            ':description' => isset($data['image_description']) ? htmlspecialchars(strip_tags($data['image_description'])) : null,
             ':url' => htmlspecialchars(strip_tags(trim($data['image_url']))),
             ':cat' => $data['category_id'] ?? null,
             ':item' => $data['item_id'] ?? null,

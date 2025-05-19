@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
 import axiosClient from '../../api/axiosClient';
 import { FaEdit, FaTrash, FaSearch, FaPlus, FaEye, FaEyeSlash, FaDownload, FaChevronDown, FaChevronUp, FaCopy } from 'react-icons/fa';
@@ -22,10 +23,11 @@ const Items = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // Giả định lấy user_id từ context hoặc session (thay bằng logic thực tế)
+  // Lấy user_id từ AuthContext
+  const { user } = useContext(AuthContext);
+  
   const getCurrentUserId = () => {
-    // Ví dụ: Lấy từ localStorage hoặc context
-    return 1; // Mặc định user_id = 1 nếu không có session
+    return user?.user_id || null; // Lấy user_id từ context
   };
 
   useEffect(() => {

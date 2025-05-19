@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
 import axiosClient from '../../api/axiosClient';
-import { FaTrash, FaSearch, FaEye, FaEdit } from 'react-icons/fa';
+import { FaTrash, FaSearch, FaEye, FaEdit, FaThumbsUp, FaThumbsDown, FaSort, FaSortAmountDown, FaSortAmountUp, FaFilter } from 'react-icons/fa';
 
 const Comments = () => {
   const [comments, setComments] = useState([]);
@@ -13,48 +13,118 @@ const Comments = () => {
   const [editedComment, setEditedComment] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null); // Thêm thông báo thành công
+  const [sortField, setSortField] = useState('created_at');
+  const [sortDirection, setSortDirection] = useState('desc');
+  const [filterParentOnly, setFilterParentOnly] = useState(true); // Mặc định chỉ hiển thị bình luận cấp 1
+  const [itemTypes, setItemTypes] = useState([]);
+  const [selectedItemType, setSelectedItemType] = useState('all');
+
+  const fetchComments = useCallback(async () => {
+    try {
+      setLoading(true);
+      // Thêm tham số để lọc và sắp xếp
+      const params = new URLSearchParams();
+      params.append('sort_field', sortField);
+      params.append('sort_direction', sortDirection);
+      params.append('parent_only', filterParentOnly ? '1' : '0');
+
+      if (selectedItemType !== 'all') {
+        params.append('category_id', selectedItemType);
+      }
+
+      console.log('Đang gọi API comments với params:', params.toString());
+      const response = await axiosClient.get(`/api/comments?${params.toString()}`);
+      console.log('Dữ liệu bình luận nhận được:', response.data);
+
+      // Hiển thị toàn bộ response.data ra bảng để debug
+      if (!response.data || !Array.isArray(response.data)) {
+        setError('Dữ liệu bình luận không hợp lệ: ' + JSON.stringify(response.data));
+        setComments([]);
+        setLoading(false);
+        return;
+      }
+      // Kiểm tra từng object trong mảng
+      const invalids = response.data.filter(c => !c.comment_id || !c.user_id || !c.comment_content);
+      if (invalids.length > 0) {
+        setError('Một số bình luận thiếu trường bắt buộc: ' + JSON.stringify(invalids));
+      }
+      const formattedComments = response.data.map(comment => ({
+        comment_id: comment.comment_id,
+        user_id: comment.user_id,
+        user_name: comment.username || 'Ẩn danh',
+        item_id: comment.item_id,
+        item_name: comment.item_name || 'Không xác định',
+        category_id: comment.category_id,
+        category_name: comment.category_name,
+        comment_content: comment.comment_content,
+        created_at: comment.created_at ? new Date(comment.created_at).toLocaleString('vi-VN', {
+          year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+        }) : 'Không xác định',
+        likes_count: comment.likes_count || 0,
+        dislikes_count: comment.dislikes_count || 0,
+        parent_comment_id: comment.parent_comment_id,
+        created_at_raw: comment.created_at,
+        item_type: comment.item_type || 'Không xác định'
+      }));
+      setComments(formattedComments);
+    } catch (err) {
+      console.error('Lỗi khi lấy dữ liệu bình luận:', err);
+      if (err.response) {
+        setError('Phản hồi lỗi: ' + JSON.stringify(err.response.data));
+      } else if (err.request) {
+        setError('Không nhận được phản hồi: ' + JSON.stringify(err.request));
+      } else {
+        setError('Lỗi: ' + err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [sortField, sortDirection, filterParentOnly, selectedItemType]);
 
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const response = await axiosClient.get('/api/comments');
-        const formattedComments = response.data.map(comment => ({
-          comment_id: comment.comment_id,
-          user_id: comment.user_id,
-          user_name: comment.username || 'Ẩn danh',
-          item_id: comment.item_id,
-          item_name: comment.item_name || 'Không xác định',
-          comment_content: comment.comment_content,
-          created_at: new Date(comment.created_at).toLocaleDateString('vi-VN'),
-        }));
-        setComments(formattedComments);
-      } catch (err) {
-        setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu bình luận.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchComments();
-  }, []);
+    fetchItemTypes();
+  }, [fetchComments, sortField, sortDirection, filterParentOnly, selectedItemType]);
+
+  const fetchItemTypes = async () => {
+    try {
+      const response = await axiosClient.get('/api/categories');
+      setItemTypes(response.data);
+    } catch (err) {
+      console.error('Lỗi khi lấy danh sách loại sản phẩm:', err);
+    }
+  };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredComments = comments.filter(comment => 
+  const filteredComments = comments.filter(comment =>
     comment.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     comment.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     comment.comment_content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      // Nếu đang sắp xếp theo field này, đổi hướng sắp xếp
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Nếu chuyển sang field mới, mặc định sắp xếp giảm dần
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const toggleParentFilter = () => {
+    setFilterParentOnly(!filterParentOnly);
+  };
+
   const handleDeleteComment = async (commentId) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
       try {
         console.log('Deleting comment with ID:', commentId); // Log debug
-        const response = await axiosClient.delete('/api/comments', {
-          data: { comment_id: commentId },
-        });
+        const response = await axiosClient.delete(`/api/comments/${commentId}`);
         console.log('Delete response:', response.data);
         setComments(comments.filter(comment => comment.comment_id !== commentId));
         setSuccess('Xóa bình luận thành công!'); // Thông báo thành công
@@ -82,8 +152,7 @@ const Comments = () => {
     e.preventDefault();
     try {
       console.log('Updating comment with ID:', currentComment.comment_id, 'Content:', editedComment); // Log debug
-      const response = await axiosClient.put('/api/comments', { // Sửa endpoint, gửi comment_id trong body
-        comment_id: currentComment.comment_id,
+      const response = await axiosClient.put(`/api/comments/${currentComment.comment_id}`, {
         comment_content: editedComment,
       });
       console.log('Update response:', response.data);
@@ -127,17 +196,71 @@ const Comments = () => {
       )}
 
       <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="mb-4 relative">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FaSearch className="text-gray-400" />
+        <div className="mb-4 flex flex-col md:flex-row gap-4">
+          <div className="relative flex-grow">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <FaSearch className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo người dùng, sản phẩm hoặc nội dung"
+              className="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo người dùng, sản phẩm hoặc nội dung"
-            className="pl-10 w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleSort('likes_count')}
+              className={`flex items-center gap-1 px-3 py-2 border rounded-md ${sortField === 'likes_count' ? 'bg-amber-100 border-amber-300' : 'bg-white border-gray-300'}`}
+              title="Sắp xếp theo lượt thích"
+            >
+              <FaThumbsUp className="text-amber-600" />
+              {sortField === 'likes_count' && (
+                sortDirection === 'desc' ? <FaSortAmountDown className="text-amber-600" /> : <FaSortAmountUp className="text-amber-600" />
+              )}
+            </button>
+            <button
+              onClick={() => handleSort('dislikes_count')}
+              className={`flex items-center gap-1 px-3 py-2 border rounded-md ${sortField === 'dislikes_count' ? 'bg-amber-100 border-amber-300' : 'bg-white border-gray-300'}`}
+              title="Sắp xếp theo lượt không thích"
+            >
+              <FaThumbsDown className="text-amber-600" />
+              {sortField === 'dislikes_count' && (
+                sortDirection === 'desc' ? <FaSortAmountDown className="text-amber-600" /> : <FaSortAmountUp className="text-amber-600" />
+              )}
+            </button>
+            <button
+              onClick={() => handleSort('created_at')}
+              className={`flex items-center gap-1 px-3 py-2 border rounded-md ${sortField === 'created_at' ? 'bg-amber-100 border-amber-300' : 'bg-white border-gray-300'}`}
+              title="Sắp xếp theo thời gian"
+            >
+              <FaSort className="text-amber-600" />
+              {sortField === 'created_at' && (
+                sortDirection === 'desc' ? <FaSortAmountDown className="text-amber-600" /> : <FaSortAmountUp className="text-amber-600" />
+              )}
+            </button>
+            <button
+              onClick={toggleParentFilter}
+              className={`flex items-center gap-1 px-3 py-2 border rounded-md ${filterParentOnly ? 'bg-amber-100 border-amber-300' : 'bg-white border-gray-300'}`}
+              title={filterParentOnly ? "Hiển thị tất cả bình luận" : "Chỉ hiển thị bình luận cấp 1"}
+            >
+              <FaFilter className="text-amber-600" />
+              <span className="text-sm hidden sm:inline">{filterParentOnly ? "Bình luận cấp 1" : "Tất cả"}</span>
+            </button>
+            <select
+              value={selectedItemType}
+              onChange={(e) => setSelectedItemType(e.target.value)}
+              className="px-3 py-2 border rounded-md bg-white border-gray-300 text-sm"
+            >
+              <option value="all">Tất cả loại sản phẩm</option>
+              {itemTypes.map(type => (
+                <option key={type.category_id} value={type.category_id}>
+                  {type.category_name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {loading ? (
@@ -153,13 +276,16 @@ const Comments = () => {
                     Người dùng
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Sản phẩm
+                    Sản phẩm/Danh mục
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Nội dung
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Ngày tạo
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Lượt thích/Không thích
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Thao tác
@@ -176,12 +302,34 @@ const Comments = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{comment.item_name}</div>
                       <div className="text-sm text-gray-500">ID: {comment.item_id}</div>
+                      {comment.category_name && (
+                        <div className="text-xs text-amber-600 mt-1">
+                          Danh mục: {comment.category_name}
+                        </div>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 line-clamp-2">{comment.comment_content}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {comment.created_at}
+                      {comment.parent_comment_id && (
+                        <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          Trả lời
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center">
+                          <FaThumbsUp className="text-green-500 mr-1" />
+                          <span>{comment.likes_count}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <FaThumbsDown className="text-red-500 mr-1" />
+                          <span>{comment.dislikes_count}</span>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
@@ -237,12 +385,31 @@ const Comments = () => {
                     <p className="mt-1">{currentComment.user_name} (ID: {currentComment.user_id})</p>
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Sản phẩm</h4>
+                    <h4 className="text-sm font-medium text-gray-500">Sản phẩm/Danh mục</h4>
                     <p className="mt-1">{currentComment.item_name} (ID: {currentComment.item_id})</p>
+                    {currentComment.category_name && (
+                      <p className="mt-1 text-xs text-amber-600">Danh mục: {currentComment.category_name}</p>
+                    )}
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-gray-500">Ngày bình luận</h4>
                     <p className="mt-1">{currentComment.created_at}</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Lượt thích</h4>
+                      <p className="mt-1 flex items-center">
+                        <FaThumbsUp className="text-green-500 mr-1" />
+                        {currentComment.likes_count || 0}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Lượt không thích</h4>
+                      <p className="mt-1 flex items-center">
+                        <FaThumbsDown className="text-red-500 mr-1" />
+                        {currentComment.dislikes_count || 0}
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-gray-500">Nội dung bình luận</h4>

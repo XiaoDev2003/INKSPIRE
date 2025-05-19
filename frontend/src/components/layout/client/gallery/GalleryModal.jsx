@@ -36,15 +36,15 @@ const GalleryModal = ({ image, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm transition-opacity duration-300"
+      className="bg-opacity-80 fixed inset-0 z-50 flex items-center justify-center bg-black backdrop-blur-sm transition-opacity duration-300"
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto m-4 shadow-2xl transform transition-all duration-300"
+        className="relative m-4 max-h-[95vh] w-full max-w-7xl transform overflow-auto rounded-lg bg-white shadow-2xl transition-all duration-300"
         onClick={handleContentClick}
       >
         <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10 bg-white rounded-full p-2 shadow-md"
+          className="absolute top-4 right-4 z-10 rounded-full bg-white p-2 text-gray-400 shadow-md hover:text-gray-600"
           onClick={onClose}
         >
           <svg
@@ -64,56 +64,73 @@ const GalleryModal = ({ image, onClose }) => {
         </button>
 
         <div className="flex flex-col md:flex-row">
-          <div className="md:w-2/3 bg-gray-100">
+          <div className="bg-gray-100 md:w-3/4">
             <img
               src={image.image_url}
               alt={image.image_title || "Hình ảnh"}
-              className="w-full h-auto object-contain max-h-[70vh]"
+              className="h-auto max-h-[80vh] w-full object-contain"
               onError={(e) => {
                 e.target.src = "/images/placeholder.jpg";
               }}
             />
           </div>
-          <div className="md:w-1/3 p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          <div className="flex h-full flex-col p-6 md:w-1/4">
+            {/* Tiêu đề */}
+            <h2 className="mb-3 text-2xl font-bold text-gray-800">
               {image.image_title || "Không có tiêu đề"}
             </h2>
-            <p className="text-gray-600 mb-6">
+
+            {/* Danh mục */}
+            <p className="mb-4 text-gray-600">
               {image.category_name || "Không có danh mục"}
             </p>
 
-            {image.uploaded_by_name && (
+            {/* Mô tả */}
+            {image.image_description && (
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-500">Nghệ sĩ</h3>
-                <p className="text-gray-800">{image.uploaded_by_name}</p>
+                <h3 className="text-sm font-medium text-gray-500">Mô tả</h3>
+                <p className="mt-1 text-gray-800">{image.image_description}</p>
               </div>
             )}
 
+            {/* Tác giả */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-gray-500">Tác giả</h3>
+              <p className="mt-1 text-gray-800">{image.uploaded_by_name || "Không xác định"}</p>
+            </div>
+
+            {/* Ngày tạo */}
             {image.upload_date && (
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-gray-500">Ngày tạo</h3>
-                <p className="text-gray-800">
+                <p className="mt-1 text-gray-800">
                   {new Date(image.upload_date).toLocaleDateString("vi-VN")}
                 </p>
               </div>
             )}
 
+            {/* Trạng thái */}
             {image.status && (
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-500">Trạng thái</h3>
-                <p className="text-gray-800">{getStatusText(image.status)}</p>
+                <h3 className="text-sm font-medium text-gray-500">
+                  Trạng thái
+                </h3>
+                <p className="mt-1 text-gray-800">
+                  {getStatusText(image.status)}
+                </p>
               </div>
             )}
 
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            {/* Nút tải xuống được căn giữa */}
+            <div className="mt-auto flex justify-center border-t border-gray-200 pt-6">
               <a
                 href={image.image_url}
                 download
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                className="inline-flex items-center rounded-md border border-transparent bg-amber-600 px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-amber-700 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:outline-none"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
+                  className="mr-2 h-5 w-5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -122,7 +139,7 @@ const GalleryModal = ({ image, onClose }) => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l4 4m-4-4H4"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                   />
                 </svg>
                 Tải xuống

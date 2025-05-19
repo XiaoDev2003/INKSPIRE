@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
 import axiosClient from '../../api/axiosClient';
 import { FaTrash, FaSearch, FaPlus, FaEye, FaEdit, FaDownload, FaChevronDown, FaChevronUp } from 'react-icons/fa';
@@ -12,6 +13,7 @@ const Gallery = () => {
   const [expandedImage, setExpandedImage] = useState(null);
   const [formData, setFormData] = useState({
     image_title: '',
+    image_description: '',
     image_url: '',
     category_id: '',
     item_id: '',
@@ -19,6 +21,9 @@ const Gallery = () => {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  
+  // Lấy thông tin người dùng từ AuthContext
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -52,6 +57,7 @@ const Gallery = () => {
     setCurrentImage(null);
     setFormData({
       image_title: '',
+      image_description: '',
       image_url: '',
       category_id: '',
       item_id: '',
@@ -66,6 +72,7 @@ const Gallery = () => {
     setCurrentImage(image);
     setFormData({
       image_title: image.image_title || '',
+      image_description: image.image_description || '',
       image_url: image.image_url || '',
       category_id: image.category_id || '',
       item_id: image.item_id || '',
@@ -111,11 +118,12 @@ const Gallery = () => {
     try {
       const payload = {
         image_title: formData.image_title,
+        image_description: formData.image_description,
         image_url: formData.image_url,
         category_id: formData.category_id || null,
         item_id: formData.item_id || null,
         status: formData.status,
-        uploaded_by: 1, // Giả định user_id = 1, có thể thay bằng logic xác thực
+        uploaded_by: user?.user_id || null, // Lấy user_id từ AuthContext
       };
       console.log('Submitting image:', payload);
 
@@ -265,6 +273,7 @@ const Gallery = () => {
                         <div className="md:w-2/3">
                           <p className="text-gray-700">Danh mục: {image.category_name || 'Không có'}</p>
                           <p className="text-gray-700">Item: {image.item_name || 'Không có'}</p>
+                          <p className="text-gray-700">Mô tả: {image.image_description || 'Không có mô tả'}</p>
                           <div className="mt-4 text-sm text-gray-500">
                             <p>Ngày tải lên: {new Date(image.upload_date).toLocaleDateString('vi-VN')}</p>
                             <p>Người tải lên: {image.uploaded_by_name || 'Không xác định'}</p>
@@ -314,6 +323,17 @@ const Gallery = () => {
                       className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
                       required
                     />
+                  </div>
+                  <div>
+                    <label htmlFor="image_description" className="block text-sm font-medium text-gray-700">Mô tả hình ảnh</label>
+                    <textarea
+                      id="image_description"
+                      name="image_description"
+                      value={formData.image_description}
+                      onChange={handleChange}
+                      rows="3"
+                      className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                    ></textarea>
                   </div>
                   <div>
                     <label htmlFor="image_url" className="block text-sm font-medium text-gray-700">URL hình ảnh</label>

@@ -26,11 +26,43 @@ class CommentController {
             // Lấy các tham số từ request
             $item_id = isset($_GET['item_id']) ? $_GET['item_id'] : null;
             $category_id = isset($_GET['category_id']) ? $_GET['category_id'] : null;
-            $parent_only = isset($_GET['parent_only']) ? filter_var($_GET['parent_only'], FILTER_VALIDATE_BOOLEAN) : false;
+            $parent_only = isset($_GET['parent_only']) && $_GET['parent_only'] === '1' ? true : false;
             $current_user_id = isset($_GET['user_id']) ? $_GET['user_id'] : null;
 
-            // Lấy bình luận từ database
-            $comments = $this->commentModel->getComments($item_id, $category_id, $parent_only);
+            // Lấy tham số sắp xếp
+            $sort_field = isset($_GET['sort_field']) ? $_GET['sort_field'] : 'created_at';
+            $sort_direction = isset($_GET['sort_direction']) ? $_GET['sort_direction'] : 'desc';
+
+            // Kiểm tra và xác thực các tham số sắp xếp
+            $allowed_sort_fields = ['created_at', 'likes_count', 'dislikes_count'];
+            if (!in_array($sort_field, $allowed_sort_fields)) {
+                $sort_field = 'created_at';
+            }
+
+            $allowed_sort_directions = ['asc', 'desc'];
+            if (!in_array($sort_direction, $allowed_sort_directions)) {
+                $sort_direction = 'desc';
+            }
+
+            // Lấy bình luận từ database với các tham số sắp xếp
+            $comments = $this->commentModel->getComments($item_id, $category_id, $parent_only, $sort_field, $sort_direction);
+
+            // Debug: Kiểm tra dữ liệu trả về từ model
+            if ($comments === false || $comments === null) {
+                // Trả về mảng rỗng nếu không có dữ liệu
+                header('Content-Type: application/json');
+                echo json_encode([]);
+                return;
+            }
+
+            // Kiểm tra xem $comments có phải là mảng không
+            if (!is_array($comments)) {
+                // Log lỗi và trả về mảng rỗng
+                error_log('CommentController: Dữ liệu trả về từ model không phải là mảng: ' . print_r($comments, true));
+                header('Content-Type: application/json');
+                echo json_encode([]);
+                return;
+            }
 
             // Nếu có user_id, lấy thông tin phản ứng của người dùng hiện tại
             if ($current_user_id) {
@@ -55,6 +87,7 @@ class CommentController {
             header('Content-Type: application/json');
             echo json_encode($comments);
         } catch (Exception $e) {
+            error_log('CommentController Exception: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => $e->getMessage()]);
         }

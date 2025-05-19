@@ -29,8 +29,10 @@ switch ($method) {
             jsonResponse(['error' => 'Thiếu tiêu đề hoặc URL hình ảnh'], 400);
         }
 
-        // Giả định user_id của người dùng hiện tại (có thể thay bằng logic xác thực)
-        $data['uploaded_by'] = $data['uploaded_by'] ?? 1; // Mặc định user_id = 1
+        // Kiểm tra user_id từ request
+        if (!isset($data['uploaded_by']) || empty($data['uploaded_by'])) {
+            jsonResponse(['error' => 'Thiếu thông tin người dùng (uploaded_by)'], 400);
+        }
 
         $result = $galleryModel->create($data);
         jsonResponse($result ? $result : ['error' => 'Thêm hình ảnh thất bại'], $result ? 201 : 500);

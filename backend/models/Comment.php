@@ -11,34 +11,63 @@ class Comment {
     }
 
     // Lấy danh sách bình luận
-    public function getComments($item_id = null, $category_id = null, $parent_only = false) {
-        $query = "SELECT c.*, u.username, u.first_name, u.last_name, i.item_name 
-                  FROM comments c 
-                  LEFT JOIN users u ON c.user_id = u.user_id 
-                  LEFT JOIN items i ON c.item_id = i.item_id 
-                  WHERE 1=1";
-        $params = [];
+    public function getComments($item_id = null, $category_id = null, $parent_only = false, $sort_field = 'created_at', $sort_direction = 'desc') {
+        try {
+            $query = "SELECT c.*, u.username, u.first_name, u.last_name, i.item_name,
+                      (SELECT COUNT(*) FROM comment_reactions WHERE comment_id = c.comment_id AND reaction_type = 'like') as likes_count,
+                      (SELECT COUNT(*) FROM comment_reactions WHERE comment_id = c.comment_id AND reaction_type = 'dislike') as dislikes_count
+                      FROM comments c 
+                      LEFT JOIN users u ON c.user_id = u.user_id 
+                      LEFT JOIN items i ON c.item_id = i.item_id 
+                      WHERE 1=1";
+            $params = [];
 
-        if ($item_id) {
-            $query .= " AND c.item_id = :item_id";
-            $params[':item_id'] = $item_id;
-        }
-        if ($category_id) {
-            $query .= " AND c.category_id = :category_id";
-            $params[':category_id'] = $category_id;
-        }
-        if ($parent_only) {
-            $query .= " AND c.parent_comment_id IS NULL";
-        }
+            if ($item_id) {
+                $query .= " AND c.item_id = :item_id";
+                $params[':item_id'] = $item_id;
+            }
+            if ($category_id) {
+                $query .= " AND c.category_id = :category_id";
+                $params[':category_id'] = $category_id;
+            }
+            if ($parent_only) {
+                $query .= " AND c.parent_comment_id IS NULL";
+            }
 
-        $query .= " ORDER BY c.likes_count DESC, c.created_at DESC";
+            // Xác định trường sắp xếp và hướng sắp xếp
+            $allowed_fields = ['created_at', 'likes_count', 'dislikes_count'];
+            $sort_field = in_array($sort_field, $allowed_fields) ? $sort_field : 'created_at';
+            $sort_direction = strtoupper($sort_direction) === 'ASC' ? 'ASC' : 'DESC';
 
-        $stmt = $this->conn->prepare($query);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
+            // Sắp xếp theo trường thích hợp (lưu ý likes_count và dislikes_count là alias từ subquery)
+            if ($sort_field === 'created_at') {
+                $query .= " ORDER BY c.created_at {$sort_direction}";
+            } else {
+                $query .= " ORDER BY {$sort_field} {$sort_direction}, c.created_at DESC";
+            }
+
+            // Debug: Ghi log câu truy vấn
+            error_log('Comment Model - Query: ' . $query);
+            error_log('Comment Model - Params: ' . print_r($params, true));
+
+            $stmt = $this->conn->prepare($query);
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Đảm bảo luôn trả về mảng, ngay cả khi không có kết quả
+            if ($result === false) {
+                error_log('Comment Model - fetchAll() trả về false');
+                return [];
+            }
+
+            return $result;
+        } catch (PDOException $e) {
+            error_log('Comment Model Exception: ' . $e->getMessage());
+            return [];
         }
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // Tương thích với phương thức cũ
