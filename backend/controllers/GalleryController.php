@@ -35,7 +35,13 @@ switch ($method) {
         }
 
         $result = $galleryModel->create($data);
-        jsonResponse($result ? $result : ['error' => 'Thêm hình ảnh thất bại'], $result ? 201 : 500);
+        
+        // Kiểm tra nếu kết quả là mảng có chứa key 'error' và 'status'
+        if (is_array($result) && isset($result['error']) && isset($result['status']) && $result['status'] === 'error') {
+            jsonResponse(['error' => $result['error']], 400);
+        } else {
+            jsonResponse($result ? $result : ['error' => 'Thêm hình ảnh thất bại'], $result ? 201 : 500);
+        }
         break;
 
     case 'PUT':
@@ -46,7 +52,13 @@ switch ($method) {
         }
 
         $result = $galleryModel->update($data);
-        jsonResponse($result ? $result : ['error' => 'Cập nhật thất bại'], $result ? 200 : 500);
+        
+        // Kiểm tra nếu kết quả là mảng có chứa key 'error' và 'status'
+        if (is_array($result) && isset($result['error']) && isset($result['status']) && $result['status'] === 'error') {
+            jsonResponse(['error' => $result['error']], 400);
+        } else {
+            jsonResponse($result ? $result : ['error' => 'Cập nhật thất bại'], $result ? 200 : 500);
+        }
         break;
 
     case 'DELETE':

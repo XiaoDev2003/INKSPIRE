@@ -25,7 +25,7 @@ const Items = () => {
 
   // Lấy user_id từ AuthContext
   const { user } = useContext(AuthContext);
-  
+
   const getCurrentUserId = () => {
     return user?.user_id || null; // Lấy user_id từ context
   };
@@ -124,6 +124,66 @@ const Items = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Hàm tạo hoặc cập nhật hình ảnh trong Gallery khi thêm/sửa font chữ
+  const createGalleryImage = async (fontData, itemId = null) => {
+    if (!itemId) return; // Không thực hiện nếu không có item_id
+    
+    try {
+      // Lấy tất cả hình ảnh từ Gallery để kiểm tra
+      const galleryResponse = await axiosClient.get('/api/gallery');
+      const existingImages = galleryResponse.data;
+      
+      // Tìm hình ảnh đã liên kết với item_id này
+      const existingImage = existingImages.find(img => img.item_id === itemId);
+      
+      const galleryPayload = {
+        image_title: fontData.item_name, // Tiêu đề = tên font chữ
+        image_description: fontData.item_des, // Mô tả = Mô tả font chữ
+        image_url: fontData.item_url, // Đường dẫn hình ảnh = đường dẫn font
+        category_id: fontData.category_id, // Category = id danh mục tương ứng
+        item_id: itemId, // Liên kết với font chữ
+        status: 'archived', // Trạng thái mặc định là đã lưu trữ
+        uploaded_by: getCurrentUserId(), // Lấy user_id hiện tại
+      };
+
+      if (existingImage) {
+        // Nếu đã có hình ảnh, cập nhật thay vì tạo mới
+        galleryPayload.image_id = existingImage.image_id;
+        const response = await axiosClient.put('/api/gallery', galleryPayload);
+        
+        // Kiểm tra nếu có lỗi từ server
+        if (response.data && response.data.status === 'error') {
+          setError(response.data.error || 'Lỗi khi cập nhật hình ảnh trong Gallery');
+          return false;
+        }
+        
+        console.log('Đã cập nhật hình ảnh trong Gallery');
+        return true;
+      } else {
+        // Nếu chưa có, tạo mới
+        const response = await axiosClient.post('/api/gallery', galleryPayload);
+        
+        // Kiểm tra nếu có lỗi từ server
+        if (response.data && response.data.status === 'error') {
+          setError(response.data.error || 'Lỗi khi tạo hình ảnh mới trong Gallery');
+          return false;
+        }
+        
+        console.log('Đã tạo hình ảnh mới trong Gallery');
+        return true;
+      }
+    } catch (error) {
+      console.error('Lỗi khi xử lý hình ảnh trong Gallery:', error.response?.data || error.message);
+      // Hiển thị lỗi cho người dùng
+      if (error.response?.data?.error) {
+        setError(error.response.data.error);
+      } else {
+        setError('Đã xảy ra lỗi khi xử lý hình ảnh. Mỗi font chữ chỉ được liên kết với một hình ảnh.');
+      }
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -145,10 +205,31 @@ const Items = () => {
           item.item_id === currentItem.item_id ? response.data : item
         ));
         setSuccess('Cập nhật thành công!');
+
+        // Khi cập nhật font chữ, chỉ cập nhật hình ảnh trong Gallery nếu đã tồn tại
+        // Không tạo mới hình ảnh nếu chưa có
+        const galleryResponse = await axiosClient.get('/api/gallery');
+        const existingImage = galleryResponse.data.find(img => img.item_id === currentItem.item_id);
+        
+        if (existingImage) {
+          // Chỉ cập nhật hình ảnh nếu đã tồn tại
+          const galleryResult = await createGalleryImage(payload, currentItem.item_id);
+          if (!galleryResult) {
+            // Nếu có lỗi khi cập nhật hình ảnh, vẫn giữ modal mở để người dùng có thể sửa
+            return;
+          }
+        }
       } else {
         const response = await axiosClient.post('/api/items', payload);
         setItems([...items, response.data]);
         setSuccess('Thêm thành công!');
+
+        // Tạo hình ảnh tự động trong Gallery khi thêm font chữ mới
+        const galleryResult = await createGalleryImage(payload, response.data.item_id);
+        if (!galleryResult) {
+          // Nếu có lỗi khi tạo hình ảnh, vẫn giữ modal mở để người dùng có thể sửa
+          return;
+        }
       }
       setShowModal(false);
     } catch (err) {

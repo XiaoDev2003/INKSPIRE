@@ -1,99 +1,59 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
 import axiosClient from '../../api/axiosClient';
-import { FaTrash, FaSearch, FaEye, FaEdit, FaThumbsUp, FaThumbsDown, FaSort, FaSortAmountDown, FaSortAmountUp, FaFilter } from 'react-icons/fa';
+import { FaSearch, FaEye, FaThumbsUp, FaThumbsDown, FaTrash } from 'react-icons/fa';
 
 const Comments = () => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [currentComment, setCurrentComment] = useState(null);
-  const [editedComment, setEditedComment] = useState('');
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null); // Thêm thông báo thành công
-  const [sortField, setSortField] = useState('created_at');
-  const [sortDirection, setSortDirection] = useState('desc');
-  const [filterParentOnly, setFilterParentOnly] = useState(true); // Mặc định chỉ hiển thị bình luận cấp 1
-  const [itemTypes, setItemTypes] = useState([]);
-  const [selectedItemType, setSelectedItemType] = useState('all');
 
   const fetchComments = useCallback(async () => {
     try {
       setLoading(true);
-      // Thêm tham số để lọc và sắp xếp
-      const params = new URLSearchParams();
-      params.append('sort_field', sortField);
-      params.append('sort_direction', sortDirection);
-      params.append('parent_only', filterParentOnly ? '1' : '0');
-
-      if (selectedItemType !== 'all') {
-        params.append('category_id', selectedItemType);
-      }
-
-      console.log('Đang gọi API comments với params:', params.toString());
-      const response = await axiosClient.get(`/api/comments?${params.toString()}`);
+      // Đơn giản hóa: chỉ lấy tất cả bình luận không có tham số
+      const response = await axiosClient.get('/api/comments');
       console.log('Dữ liệu bình luận nhận được:', response.data);
 
-      // Hiển thị toàn bộ response.data ra bảng để debug
+      // Kiểm tra dữ liệu trả về
       if (!response.data || !Array.isArray(response.data)) {
-        setError('Dữ liệu bình luận không hợp lệ: ' + JSON.stringify(response.data));
+        setError('Không thể tải dữ liệu bình luận');
         setComments([]);
-        setLoading(false);
         return;
       }
-      // Kiểm tra từng object trong mảng
-      const invalids = response.data.filter(c => !c.comment_id || !c.user_id || !c.comment_content);
-      if (invalids.length > 0) {
-        setError('Một số bình luận thiếu trường bắt buộc: ' + JSON.stringify(invalids));
-      }
+
+      // Định dạng dữ liệu bình luận
       const formattedComments = response.data.map(comment => ({
-        comment_id: comment.comment_id,
-        user_id: comment.user_id,
+        comment_id: comment.comment_id || 0,
+        user_id: comment.user_id || 0,
         user_name: comment.username || 'Ẩn danh',
-        item_id: comment.item_id,
+        item_id: comment.item_id || null,
         item_name: comment.item_name || 'Không xác định',
-        category_id: comment.category_id,
-        category_name: comment.category_name,
-        comment_content: comment.comment_content,
-        created_at: comment.created_at ? new Date(comment.created_at).toLocaleString('vi-VN', {
-          year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
-        }) : 'Không xác định',
+        category_id: comment.category_id || null,
+        category_name: comment.category_name || 'Không xác định',
+        comment_content: comment.comment_content || '',
+        created_at: comment.created_at ? new Date(comment.created_at).toLocaleString('vi-VN') : 'Không xác định',
         likes_count: comment.likes_count || 0,
         dislikes_count: comment.dislikes_count || 0,
-        parent_comment_id: comment.parent_comment_id,
-        created_at_raw: comment.created_at,
-        item_type: comment.item_type || 'Không xác định'
+        parent_comment_id: comment.parent_comment_id || null
       }));
+
       setComments(formattedComments);
     } catch (err) {
       console.error('Lỗi khi lấy dữ liệu bình luận:', err);
-      if (err.response) {
-        setError('Phản hồi lỗi: ' + JSON.stringify(err.response.data));
-      } else if (err.request) {
-        setError('Không nhận được phản hồi: ' + JSON.stringify(err.request));
-      } else {
-        setError('Lỗi: ' + err.message);
-      }
+      setError('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
     }
-  }, [sortField, sortDirection, filterParentOnly, selectedItemType]);
+  }, []);
 
   useEffect(() => {
     fetchComments();
-    fetchItemTypes();
-  }, [fetchComments, sortField, sortDirection, filterParentOnly, selectedItemType]);
-
-  const fetchItemTypes = async () => {
-    try {
-      const response = await axiosClient.get('/api/categories');
-      setItemTypes(response.data);
-    } catch (err) {
-      console.error('Lỗi khi lấy danh sách loại sản phẩm:', err);
-    }
-  };
+  }, [fetchComments]);
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -105,76 +65,33 @@ const Comments = () => {
     comment.comment_content.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      // Nếu đang sắp xếp theo field này, đổi hướng sắp xếp
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      // Nếu chuyển sang field mới, mặc định sắp xếp giảm dần
-      setSortField(field);
-      setSortDirection('desc');
-    }
-  };
-
-  const toggleParentFilter = () => {
-    setFilterParentOnly(!filterParentOnly);
-  };
-
-  const handleDeleteComment = async (commentId) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
-      try {
-        console.log('Deleting comment with ID:', commentId); // Log debug
-        const response = await axiosClient.delete(`/api/comments/${commentId}`);
-        console.log('Delete response:', response.data);
-        setComments(comments.filter(comment => comment.comment_id !== commentId));
-        setSuccess('Xóa bình luận thành công!'); // Thông báo thành công
-      } catch (err) {
-        console.error('Error deleting comment:', err.response?.data || err.message);
-        setError(err.response?.data?.error || 'Đã có lỗi khi xóa bình luận.');
-      }
-    }
-  };
-
   const handleViewComment = (comment) => {
     setCurrentComment(comment);
     setShowViewModal(true);
   };
 
-  const handleEditComment = (comment) => {
-    setCurrentComment(comment);
-    setEditedComment(comment.comment_content);
-    setShowModal(true);
-    setError(null); // Reset lỗi
-    setSuccess(null); // Reset thông báo thành công
-  };
-
-  const handleSubmitEdit = async (e) => {
-    e.preventDefault();
-    try {
-      console.log('Updating comment with ID:', currentComment.comment_id, 'Content:', editedComment); // Log debug
-      const response = await axiosClient.put(`/api/comments/${currentComment.comment_id}`, {
-        comment_content: editedComment,
-      });
-      console.log('Update response:', response.data);
-      setComments(comments.map(comment => {
-        if (comment.comment_id === currentComment.comment_id) {
-          return { ...comment, comment_content: editedComment };
-        }
-        return comment;
-      }));
-      setSuccess('Cập nhật bình luận thành công!'); // Thông báo thành công
-      setShowModal(false);
-    } catch (err) {
-      console.error('Error updating comment:', err.response?.data || err.message);
-      setError(err.response?.data?.error || 'Đã có lỗi khi cập nhật bình luận.');
-    }
-  };
-
   const handleCloseModal = () => {
-    setShowModal(false);
     setShowViewModal(false);
-    setError(null);
-    setSuccess(null);
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (window.confirm('Bạn có chắc chắn muốn xóa bình luận này?')) {
+      try {
+        await axiosClient.delete('/api/comments', {
+          data: { comment_id: commentId }
+        });
+        setComments(comments.filter(comment => comment.comment_id !== commentId));
+        setSuccess('Xóa bình luận thành công!');
+
+        // Tự động ẩn thông báo thành công sau 3 giây
+        setTimeout(() => {
+          setSuccess(null);
+        }, 3000);
+      } catch (err) {
+        console.error('Lỗi khi xóa bình luận:', err);
+        setError(err.response?.data?.error || 'Không thể xóa bình luận. Vui lòng thử lại sau.');
+      }
+    }
   };
 
   return (
@@ -208,58 +125,6 @@ const Comments = () => {
               value={searchTerm}
               onChange={handleSearch}
             />
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleSort('likes_count')}
-              className={`flex items-center gap-1 px-3 py-2 border rounded-md ${sortField === 'likes_count' ? 'bg-amber-100 border-amber-300' : 'bg-white border-gray-300'}`}
-              title="Sắp xếp theo lượt thích"
-            >
-              <FaThumbsUp className="text-amber-600" />
-              {sortField === 'likes_count' && (
-                sortDirection === 'desc' ? <FaSortAmountDown className="text-amber-600" /> : <FaSortAmountUp className="text-amber-600" />
-              )}
-            </button>
-            <button
-              onClick={() => handleSort('dislikes_count')}
-              className={`flex items-center gap-1 px-3 py-2 border rounded-md ${sortField === 'dislikes_count' ? 'bg-amber-100 border-amber-300' : 'bg-white border-gray-300'}`}
-              title="Sắp xếp theo lượt không thích"
-            >
-              <FaThumbsDown className="text-amber-600" />
-              {sortField === 'dislikes_count' && (
-                sortDirection === 'desc' ? <FaSortAmountDown className="text-amber-600" /> : <FaSortAmountUp className="text-amber-600" />
-              )}
-            </button>
-            <button
-              onClick={() => handleSort('created_at')}
-              className={`flex items-center gap-1 px-3 py-2 border rounded-md ${sortField === 'created_at' ? 'bg-amber-100 border-amber-300' : 'bg-white border-gray-300'}`}
-              title="Sắp xếp theo thời gian"
-            >
-              <FaSort className="text-amber-600" />
-              {sortField === 'created_at' && (
-                sortDirection === 'desc' ? <FaSortAmountDown className="text-amber-600" /> : <FaSortAmountUp className="text-amber-600" />
-              )}
-            </button>
-            <button
-              onClick={toggleParentFilter}
-              className={`flex items-center gap-1 px-3 py-2 border rounded-md ${filterParentOnly ? 'bg-amber-100 border-amber-300' : 'bg-white border-gray-300'}`}
-              title={filterParentOnly ? "Hiển thị tất cả bình luận" : "Chỉ hiển thị bình luận cấp 1"}
-            >
-              <FaFilter className="text-amber-600" />
-              <span className="text-sm hidden sm:inline">{filterParentOnly ? "Bình luận cấp 1" : "Tất cả"}</span>
-            </button>
-            <select
-              value={selectedItemType}
-              onChange={(e) => setSelectedItemType(e.target.value)}
-              className="px-3 py-2 border rounded-md bg-white border-gray-300 text-sm"
-            >
-              <option value="all">Tất cả loại sản phẩm</option>
-              {itemTypes.map(type => (
-                <option key={type.category_id} value={type.category_id}>
-                  {type.category_name}
-                </option>
-              ))}
-            </select>
           </div>
         </div>
 
@@ -341,16 +206,9 @@ const Comments = () => {
                           <FaEye />
                         </button>
                         <button
-                          onClick={() => handleEditComment(comment)}
-                          className="text-blue-600 hover:text-blue-900"
-                          title="Chỉnh sửa"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
                           onClick={() => handleDeleteComment(comment.comment_id)}
                           className="text-red-600 hover:text-red-900"
-                          title="Xóa"
+                          title="Xóa bình luận"
                         >
                           <FaTrash />
                         </button>
@@ -420,17 +278,20 @@ const Comments = () => {
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
-                  onClick={() => handleEditComment(currentComment)}
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={handleCloseModal}
+                  className="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:w-auto sm:text-sm"
                 >
-                  Chỉnh sửa
+                  Đóng
                 </button>
                 <button
                   type="button"
-                  onClick={handleCloseModal}
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() => {
+                    handleDeleteComment(currentComment.comment_id);
+                    handleCloseModal();
+                  }}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm mr-2"
                 >
-                  Đóng
+                  Xóa bình luận
                 </button>
               </div>
             </div>
@@ -438,64 +299,7 @@ const Comments = () => {
         </div>
       )}
 
-      {/* Modal chỉnh sửa bình luận */}
-      {showModal && currentComment && (
-        <div className="fixed inset-0 overflow-y-auto" style={{ isolation: 'isolate' }} onClick={handleCloseModal}>
-          <div className="flex items-center justify-center min-h-screen px-4 py-4">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
 
-            <div
-              className="relative inline-block bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-lg w-full mx-auto my-8"
-              style={{ position: 'relative', zIndex: 10 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <form onSubmit={handleSubmitEdit}>
-                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Chỉnh sửa bình luận</h3>
-                  <div className="mb-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-500">Người bình luận: {currentComment.user_name}</span>
-                      <span className="text-sm text-gray-500">Ngày: {currentComment.created_at}</span>
-                    </div>
-                    <div className="text-sm text-gray-500 mb-2">Sản phẩm: {currentComment.item_name}</div>
-                  </div>
-                  <div>
-                    <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
-                      Nội dung bình luận
-                    </label>
-                    <textarea
-                      id="comment"
-                      rows="4"
-                      value={editedComment}
-                      onChange={(e) => setEditedComment(e.target.value)}
-                      className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      placeholder="Nhập nội dung bình luận..."
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                  <button
-                    type="submit"
-                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Cập nhật
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  >
-                    Hủy
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
     </AdminLayout>
   );
 };

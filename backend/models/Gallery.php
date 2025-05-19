@@ -38,6 +38,18 @@ class Gallery {
     }
 
     public function create($data) {
+        // Kiểm tra xem item_id đã tồn tại trong bảng gallery chưa
+        if (isset($data['item_id']) && !empty($data['item_id'])) {
+            $checkStmt = $this->conn->prepare("SELECT COUNT(*) FROM gallery WHERE item_id = :item_id");
+            $checkStmt->execute([':item_id' => $data['item_id']]);
+            $count = $checkStmt->fetchColumn();
+            
+            if ($count > 0) {
+                // Nếu item_id đã tồn tại, trả về lỗi
+                return ['error' => 'Mỗi font chữ chỉ được liên kết với một hình ảnh. Font chữ này đã có hình ảnh liên kết.', 'status' => 'error'];
+            }
+        }
+        
         $stmt = $this->conn->prepare("INSERT INTO gallery (image_title, image_description, image_url, category_id, item_id, uploaded_by, status) VALUES (:title, :description, :url, :cat, :item, :by, :status)");
         $success = $stmt->execute([
             ':title' => htmlspecialchars(strip_tags(trim($data['image_title']))),
@@ -56,6 +68,21 @@ class Gallery {
     }
 
     public function update($data) {
+        // Kiểm tra xem item_id đã tồn tại trong bảng gallery chưa (ngoại trừ bản ghi hiện tại)
+        if (isset($data['item_id']) && !empty($data['item_id'])) {
+            $checkStmt = $this->conn->prepare("SELECT COUNT(*) FROM gallery WHERE item_id = :item_id AND image_id != :image_id");
+            $checkStmt->execute([
+                ':item_id' => $data['item_id'],
+                ':image_id' => $data['image_id']
+            ]);
+            $count = $checkStmt->fetchColumn();
+            
+            if ($count > 0) {
+                // Nếu item_id đã tồn tại ở bản ghi khác, trả về lỗi
+                return ['error' => 'Mỗi font chữ chỉ được liên kết với một hình ảnh. Font chữ này đã có hình ảnh khác liên kết.', 'status' => 'error'];
+            }
+        }
+        
         $stmt = $this->conn->prepare("UPDATE gallery SET image_title = :title, image_description = :description, image_url = :url, category_id = :cat, item_id = :item, status = :status WHERE image_id = :id");
         $success = $stmt->execute([
             ':id' => $data['image_id'],

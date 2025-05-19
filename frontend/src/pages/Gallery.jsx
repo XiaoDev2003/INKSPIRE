@@ -26,7 +26,11 @@ const Gallery = () => {
           axiosClient.get("/api/categories"),
         ]);
         setImages(galleryResponse.data);
-        setCategories(categoriesResponse.data);
+        // Chỉ lấy các danh mục có trạng thái 'published'
+        const publishedCategories = categoriesResponse.data.filter(
+          (category) => category.status === 'published'
+        );
+        setCategories(publishedCategories);
       } catch (err) {
         setError(err.response?.data?.error || "Đã có lỗi khi lấy dữ liệu.");
         console.error("Error fetching data:", err.response || err.message);
@@ -37,11 +41,16 @@ const Gallery = () => {
     fetchData();
   }, []);
 
-  // Lọc ảnh theo danh mục
+  // Lọc ảnh theo danh mục và trạng thái
   const filteredImages = images.filter((image) => {
+    // Chỉ hiển thị hình ảnh có trạng thái 'published'
+    if (image.status !== 'published') return false;
+    
+    // Lọc theo danh mục ID thay vì category_type
     if (activeCategory === "all") return true;
-    const category = categories.find((cat) => cat.category_id === image.category_id);
-    return category && category.category_type === activeCategory;
+    
+    // So sánh trực tiếp với category_id
+    return image.category_id === parseInt(activeCategory);
   });
 
   // Tính toán phân trang
@@ -118,7 +127,7 @@ const Gallery = () => {
 
         <GalleryFilter
           categories={categories.map((cat) => ({
-            id: cat.category_type,
+            id: cat.category_id.toString(), // Sử dụng category_id thay vì category_type
             name: cat.category_name,
           }))}
           activeCategory={activeCategory}
