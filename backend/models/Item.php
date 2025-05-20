@@ -8,7 +8,7 @@ class Item {
         $this->conn = $db;
     }
 
-    public function getAll($page = 1, $limit = 20) {
+    public function getAll($page = 1, $limit = 40) {
         // Tính offset cho phân trang
         $offset = ($page - 1) * $limit;
 

@@ -9,11 +9,11 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
 // Component con: FontCard
-const FontCard = ({ font, onViewMore, onCopyUrl }) => (
+const FontCard = ({ font, onViewMore, onCopyUrl, getGalleryImageForItem }) => (
   <Card className="overflow-hidden p-0 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
     <div className="relative h-48 overflow-hidden">
       <img
-        src={font.image_url || font.placeholderImage}
+        src={font.image_url || getGalleryImageForItem(font.item_id)}
         alt={font.item_name}
         className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
         onError={(e) => {
@@ -351,9 +351,6 @@ const Category = () => {
     Unknown: "Không xác định",
   };
 
-  // Thêm fallback avatar nếu null
-
-
   const languages = Object.entries(languageMap)
     .filter(([key]) => key !== "Unknown")
     .map(([key, name], index) => ({
@@ -411,6 +408,7 @@ const Category = () => {
       return null;
     }
   }, []);
+
   const validateComment = useCallback((comment) => {
     if (!comment || typeof comment !== "object") {
       console.warn("Invalid comment: not an object", comment);
@@ -479,52 +477,43 @@ const Category = () => {
       }
 
       let commentsData = [];
-      // Xử lý response.data là một đối tượng
       if (typeof response.data === "object" && !Array.isArray(response.data)) {
-        // Kiểm tra các cấu trúc phổ biến
         if (response.data?.data) {
-          // Nếu data là một đối tượng, chuyển đổi thành mảng
           if (typeof response.data.data === "object" && !Array.isArray(response.data.data)) {
             commentsData = Object.values(response.data.data);
           } else if (Array.isArray(response.data.data)) {
             commentsData = response.data.data;
           }
         } else if (response.data?.comments) {
-          // Nếu comments là một đối tượng, chuyển đổi thành mảng
           if (typeof response.data.comments === "object" && !Array.isArray(response.data.comments)) {
             commentsData = Object.values(response.data.comments);
           } else if (Array.isArray(response.data.comments)) {
             commentsData = response.data.comments;
           }
         } else if (response.data?.result) {
-          // Nếu result là một đối tượng, chuyển đổi thành mảng
           if (typeof response.data.result === "object" && !Array.isArray(response.data.result)) {
             commentsData = Object.values(response.data.result);
           } else if (Array.isArray(response.data.result)) {
             commentsData = response.data.result;
           }
         } else if (response.data?.commentsList) {
-          // Nếu commentsList là một đối tượng, chuyển đổi thành mảng
           if (typeof response.data.commentsList === "object" && !Array.isArray(response.data.commentsList)) {
             commentsData = Object.values(response.data.commentsList);
           } else if (Array.isArray(response.data.commentsList)) {
             commentsData = response.data.commentsList;
           }
         } else if (response.data?.payload) {
-          // Nếu payload là một đối tượng, chuyển đổi thành mảng
           if (typeof response.data.payload === "object" && !Array.isArray(response.data.payload)) {
             commentsData = Object.values(response.data.payload);
           } else if (Array.isArray(response.data.payload)) {
             commentsData = response.data.payload;
           }
         } else {
-          // Nếu không có cấu trúc phổ biến, xử lý response.data trực tiếp
           commentsData = Object.values(response.data).filter(
             (item) => item && typeof item === "object"
           );
         }
       } else if (Array.isArray(response.data)) {
-        // Nếu response.data là một mảng, sử dụng trực tiếp
         commentsData = response.data;
       } else {
         console.warn("Unexpected API response format:", response.data);
@@ -551,18 +540,15 @@ const Category = () => {
 
   const formatComments = useCallback(
     (commentsData) => {
-      // Đảm bảo commentsData luôn là một mảng
       let dataArray = [];
       if (Array.isArray(commentsData)) {
         dataArray = commentsData;
       } else if (commentsData && typeof commentsData === 'object') {
-        // Nếu commentsData là một đối tượng, chuyển đổi thành mảng
         dataArray = Object.values(commentsData).filter(item => item && typeof item === 'object');
       } else {
         return [];
       }
 
-      // Sắp xếp comments theo tiêu chí
       let sortedComments = [...dataArray];
       if (commentSortBy === "likes") {
         sortedComments.sort((a, b) => (b.likes_count || 0) - (a.likes_count || 0));
@@ -572,7 +558,6 @@ const Category = () => {
         );
       }
 
-      // Phân loại comments thành comments cha và con
       const parentComments = sortedComments.filter(
         (comment) => comment.parent_comment_id === null || comment.parent_comment_id === undefined || comment.parent_comment_id === 0,
       );
@@ -735,7 +720,6 @@ const Category = () => {
 
   const getGalleryImageForItem = (itemId) => {
     if (!galleryImages || !Array.isArray(galleryImages)) return null;
-
     const imagesForItem = galleryImages.filter(image => image.item_id === itemId);
     return imagesForItem.length > 0 ? imagesForItem[0].image_url : null;
   };
@@ -1136,6 +1120,7 @@ const Category = () => {
                 font={font}
                 onViewMore={handleViewMore}
                 onCopyUrl={handleCopyUrl}
+                getGalleryImageForItem={getGalleryImageForItem}
               />
             ))
           )}

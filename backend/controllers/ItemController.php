@@ -20,7 +20,7 @@ class ItemController {
         } else {
             // Thêm phân trang để cải thiện hiệu suất
             $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 20;
+            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 40;
             
             // Đảm bảo giá trị hợp lệ
             $page = max(1, $page);

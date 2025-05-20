@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteBase /backend/
+RewriteBase /Inkspire/backend/
 
 # Chuyển mọi request dạng /api/... về index.php
 RewriteCond %{REQUEST_FILENAME} !-f
