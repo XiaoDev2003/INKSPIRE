@@ -7,17 +7,17 @@ const Header = () => {
   return (
     <Section
       as="header"
-      className="flex h-24 items-center justify-center bg-amber-50 relative"
+      className="relative flex h-24 items-center justify-center bg-amber-50"
     >
-      <Container className="flex justify-center items-center">
+      <Container className="flex items-center justify-center">
         <Link to="/" className="flex justify-center">
           <img
             src="/logo.png"
             alt="Logo Inkspire"
-            className="w-42 object-cover "
+            className="w-40 object-cover"
           />
         </Link>
-        <VisitorPopup  />
+        <VisitorPopup />
       </Container>
     </Section>
   );

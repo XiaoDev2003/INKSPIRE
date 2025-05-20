@@ -28,7 +28,8 @@ export {
   LoginModal,
   RegisterModal,
   VisitorPopup,
-  Banner2
+  Banner2,
+
 };
 
 // Export mặc định tất cả các components
@@ -43,5 +44,5 @@ export default {
   LoginModal,
   RegisterModal,
   VisitorPopup,
-  Banner2
+  Banner2,
 };

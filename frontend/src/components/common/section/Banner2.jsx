@@ -10,13 +10,13 @@ const Banner2 = ({
   imageSrc = "/images/banner-foundation.jpg",
 }) => {
   return (
-    <div className="relative overflow-hidden shadow-lg h-[600px] rounded-2xl">
+    <div className="relative h-[600px] overflow-hidden rounded-2xl shadow-lg">
       {/* Hình nền */}
       <Image
         src={imageSrc}
         alt={title}
         ratio="full"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
       />
 
       {/* Nội dung banner - position absolute + z-index */}

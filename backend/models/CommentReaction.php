@@ -4,9 +4,13 @@ require_once __DIR__ . '/../config/db.php';
 class CommentReaction {
     private $conn;
 
-    public function __construct() {
-        $database = new Database();
-        $this->conn = $database->getConnection();
+    public function __construct($db = null) {
+        if ($db) {
+            $this->conn = $db;
+        } else {
+            $database = new Database();
+            $this->conn = $database->getConnection();
+        }
     }
 
     // Lấy phản ứng của người dùng đối với một bình luận

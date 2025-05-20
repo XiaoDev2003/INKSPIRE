@@ -131,23 +131,85 @@ switch (true) {
 
     case preg_match('/\/api\/users/', $request):
         require_once __DIR__ . '/../controllers/UserController.php';
-        (new UserController())->handleRequest();
+        $userController = new UserController();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $userController->getUsers();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userController->createUser();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $userController->updateUser();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $userController->deleteUser();
+        } else {
+            jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+        }
         break;
 
     case preg_match('/\/api\/categories/', $request):
         require_once __DIR__ . '/../controllers/CategoryController.php';
+        $categoryController = new CategoryController();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $categoryController->getCategories();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $categoryController->createCategory();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $categoryController->updateCategory();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $categoryController->deleteCategory();
+        } else {
+            jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+        }
         break;
 
     case preg_match('/\/api\/items/', $request):
         require_once __DIR__ . '/../controllers/ItemController.php';
+        $itemController = new ItemController();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $itemController->getItems();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $itemController->createItem();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $itemController->updateItem();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $itemController->deleteItem();
+        } else {
+            jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+        }
         break;
 
     case preg_match('/\/api\/gallery/', $request):
         require_once __DIR__ . '/../controllers/GalleryController.php';
+        $galleryController = new GalleryController();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $galleryController->getGalleries();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $galleryController->createGallery();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $galleryController->updateGallery();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $galleryController->deleteGallery();
+        } else {
+            jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+        }
         break;
 
     case preg_match('/\/api\/feedback/', $request):
         require_once __DIR__ . '/../controllers/FeedbackController.php';
+        $feedbackController = new FeedbackController();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $feedbackController->getFeedbacks();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $feedbackController->createFeedback();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $feedbackController->deleteFeedback();
+        } else {
+            jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+        }
         break;
 
     // Đã require CommentController ở đầu file, không cần require lại
@@ -157,6 +219,19 @@ switch (true) {
 
     case preg_match('/\/api\/queries/', $request):
         require_once __DIR__ . '/../controllers/QueryController.php';
+        $queryController = new QueryController();
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $queryController->getQueries();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $queryController->createQuery();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+            $queryController->updateQuery();
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+            $queryController->deleteQuery();
+        } else {
+            jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+        }
         break;
 
     // Nếu truy cập trực tiếp vào root backend

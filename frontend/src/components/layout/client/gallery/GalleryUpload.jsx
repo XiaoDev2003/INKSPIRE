@@ -1,5 +1,6 @@
 // src/components/layout/client/gallery/GalleryUpload.jsx
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import axiosClient from '../../../../api/axiosClient';
 
 const GalleryUpload = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
@@ -10,38 +11,148 @@ const GalleryUpload = ({ isOpen, onClose }) => {
     technique: ''
   });
   const [imagePreview, setImagePreview] = useState(null);
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [categories, setCategories] = useState([]);
+  
+  const fileInputRef = useRef(null);
+
+  // Fetch danh mục khi modal mở
+  useEffect(() => {
+    if (isOpen) {
+      const fetchCategories = async () => {
+        try {
+          const response = await axiosClient.get('/api/categories');
+          const categoriesData = Array.isArray(response.data) ? response.data : [];
+          const publishedCategories = categoriesData.filter(
+            (category) => category && category.status === 'published'
+          );
+          setCategories(publishedCategories);
+        } catch (err) {
+          console.error('Lỗi khi lấy danh mục:', err);
+          setError('Không thể tải danh mục. Vui lòng thử lại sau.');
+        }
+      };
+      fetchCategories();
+      
+      // Reset form khi mở modal
+      resetForm();
+    }
+  }, [isOpen]);
+  
+  // Reset form
+  const resetForm = useCallback(() => {
+    setFormData({
+      title: '',
+      description: '',
+      category: '',
+      artist: '',
+      technique: ''
+    });
+    setImagePreview(null);
+    setFile(null);
+    setError(null);
+    setSuccess(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, []);
 
   // Xử lý khi người dùng thay đổi input
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  };
+  }, []);
 
   // Xử lý khi người dùng chọn file
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+  const handleFileChange = useCallback((e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      // Kiểm tra kích thước file (10MB = 10 * 1024 * 1024 bytes)
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        setError('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 10MB.');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+      
+      // Kiểm tra loại file
+      const fileType = selectedFile.type;
+      if (!fileType.match(/^image\/(jpeg|jpg|png|gif)$/)) {
+        setError('Chỉ chấp nhận file hình ảnh (JPG, PNG, GIF).');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+      
+      setFile(selectedFile);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(selectedFile);
+      setError(null);
     }
-  };
+  }, []);
 
   // Xử lý khi người dùng submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    // Xử lý logic upload ảnh và thông tin ở đây
-    console.log('Form submitted:', formData);
-    console.log('Image:', imagePreview);
-
-    // Đóng modal sau khi submit
-    onClose();
-  };
+    
+    if (!file) {
+      setError('Vui lòng chọn một hình ảnh để tải lên.');
+      return;
+    }
+    
+    if (!formData.title || !formData.category || !formData.artist) {
+      setError('Vui lòng điền đầy đủ thông tin bắt buộc.');
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Tạo FormData để gửi file và thông tin
+      const uploadData = new FormData();
+      uploadData.append('image', file);
+      uploadData.append('image_title', formData.title);
+      uploadData.append('image_description', formData.description);
+      uploadData.append('category_id', formData.category);
+      uploadData.append('artist_name', formData.artist);
+      uploadData.append('technique', formData.technique);
+      
+      // Gửi request đến API
+      const response = await axiosClient.post('/api/gallery/upload', uploadData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      setSuccess('Tải lên thành công! Tác phẩm của bạn sẽ được hiển thị sau khi được phê duyệt.');
+      
+      // Reset form sau khi tải lên thành công
+      resetForm();
+      
+      // Đóng modal sau 2 giây
+      setTimeout(() => {
+        onClose();
+      }, 2000);
+      
+    } catch (err) {
+      console.error('Lỗi khi tải lên:', err);
+      setError(err.response?.data?.error || 'Đã có lỗi xảy ra khi tải lên. Vui lòng thử lại sau.');
+    } finally {
+      setLoading(false);
+    }
+  }, [file, formData, onClose, resetForm]);
 
   // Ngăn sự kiện click từ việc lan truyền đến overlay
   const handleContentClick = (e) => {
@@ -110,7 +221,15 @@ const GalleryUpload = ({ isOpen, onClose }) => {
                           className="relative cursor-pointer bg-white rounded-md font-medium text-amber-600 hover:text-amber-500 focus-within:outline-none"
                         >
                           <span>Tải lên một tệp</span>
-                          <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept="image/*" />
+                          <input 
+                            id="file-upload" 
+                            name="file-upload" 
+                            type="file" 
+                            className="sr-only" 
+                            onChange={handleFileChange} 
+                            accept="image/jpeg,image/png,image/gif" 
+                            ref={fileInputRef}
+                          />
                         </label>
                         <p className="pl-1">hoặc kéo và thả</p>
                       </div>
@@ -144,11 +263,11 @@ const GalleryUpload = ({ isOpen, onClose }) => {
                   required
                 >
                   <option value="">Chọn danh mục</option>
-                  <option value="traditional">Thư pháp truyền thống</option>
-                  <option value="modern">Thư pháp hiện đại</option>
-                  <option value="brush">Bút lông</option>
-                  <option value="calligraphy">Calligraphy</option>
-                  <option value="digital">Thư pháp số</option>
+                  {categories.map(cat => (
+                    <option key={cat.category_id} value={cat.category_id}>
+                      {cat.category_name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -191,6 +310,18 @@ const GalleryUpload = ({ isOpen, onClose }) => {
               </div>
             </div>
 
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+            
+            {success && (
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md text-green-600 text-sm">
+                {success}
+              </div>
+            )}
+            
             <div className="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
               <button
                 type="button"
@@ -201,9 +332,10 @@ const GalleryUpload = ({ isOpen, onClose }) => {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading}
               >
-                Đăng tải
+                {loading ? 'Đang tải...' : 'Đăng tải'}
               </button>
             </div>
           </form>

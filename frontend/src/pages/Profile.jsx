@@ -29,11 +29,27 @@ const Profile = () => {
       try {
         // Gọi API để lấy thông tin chi tiết của người dùng
         const response = await axiosClient.get('/api/user/profile');
+        console.log('User profile response:', response.data);
 
-        if (response.data.success) {
-          setUser(response.data.user);
+        // Xử lý dữ liệu người dùng từ API
+        let userData = null;
+        if (response.data) {
+          if (response.data.user) {
+            userData = response.data.user;
+          } else if (response.data.success && response.data.data) {
+            userData = response.data.data;
+          } else if (typeof response.data === 'object' && !response.data.error) {
+            // Nếu response.data là một object và không có trường error, có thể đó là dữ liệu người dùng
+            userData = response.data;
+          }
+        }
+
+        if (userData) {
+          console.log('Processed user data:', userData);
+          setUser(userData);
         } else {
           // Nếu không lấy được từ API, sử dụng dữ liệu từ context auth
+          console.log('Using auth context data:', authUser);
           setUser(authUser);
         }
       } catch (err) {

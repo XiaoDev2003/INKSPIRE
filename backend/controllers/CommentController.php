@@ -9,57 +9,39 @@ class CommentController {
     private $userModel;
 
     public function __construct() {
-        // Khởi tạo kết nối database
+        // Khởi tạo kết nối database một lần và sử dụng lại
         require_once __DIR__ . '/../config/db.php';
         $database = new Database();
         $conn = $database->getConnection();
 
-        // Khởi tạo các model với kết nối database
-        $this->commentModel = new Comment();
-        $this->reactionModel = new CommentReaction();
+        // Khởi tạo các model với cùng một kết nối database
+        $this->commentModel = new Comment($conn);
+        $this->reactionModel = new CommentReaction($conn);
         $this->userModel = new User($conn);
     }
 
-    // Lấy danh sách bình luận
+    // Lấy danh sách bình luận - Đã tối ưu hóa
     public function getComments() {
         try {
             // Lấy các tham số từ request
             $item_id = isset($_GET['item_id']) ? $_GET['item_id'] : null;
             $category_id = isset($_GET['category_id']) ? $_GET['category_id'] : null;
-            $parent_only = isset($_GET['parent_only']) && $_GET['parent_only'] === '1' ? true : false;
+            $parent_only = isset($_GET['parent_only']) && $_GET['parent_only'] === '1';
             $current_user_id = isset($_GET['user_id']) ? $_GET['user_id'] : null;
 
-            // Lấy tham số sắp xếp
-            $sort_field = isset($_GET['sort_field']) ? $_GET['sort_field'] : 'created_at';
-            $sort_direction = isset($_GET['sort_direction']) ? $_GET['sort_direction'] : 'desc';
-
-            // Kiểm tra và xác thực các tham số sắp xếp
+            // Lấy tham số sắp xếp và xác thực
             $allowed_sort_fields = ['created_at', 'likes_count', 'dislikes_count'];
-            if (!in_array($sort_field, $allowed_sort_fields)) {
-                $sort_field = 'created_at';
-            }
-
+            $sort_field = isset($_GET['sort_field']) && in_array($_GET['sort_field'], $allowed_sort_fields) ? $_GET['sort_field'] : 'created_at';
+            
             $allowed_sort_directions = ['asc', 'desc'];
-            if (!in_array($sort_direction, $allowed_sort_directions)) {
-                $sort_direction = 'desc';
-            }
+            $sort_direction = isset($_GET['sort_direction']) && in_array($_GET['sort_direction'], $allowed_sort_directions) ? $_GET['sort_direction'] : 'desc';
 
             // Lấy bình luận từ database với các tham số sắp xếp
             $comments = $this->commentModel->getComments($item_id, $category_id, $parent_only, $sort_field, $sort_direction);
-
-            // Debug: Kiểm tra dữ liệu trả về từ model
-            if ($comments === false || $comments === null) {
-                // Trả về mảng rỗng nếu không có dữ liệu
-                header('Content-Type: application/json');
-                echo json_encode([]);
-                return;
-            }
-
-            // Kiểm tra xem $comments có phải là mảng không hoặc mảng rỗng
-            if (!is_array($comments) || empty($comments)) {
-                // Trả về mảng rỗng
-                header('Content-Type: application/json');
-                echo json_encode([]);
+            
+            // Nếu không có bình luận, trả về mảng rỗng
+            if (empty($comments)) {
+                jsonResponse([], 200);
                 return;
             }
 
@@ -71,21 +53,11 @@ class CommentController {
                 }
             }
 
-            // Thêm thông tin người dùng vào mỗi bình luận
-            foreach ($comments as &$comment) {
-                $user = $this->userModel->getUserById($comment['user_id']);
-                if ($user) {
-                    $comment['username'] = $user['username'];
-                    $comment['first_name'] = $user['first_name'];
-                    $comment['last_name'] = $user['last_name'];
-                    $comment['avatar_url'] = $user['avatar_url'];
-                }
-            }
-
             // Trả về kết quả dạng JSON
             header('Content-Type: application/json');
             echo json_encode($comments);
         } catch (Exception $e) {
+            error_log('CommentController Exception: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['error' => 'Đã xảy ra lỗi khi xử lý bình luận']);
         }
@@ -99,8 +71,7 @@ class CommentController {
 
             // Kiểm tra dữ liệu
             if (!isset($data['comment_content']) || !isset($data['user_id'])) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Thiếu thông tin bình luận']);
+                jsonResponse(['error' => 'Thiếu thông tin bình luận'], 400);
                 return;
             }
 
@@ -123,8 +94,7 @@ class CommentController {
                 header('Content-Type: application/json');
                 echo json_encode($comment);
             } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'Không thể thêm bình luận']);
+                jsonResponse(['error' => 'Không thể thêm bình luận'], 500);
             }
         } catch (Exception $e) {
             http_response_code(500);
@@ -140,8 +110,7 @@ class CommentController {
 
             // Kiểm tra dữ liệu
             if (!isset($data['comment_content'])) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Thiếu nội dung bình luận']);
+                jsonResponse(['error' => 'Thiếu nội dung bình luận'], 400);
                 return;
             }
 
@@ -149,11 +118,9 @@ class CommentController {
             $result = $this->commentModel->updateComment($comment_id, $data['comment_content']);
 
             if ($result) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => 'Cập nhật bình luận thành công']);
+                jsonResponse(['success' => true, 'message' => 'Cập nhật bình luận thành công'], 200);
             } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'Không thể cập nhật bình luận']);
+                jsonResponse(['error' => 'Không thể cập nhật bình luận'], 500);
             }
         } catch (Exception $e) {
             http_response_code(500);
@@ -168,11 +135,9 @@ class CommentController {
             $result = $this->commentModel->deleteComment($comment_id);
 
             if ($result) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => 'Xóa bình luận thành công']);
+                jsonResponse(['success' => true, 'message' => 'Xóa bình luận thành công'], 200);
             } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'Không thể xóa bình luận']);
+                jsonResponse(['error' => 'Không thể xóa bình luận'], 500);
             }
         } catch (Exception $e) {
             http_response_code(500);
@@ -188,8 +153,7 @@ class CommentController {
 
             // Kiểm tra dữ liệu
             if (!isset($data['user_id']) || !isset($data['comment_id']) || !isset($data['reaction_type'])) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Thiếu thông tin phản ứng']);
+                jsonResponse(['error' => 'Thiếu thông tin phản ứng'], 400);
                 return;
             }
 
@@ -249,12 +213,10 @@ class CommentController {
                     'comment' => $comment
                 ]);
             } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'Không thể thực hiện phản ứng']);
+                jsonResponse(['error' => 'Không thể thực hiện phản ứng'], 500);
             }
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            jsonResponse(['error' => $e->getMessage()], 500);
         }
     }
 }

@@ -1,11 +1,14 @@
 // src/pages/Gallery.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import GalleryFilter from "../components/layout/client/gallery/GalleryFilter";
 import GalleryMasonry from "../components/layout/client/gallery/GalleryMasonry";
 import GalleryUpload from "../components/layout/client/gallery/GalleryUpload";
 import { Banner } from "../components/common/common";
 import { Container, Section } from "../components/ui/ui";
 import axiosClient from "../api/axiosClient";
+
+// Hằng số cho số lượng ảnh mỗi trang
+const IMAGES_PER_PAGE = 6;
 
 const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState("all");
@@ -15,8 +18,8 @@ const Gallery = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const imagesPerPage = 6; // Số ảnh mỗi trang
 
+  // Sử dụng useEffect để fetch dữ liệu khi component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -25,10 +28,24 @@ const Gallery = () => {
           axiosClient.get("/api/gallery"),
           axiosClient.get("/api/categories"),
         ]);
-        setImages(galleryResponse.data);
+
+        // Đảm bảo dữ liệu images luôn là một mảng
+        // Kiểm tra cấu trúc dữ liệu trả về từ API
+        let galleryData = [];
+        if (galleryResponse.data) {
+          if (galleryResponse.data.galleries && Array.isArray(galleryResponse.data.galleries)) {
+            galleryData = galleryResponse.data.galleries;
+          } else if (Array.isArray(galleryResponse.data)) {
+            galleryData = galleryResponse.data;
+          }
+        }
+        console.log('Gallery data:', galleryData);
+        setImages(galleryData);
+
         // Chỉ lấy các danh mục có trạng thái 'published'
-        const publishedCategories = categoriesResponse.data.filter(
-          (category) => category.status === 'published'
+        const categoriesData = Array.isArray(categoriesResponse.data) ? categoriesResponse.data : [];
+        const publishedCategories = categoriesData.filter(
+          (category) => category && category.status === 'published'
         );
         setCategories(publishedCategories);
       } catch (err) {
@@ -41,63 +58,84 @@ const Gallery = () => {
     fetchData();
   }, []);
 
-  // Lọc ảnh theo danh mục và trạng thái
-  const filteredImages = images.filter((image) => {
-    // Chỉ hiển thị hình ảnh có trạng thái 'published'
-    if (image.status !== 'published') return false;
-    
-    // Kiểm tra xem danh mục của hình ảnh có tồn tại và có trạng thái 'published' không
-    const imageCategory = categories.find(cat => cat.category_id === image.category_id);
-    if (!imageCategory || imageCategory.status !== 'published') return false;
-    
-    // Lọc theo danh mục ID thay vì category_type
-    if (activeCategory === "all") return true;
-    
-    // So sánh trực tiếp với category_id
-    return image.category_id === parseInt(activeCategory);
-  });
+  // Sử dụng useMemo để tối ưu hóa việc lọc ảnh, chỉ tính toán lại khi dependencies thay đổi
+  const filteredImages = useMemo(() => {
+    // Đảm bảo images luôn là một mảng trước khi lọc
+    const imagesArray = Array.isArray(images) ? images : [];
 
-  // Tính toán phân trang
-  const indexOfLastImage = currentPage * imagesPerPage;
-  const indexOfFirstImage = indexOfLastImage - imagesPerPage;
-  const currentImages = filteredImages.slice(indexOfFirstImage, indexOfLastImage);
-  const totalPages = Math.ceil(filteredImages.length / imagesPerPage);
+    return imagesArray.filter((image) => {
+      // Kiểm tra image có hợp lệ không
+      if (!image || typeof image !== 'object') return false;
 
-  const handleCategoryChange = (categoryId) => {
+      // Chỉ hiển thị hình ảnh có trạng thái 'published'
+      if (image.status !== 'published') return false;
+
+      // Kiểm tra xem danh mục của hình ảnh có tồn tại và có trạng thái 'published' không
+      const imageCategory = categories.find(cat => cat && cat.category_id === image.category_id);
+      if (!imageCategory || imageCategory.status !== 'published') return false;
+
+      // Thêm tên danh mục vào đối tượng hình ảnh để hiển thị
+      image.category_name = imageCategory.category_name;
+
+      // Lọc theo danh mục ID thay vì category_type
+      if (activeCategory === "all") return true;
+
+      // So sánh trực tiếp với category_id
+      return image.category_id === parseInt(activeCategory);
+    });
+
+  }, [images, categories, activeCategory]); // Chỉ tính toán lại khi một trong các dependencies thay đổi
+
+  // Tính toán phân trang với useMemo
+  const paginationData = useMemo(() => {
+    const indexOfLastImage = currentPage * IMAGES_PER_PAGE;
+    const indexOfFirstImage = indexOfLastImage - IMAGES_PER_PAGE;
+    const currentImages = filteredImages.slice(indexOfFirstImage, indexOfLastImage);
+    const totalPages = Math.ceil(filteredImages.length / IMAGES_PER_PAGE);
+
+    return {
+      currentImages,
+      totalPages
+    };
+  }, [filteredImages, currentPage]); // Chỉ tính toán lại khi filteredImages hoặc currentPage thay đổi
+
+  // Sử dụng useCallback để tránh tạo lại các hàm xử lý sự kiện mỗi khi component re-render
+  const handleCategoryChange = useCallback((categoryId) => {
     setActiveCategory(categoryId);
     setCurrentPage(1); // Reset về trang 1 khi thay đổi category
-  };
+  }, []);
 
-  const openUploadModal = () => {
+  const openUploadModal = useCallback(() => {
     setIsUploadModalOpen(true);
-  };
+  }, []);
 
-  const closeUploadModal = () => {
+  const closeUploadModal = useCallback(() => {
     setIsUploadModalOpen(false);
-  };
+  }, []);
 
-  const paginate = (pageNumber) => {
+  const paginate = useCallback((pageNumber) => {
     setCurrentPage(pageNumber);
-  };
+  }, []);
 
-  const nextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
+  const nextPage = useCallback(() => {
+    if (currentPage < paginationData.totalPages) setCurrentPage(currentPage + 1);
+  }, [currentPage, paginationData.totalPages]);
 
-  const prevPage = () => {
+  const prevPage = useCallback(() => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
+  }, [currentPage]);
 
   return (
     <>
       <Section py="0" className="md:py-12">
-        <Container className="container">
+        <Container className="px-4 sm:px-6 md:px-8">
           <Banner
-            title="Bút lông cổ điển"
-            subtitle="Hiểu hơn về công cụ truyền thống"
+            title="Thư viện ảnh"
+            subtitle="Những tác phẩm thư pháp nổi bật , chứa đựng những tinh hoa nét đẹp của thư pháp"
             ctaText="Tìm hiểu thêm"
             ctaLink="/brushes"
-            imageSrc="./banner/home.png"
+            imageSrc="/banner/gallery.png"
+            ClassName="aspect-[10/4]"
           />
         </Container>
       </Section>
@@ -130,10 +168,12 @@ const Gallery = () => {
         </div>
 
         <GalleryFilter
-          categories={categories.map((cat) => ({
-            id: cat.category_id.toString(), // Sử dụng category_id thay vì category_type
-            name: cat.category_name,
-          }))}
+          categories={useMemo(() => {
+            return Array.isArray(categories) ? categories.map((cat) => ({
+              id: cat.category_id.toString(), // Sử dụng category_id thay vì category_type
+              name: cat.category_name,
+            })) : [];
+          }, [categories])}
           activeCategory={activeCategory}
           onCategoryChange={handleCategoryChange}
         />
@@ -147,7 +187,7 @@ const Gallery = () => {
         {loading ? (
           <div className="text-center py-4">Đang tải...</div>
         ) : (
-          <GalleryMasonry images={currentImages} />
+          <GalleryMasonry images={paginationData.currentImages} />
         )}
 
         {filteredImages.length > 0 && (
@@ -160,7 +200,7 @@ const Gallery = () => {
               >
                 Trước
               </button>
-              {Array.from({ length: totalPages }, (_, i) => (
+              {Array.from({ length: paginationData.totalPages }, (_, i) => (
                 <button
                   key={i + 1}
                   onClick={() => paginate(i + 1)}
@@ -175,7 +215,7 @@ const Gallery = () => {
               ))}
               <button
                 onClick={nextPage}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === paginationData.totalPages}
                 className="border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Sau

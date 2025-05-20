@@ -5,50 +5,54 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../models/Query.php';
 require_once __DIR__ . '/../utils/helpers.php';
 
-$db = new Database();
-$conn = $db->getConnection();
-$queryModel = new Query($conn);
+class QueryController {
+    private $queryModel;
 
-$method = $_SERVER['REQUEST_METHOD'];
+    public function __construct() {
+        $conn = (new Database())->getConnection();
+        $this->queryModel = new Query($conn);
+    }
 
-switch ($method) {
-    case 'GET':
+    // Phương thức handleRequest đã được loại bỏ để tuân theo mẫu OOP nhất quán
+    // Các phương thức riêng lẻ sẽ được gọi trực tiếp từ routes/api.php
+
+    public function getQueries() {
         if (isset($_GET['query_id'])) {
-            $query = $queryModel->getById($_GET['query_id']);
+            $query = $this->queryModel->getById($_GET['query_id']);
             jsonResponse($query ?: ['error' => 'Không tìm thấy'], $query ? 200 : 404);
         } else {
-            $queries = $queryModel->getAll();
+            $queries = $this->queryModel->getAll();
             jsonResponse($queries);
         }
-        break;
+    }
 
-    case 'POST':
+    public function createQuery() {
         $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['question_content'], $data['short_answer'], $data['full_answer'])) {
             jsonResponse(['error' => 'Thiếu thông tin câu hỏi'], 400);
         }
-        $result = $queryModel->create($data);
-        jsonResponse($result ? ['message' => 'Thêm câu hỏi thành công'] : ['error' => 'Thêm thất bại'], $result ? 200 : 500);
-        break;
+        $result = $this->queryModel->create($data);
+        jsonResponse($result ? 
+            ['message' => 'Thêm câu hỏi thành công', 'query_id' => $this->queryModel->getLastInsertId()] : 
+            ['error' => 'Thêm thất bại'], 
+            $result ? 200 : 500);
+    }
 
-    case 'PUT':
-        $data = json_decode(file_get_contents("php://input"), true); // Sử dụng json_decode thay vì parse_str
+    public function updateQuery() {
+        $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['query_id'])) {
             jsonResponse(['error' => 'Thiếu query_id'], 400);
         }
-        $result = $queryModel->update($data);
+        $result = $this->queryModel->update($data);
         jsonResponse($result ? ['message' => 'Cập nhật thành công'] : ['error' => 'Cập nhật thất bại'], $result ? 200 : 500);
-        break;
+    }
 
-    case 'DELETE':
-        $data = json_decode(file_get_contents("php://input"), true); // Sử dụng json_decode thay vì parse_str
+    public function deleteQuery() {
+        $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['query_id'])) {
             jsonResponse(['error' => 'Thiếu query_id'], 400);
         }
-        $result = $queryModel->delete($data['query_id']);
+        $result = $this->queryModel->delete($data['query_id']);
         jsonResponse($result ? ['message' => 'Xoá thành công'] : ['error' => 'Xoá thất bại'], $result ? 200 : 500);
-        break;
-
-    default:
-        jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+    }
 }

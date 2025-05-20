@@ -7,6 +7,10 @@ class Category {
     public function __construct($db) {
         $this->conn = $db;
     }
+    
+    public function getLastInsertId() {
+        return $this->conn->lastInsertId();
+    }
 
     public function getAll() {
         $stmt = $this->conn->query("SELECT * FROM categories"); // Bỏ ORDER BY created_at DESC

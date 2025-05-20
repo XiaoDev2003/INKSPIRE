@@ -7,10 +7,14 @@ class Feedback {
     public function __construct($db) {
         $this->conn = $db;
     }
+    
+    public function getLastInsertId() {
+        return $this->conn->lastInsertId();
+    }
 
     public function getAll() {
         $stmt = $this->conn->query(
-            "SELECT f.*, u.username 
+            "SELECT f.*, u.username, u.email, u.first_name, u.last_name, u.avatar_url, u.role 
              FROM feedback f 
              LEFT JOIN users u ON f.user_id = u.user_id 
              ORDER BY submitted_at DESC"
@@ -24,10 +28,10 @@ class Feedback {
              VALUES (:user_id, :feedback_message, :feedback_url, :feedback_attachment_url)"
         );
         return $stmt->execute([
-            ':user_id' => $data['user_id'],
+            ':user_id' => $data['user_id'] ?? null,
             ':feedback_message' => htmlspecialchars(strip_tags(trim($data['feedback_message']))),
-            ':feedback_url' => $data['feedback_url'],
-            ':feedback_attachment_url' => $data['feedback_attachment_url']
+            ':feedback_url' => $data['feedback_url'] ?? null,
+            ':feedback_attachment_url' => $data['feedback_attachment_url'] ?? null
         ]);
     }
 

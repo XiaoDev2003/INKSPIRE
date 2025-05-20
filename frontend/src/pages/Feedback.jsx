@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axiosClient from '../api/axiosClient';
+import { useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 
 const FAQFeedback = () => {
   const location = useLocation(); // Chỉ khai báo một lần
+  const { user } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     message: '',
@@ -43,7 +46,8 @@ const FAQFeedback = () => {
     }
 
     const formDataToSend = new FormData();
-    formDataToSend.append('user_id', 1); // TODO: Thay bằng user_id từ context/auth
+    // Sử dụng user_id từ context nếu người dùng đã đăng nhập
+    formDataToSend.append('user_id', user?.user_id || null);
     formDataToSend.append('feedback_message', formData.message.trim());
     if (formData.url) {
       formDataToSend.append('feedback_url', formData.url);

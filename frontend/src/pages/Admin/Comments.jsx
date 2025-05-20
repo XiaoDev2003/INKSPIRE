@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../../components/layout/admin/AdminLayout';
 import axiosClient from '../../api/axiosClient';
-import { FaSearch, FaEye, FaThumbsUp, FaThumbsDown, FaTrash } from 'react-icons/fa';
+import { FaSearch, FaEye, FaThumbsUp, FaThumbsDown, FaTrash, FaCheck } from 'react-icons/fa';
 
 const Comments = () => {
   const [comments, setComments] = useState([]);
@@ -11,6 +11,8 @@ const Comments = () => {
   const [success, setSuccess] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [currentComment, setCurrentComment] = useState(null);
+  const [selectedComments, setSelectedComments] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
 
   const fetchComments = useCallback(async () => {
     try {
@@ -94,10 +96,76 @@ const Comments = () => {
     }
   };
 
+  // Xử lý chọn/bỏ chọn một bình luận
+  const handleSelectComment = (commentId) => {
+    setSelectedComments(prev => {
+      if (prev.includes(commentId)) {
+        return prev.filter(id => id !== commentId);
+      } else {
+        return [...prev, commentId];
+      }
+    });
+  };
+
+  // Xử lý chọn/bỏ chọn tất cả bình luận
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedComments([]);
+    } else {
+      setSelectedComments(filteredComments.map(comment => comment.comment_id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  // Xử lý xóa hàng loạt bình luận đã chọn
+  const handleBulkDelete = async () => {
+    if (selectedComments.length === 0) {
+      setError('Vui lòng chọn ít nhất một bình luận để xóa');
+      return;
+    }
+
+    if (window.confirm(`Bạn có chắc chắn muốn xóa ${selectedComments.length} bình luận đã chọn?`)) {
+      try {
+        setLoading(true);
+        // Xóa từng bình luận đã chọn
+        const deletePromises = selectedComments.map(commentId =>
+          axiosClient.delete(`/api/comments/${commentId}`)
+        );
+
+        await Promise.all(deletePromises);
+
+        // Cập nhật danh sách bình luận sau khi xóa
+        setComments(comments.filter(comment => !selectedComments.includes(comment.comment_id)));
+        setSelectedComments([]);
+        setSelectAll(false);
+        setSuccess(`Đã xóa thành công ${selectedComments.length} bình luận!`);
+
+        // Tự động ẩn thông báo thành công sau 3 giây
+        setTimeout(() => {
+          setSuccess(null);
+        }, 3000);
+      } catch (err) {
+        console.error('Lỗi khi xóa hàng loạt bình luận:', err);
+        setError('Không thể xóa một số bình luận. Vui lòng thử lại sau.');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-amber-900">Quản lý bình luận</h1>
+        {selectedComments.length > 0 && (
+          <button
+            onClick={handleBulkDelete}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
+            disabled={loading}
+          >
+            <FaTrash /> Xóa {selectedComments.length} bình luận đã chọn
+          </button>
+        )}
       </div>
 
       {error && (
@@ -137,6 +205,16 @@ const Comments = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        checked={selectAll}
+                        onChange={handleSelectAll}
+                      />
+                    </div>
+                  </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Người dùng
                   </th>
@@ -160,6 +238,14 @@ const Comments = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredComments.map((comment) => (
                   <tr key={comment.comment_id} className="hover:bg-gray-50">
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        className="h-4 w-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded"
+                        checked={selectedComments.includes(comment.comment_id)}
+                        onChange={() => handleSelectComment(comment.comment_id)}
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{comment.user_name}</div>
                       <div className="text-sm text-gray-500">ID: {comment.user_id}</div>

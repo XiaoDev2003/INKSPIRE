@@ -5,21 +5,28 @@ require_once __DIR__ . '/../config/db.php';
 class Comment {
     private $conn;
 
-    public function __construct() {
-        $database = new Database();
-        $this->conn = $database->getConnection();
+    public function __construct($db = null) {
+        if ($db) {
+            $this->conn = $db;
+        } else {
+            $database = new Database();
+            $this->conn = $database->getConnection();
+        }
     }
 
-    // Lấy danh sách bình luận
+    // Lấy danh sách bình luận - Đã tối ưu hóa truy vấn
     public function getComments($item_id = null, $category_id = null, $parent_only = false, $sort_field = 'created_at', $sort_direction = 'desc') {
         try {
+            // Sử dụng JOIN thay vì subquery để cải thiện hiệu suất
             $query = "SELECT c.*, u.username, u.first_name, u.last_name, i.item_name, cat.category_name,
-                      (SELECT COUNT(*) FROM comment_reactions WHERE comment_id = c.comment_id AND reaction_type = 'like') as likes_count,
-                      (SELECT COUNT(*) FROM comment_reactions WHERE comment_id = c.comment_id AND reaction_type = 'dislike') as dislikes_count
+                      COALESCE(likes.count, 0) as likes_count,
+                      COALESCE(dislikes.count, 0) as dislikes_count
                       FROM comments c 
                       LEFT JOIN users u ON c.user_id = u.user_id 
                       LEFT JOIN items i ON c.item_id = i.item_id 
                       LEFT JOIN categories cat ON i.category_id = cat.category_id 
+                      LEFT JOIN (SELECT comment_id, COUNT(*) as count FROM comment_reactions WHERE reaction_type = 'like' GROUP BY comment_id) likes ON c.comment_id = likes.comment_id
+                      LEFT JOIN (SELECT comment_id, COUNT(*) as count FROM comment_reactions WHERE reaction_type = 'dislike' GROUP BY comment_id) dislikes ON c.comment_id = dislikes.comment_id
                       WHERE 1=1";
             $params = [];
 
@@ -40,7 +47,7 @@ class Comment {
             $sort_field = in_array($sort_field, $allowed_fields) ? $sort_field : 'created_at';
             $sort_direction = strtoupper($sort_direction) === 'ASC' ? 'ASC' : 'DESC';
 
-            // Sắp xếp theo trường thích hợp (lưu ý likes_count và dislikes_count là alias từ subquery)
+            // Sắp xếp theo trường thích hợp
             if ($sort_field === 'created_at') {
                 $query .= " ORDER BY c.created_at {$sort_direction}";
             } else {
@@ -48,7 +55,6 @@ class Comment {
             }
 
             // Thực thi câu truy vấn
-
             $stmt = $this->conn->prepare($query);
             foreach ($params as $key => $value) {
                 $stmt->bindValue($key, $value);
@@ -56,14 +62,9 @@ class Comment {
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Đảm bảo luôn trả về mảng, ngay cả khi không có kết quả
-            if ($result === false || empty($result)) {
-                error_log('Comment Model - fetchAll() trả về false hoặc mảng rỗng');
-                return [];
-            }
-
-            return $result;
+            return $result ?: [];
         } catch (PDOException $e) {
+            // Ghi log lỗi nhưng không hiển thị chi tiết lỗi cho người dùng
             error_log('Comment Model Exception: ' . $e->getMessage());
             return [];
         }

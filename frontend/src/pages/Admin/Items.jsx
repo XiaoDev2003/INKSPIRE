@@ -37,8 +37,22 @@ const Items = () => {
           axiosClient.get('/api/items'),
           axiosClient.get('/api/categories'),
         ]);
-        setItems(itemsResponse.data);
-        setCategories(categoriesResponse.data);
+        
+        // Đảm bảo dữ liệu items luôn là một mảng
+        let itemsData = [];
+        if (itemsResponse.data) {
+          if (Array.isArray(itemsResponse.data)) {
+            itemsData = itemsResponse.data;
+          } else if (itemsResponse.data.items && Array.isArray(itemsResponse.data.items)) {
+            itemsData = itemsResponse.data.items;
+          }
+        }
+        console.log('Items data:', itemsData);
+        setItems(itemsData);
+        
+        // Đảm bảo dữ liệu categories luôn là một mảng
+        const categoriesData = Array.isArray(categoriesResponse.data) ? categoriesResponse.data : [];
+        setCategories(categoriesData);
       } catch (err) {
         setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu.');
       } finally {
@@ -52,15 +66,25 @@ const Items = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredItems = items.filter((item) =>
-    (item.item_name && item.item_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (item.item_des && item.item_des.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (item.item_origin && item.item_origin.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (item.lang_type && item.lang_type.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Đảm bảo items luôn là một mảng trước khi lọc
+  const safeItems = Array.isArray(items) ? items : [];
+  
+  const filteredItems = safeItems.filter((item) => {
+    // Kiểm tra item có hợp lệ không
+    if (!item || typeof item !== 'object') return false;
+    
+    return (
+      (item.item_name && item.item_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.item_des && item.item_des.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.item_origin && item.item_origin.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (item.lang_type && item.lang_type.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  });
 
   const getCategoryName = (categoryId) => {
-    const category = categories.find((cat) => cat.category_id === categoryId);
+    // Đảm bảo categories là mảng trước khi gọi find
+    const safeCategories = Array.isArray(categories) ? categories : [];
+    const category = safeCategories.find((cat) => cat && cat.category_id === categoryId);
     return category ? category.category_name : 'Không xác định';
   };
 
@@ -100,7 +124,9 @@ const Items = () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa font chữ này?')) {
       try {
         await axiosClient.delete('/api/items', { data: { item_id: itemId } });
-        setItems(items.filter((item) => item.item_id !== itemId));
+        // Đảm bảo items là mảng trước khi gọi filter
+        const safeItems = Array.isArray(items) ? items : [];
+        setItems(safeItems.filter((item) => item.item_id !== itemId));
         setSuccess('Xóa thành công!');
       } catch (err) {
         setError(err.response?.data?.error || 'Đã có lỗi khi xóa.');
@@ -110,7 +136,9 @@ const Items = () => {
 
   const handleToggleStatus = (itemId, currentStatus) => {
     const newStatus = currentStatus === 'published' ? 'draft' : currentStatus === 'draft' ? 'published' : 'archived';
-    setItems(items.map((item) =>
+    // Đảm bảo items là mảng trước khi gọi map
+    const safeItems = Array.isArray(items) ? items : [];
+    setItems(safeItems.map((item) =>
       item.item_id === itemId ? { ...item, status: newStatus } : item
     ));
     axiosClient.put('/api/items', {
@@ -131,10 +159,19 @@ const Items = () => {
     try {
       // Lấy tất cả hình ảnh từ Gallery để kiểm tra
       const galleryResponse = await axiosClient.get('/api/gallery');
-      const existingImages = galleryResponse.data;
+      
+      // Đảm bảo dữ liệu gallery luôn là một mảng
+      let existingImages = [];
+      if (galleryResponse.data) {
+        if (Array.isArray(galleryResponse.data)) {
+          existingImages = galleryResponse.data;
+        } else if (galleryResponse.data.galleries && Array.isArray(galleryResponse.data.galleries)) {
+          existingImages = galleryResponse.data.galleries;
+        }
+      }
       
       // Tìm hình ảnh đã liên kết với item_id này
-      const existingImage = existingImages.find(img => img.item_id === itemId);
+      const existingImage = existingImages.find(img => img && img.item_id === itemId);
       
       const galleryPayload = {
         image_title: fontData.item_name, // Tiêu đề = tên font chữ
@@ -199,7 +236,9 @@ const Items = () => {
       if (currentItem) {
         payload.item_id = currentItem.item_id;
         const response = await axiosClient.put('/api/items', payload);
-        setItems(items.map((item) =>
+        // Đảm bảo items là mảng trước khi gọi map
+        const safeItems = Array.isArray(items) ? items : [];
+        setItems(safeItems.map((item) =>
           item.item_id === currentItem.item_id ? response.data : item
         ));
         setSuccess('Cập nhật thành công!');
@@ -207,7 +246,18 @@ const Items = () => {
         // Khi cập nhật font chữ, chỉ cập nhật hình ảnh trong Gallery nếu đã tồn tại
         // Không tạo mới hình ảnh nếu chưa có
         const galleryResponse = await axiosClient.get('/api/gallery');
-        const existingImage = galleryResponse.data.find(img => img.item_id === currentItem.item_id);
+        
+        // Đảm bảo dữ liệu gallery luôn là một mảng
+        let galleryData = [];
+        if (galleryResponse.data) {
+          if (Array.isArray(galleryResponse.data)) {
+            galleryData = galleryResponse.data;
+          } else if (galleryResponse.data.galleries && Array.isArray(galleryResponse.data.galleries)) {
+            galleryData = galleryResponse.data.galleries;
+          }
+        }
+        
+        const existingImage = galleryData.find(img => img && img.item_id === currentItem.item_id);
         
         if (existingImage) {
           // Chỉ cập nhật hình ảnh nếu đã tồn tại
@@ -219,7 +269,9 @@ const Items = () => {
         }
       } else {
         const response = await axiosClient.post('/api/items', payload);
-        setItems([...items, response.data]);
+        // Đảm bảo items là mảng trước khi thêm phần tử mới
+        const safeItems = Array.isArray(items) ? items : [];
+        setItems([...safeItems, response.data]);
         setSuccess('Thêm thành công!');
 
         // Tạo hình ảnh tự động trong Gallery khi thêm font chữ mới

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FaPaperPlane, FaPaperclip } from 'react-icons/fa';
 import axiosClient from '../../../api/axiosClient';
+import { useContext } from 'react';
+import { AuthContext } from '../../../contexts/AuthContext';
 
 /**
  * Component form gửi góp ý
@@ -8,6 +10,7 @@ import axiosClient from '../../../api/axiosClient';
  * @param {string} props.currentUrl - URL hiện tại để gửi kèm góp ý
  */
 const FeedbackForm = ({ currentUrl }) => {
+  const { user } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     feedback_message: '',
     feedback_url: currentUrl || window.location.href
@@ -59,6 +62,11 @@ const FeedbackForm = ({ currentUrl }) => {
         feedbackFormData.append('attachment', attachment);
       }
 
+      // Thêm user_id vào form data nếu người dùng đã đăng nhập
+      if (user && user.user_id) {
+        feedbackFormData.append('user_id', user.user_id);
+      }
+      
       await axiosClient.post('/api/feedback', feedbackFormData, {
         headers: {
           'Content-Type': 'multipart/form-data'

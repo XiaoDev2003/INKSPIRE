@@ -8,8 +8,11 @@ class Item {
         $this->conn = $db;
     }
 
-    public function getAll() {
-        $stmt = $this->conn->query("SELECT 
+    public function getAll($page = 1, $limit = 20) {
+        // Tính offset cho phân trang
+        $offset = ($page - 1) * $limit;
+
+        $stmt = $this->conn->prepare("SELECT 
             i.item_id, i.item_name, i.category_id, i.item_des, i.item_origin, i.lang_type, i.item_url, 
             i.author_id, i.views, i.status, i.created_at, i.updated_at,
             c.category_name,
@@ -17,8 +20,19 @@ class Item {
         FROM items i
         LEFT JOIN categories c ON i.category_id = c.category_id
         LEFT JOIN users u ON i.author_id = u.user_id
-        ORDER BY i.created_at DESC");
+        ORDER BY i.created_at DESC
+        LIMIT :limit OFFSET :offset");
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getTotalCount() {
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM items");
+        return $stmt->fetchColumn();
     }
 
     public function getById($id) {

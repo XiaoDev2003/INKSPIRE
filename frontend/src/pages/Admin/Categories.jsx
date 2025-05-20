@@ -3,6 +3,9 @@ import AdminLayout from '../../components/layout/admin/AdminLayout';
 import axiosClient from '../../api/axiosClient';
 import { FaEdit, FaTrash, FaSearch, FaPlus, FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
+
+
+
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,11 +53,13 @@ const Categories = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredCategories = categories.filter(category => 
+  const filteredCategories = categories.filter(category =>
     category.category_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (category.category_des && category.category_des.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (category.category_origin && category.category_origin.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+
 
   const handleAddCategory = () => {
     setCurrentCategory(null);
@@ -104,7 +109,7 @@ const Categories = () => {
   const handleToggleStatus = async (categoryId, currentStatus) => {
     try {
       console.log('Toggling status for category ID:', categoryId, 'Current status:', currentStatus);
-      const newStatus = currentStatus === 'published' ? 'draft' : 
+      const newStatus = currentStatus === 'published' ? 'draft' :
                        currentStatus === 'draft' ? 'published' : 'archived';
       const response = await axiosClient.put('/api/categories', {
         category_id: categoryId,
@@ -149,16 +154,16 @@ const Categories = () => {
         payload.category_id = currentCategory.category_id;
         const response = await axiosClient.put('/api/categories', payload);
         console.log('Update response:', response.data);
-        setCategories(categories.map(category => 
+        setCategories(categories.map(category =>
           category.category_id === currentCategory.category_id ? { ...category, ...payload } : category
         ));
         setSuccess('Cập nhật danh mục thành công!');
       } else {
         const response = await axiosClient.post('/api/categories', payload);
         console.log('Create response:', response.data);
-        const newCategory = { 
-          category_id: response.data.category_id || (categories.length + 1), 
-          ...payload 
+        const newCategory = {
+          category_id: response.data.category_id || (categories.length + 1),
+          ...payload
         };
         setCategories([...categories, newCategory]);
         setSuccess('Thêm danh mục thành công!');

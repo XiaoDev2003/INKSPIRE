@@ -5,19 +5,23 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../models/Feedback.php';
 require_once __DIR__ . '/../utils/helpers.php';
 
-$db = new Database();
-$conn = $db->getConnection();
-$feedbackModel = new Feedback($conn);
+class FeedbackController {
+    private $feedbackModel;
 
-$method = $_SERVER['REQUEST_METHOD'];
+    public function __construct() {
+        $conn = (new Database())->getConnection();
+        $this->feedbackModel = new Feedback($conn);
+    }
 
-switch ($method) {
-    case 'GET':
-        $feedbacks = $feedbackModel->getAll();
+    // Phương thức handleRequest đã được loại bỏ để tuân theo mẫu OOP nhất quán
+    // Các phương thức riêng lẻ sẽ được gọi trực tiếp từ routes/api.php
+
+    public function getFeedbacks() {
+        $feedbacks = $this->feedbackModel->getAll();
         jsonResponse($feedbacks);
-        break;
+    }
 
-    case 'POST':
+    public function createFeedback() {
         // Kiểm tra file đính kèm
         $attachmentUrl = null;
         if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
@@ -52,25 +56,25 @@ switch ($method) {
         }
 
         $feedbackData = [
-            'user_id' => $_POST['user_id'] ?? null,
+            'user_id' => isset($_POST['user_id']) && !empty($_POST['user_id']) ? $_POST['user_id'] : null,
             'feedback_message' => $_POST['feedback_message'],
             'feedback_url' => $_POST['feedback_url'] ?? null,
             'feedback_attachment_url' => $attachmentUrl
         ];
 
-        $result = $feedbackModel->create($feedbackData);
-        jsonResponse($result ? ['message' => 'Gửi phản hồi thành công'] : ['error' => 'Thêm thất bại'], $result ? 200 : 500);
-        break;
+        $result = $this->feedbackModel->create($feedbackData);
+        jsonResponse($result ? 
+            ['message' => 'Gửi phản hồi thành công', 'feedback_id' => $this->feedbackModel->getLastInsertId()] : 
+            ['error' => 'Thêm thất bại'], 
+            $result ? 200 : 500);
+    }
 
-    case 'DELETE':
-        $data = json_decode(file_get_contents("php://input"), true); // Sử dụng json_decode thay vì parse_str
+    public function deleteFeedback() {
+        $data = json_decode(file_get_contents("php://input"), true);
         if (!isset($data['feedback_id'])) {
             jsonResponse(['error' => 'Thiếu feedback_id'], 400);
         }
-        $result = $feedbackModel->delete($data['feedback_id']);
+        $result = $this->feedbackModel->delete($data['feedback_id']);
         jsonResponse($result ? ['message' => 'Xóa phản hồi thành công'] : ['error' => 'Xóa thất bại'], $result ? 200 : 500);
-        break;
-
-    default:
-        jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+    }
 }

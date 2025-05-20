@@ -7,6 +7,10 @@ class User {
     public function __construct($db) {
         $this->conn = $db;
     }
+    
+    public function getLastInsertId() {
+        return $this->conn->lastInsertId();
+    }
 
     public function getAll() {
         $stmt = $this->conn->query("SELECT user_id, username, email, phone, role, gender, first_name, last_name, status, created_at FROM users ORDER BY created_at DESC");
@@ -27,6 +31,10 @@ class User {
 
     public function create($data) {
         $stmt = $this->conn->prepare("INSERT INTO users (username, email, phone, role, gender, first_name, last_name, status, password_hash) VALUES (:username, :email, :phone, :role, :gender, :first_name, :last_name, :status, :password_hash)");
+        
+        // Sử dụng mật khẩu từ dữ liệu đầu vào nếu có, nếu không thì dùng mật khẩu mặc định
+        $password = isset($data['password']) ? $data['password'] : 'default_password';
+        
         return $stmt->execute([
             ':username' => htmlspecialchars(strip_tags(trim($data['username']))),
             ':email' => htmlspecialchars(strip_tags(trim($data['email']))),
@@ -36,7 +44,7 @@ class User {
             ':first_name' => htmlspecialchars(strip_tags(trim($data['first_name'] ?? ''))),
             ':last_name' => htmlspecialchars(strip_tags(trim($data['last_name'] ?? ''))),
             ':status' => $data['status'] ?? 'active',
-            ':password_hash' => password_hash('default_password', PASSWORD_DEFAULT) // Mật khẩu mặc định, có thể yêu cầu người dùng đổi sau
+            ':password_hash' => password_hash($password, PASSWORD_DEFAULT)
         ]);
     }
 
@@ -110,9 +118,5 @@ class User {
         $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = :email");
         $stmt->execute([':email' => $email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function getLastInsertId() {
-        return $this->conn->lastInsertId();
     }
 }

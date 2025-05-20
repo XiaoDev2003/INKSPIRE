@@ -6,6 +6,10 @@ class Query {
     public function __construct($db) {
         $this->conn = $db;
     }
+    
+    public function getLastInsertId() {
+        return $this->conn->lastInsertId();
+    }
 
     public function getAll() {
         $stmt = $this->conn->query("SELECT * FROM queries_link ORDER BY added_at DESC");

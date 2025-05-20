@@ -21,7 +21,7 @@ const Gallery = () => {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
+
   // Lấy thông tin người dùng từ AuthContext
   const { user } = useContext(AuthContext);
 
@@ -31,7 +31,10 @@ const Gallery = () => {
         console.log('Fetching images from /api/gallery');
         const response = await axiosClient.get('/api/gallery');
         console.log('Images response:', response.data);
-        setImages(response.data);
+
+        // Đảm bảo dữ liệu trả về là một mảng
+        const galleryData = response.data && response.data.galleries ? response.data.galleries : [];
+        setImages(Array.isArray(galleryData) ? galleryData : []);
       } catch (err) {
         console.error('Error fetching images:', err.response || err.message);
         setError(err.response?.data?.error || 'Đã có lỗi khi lấy dữ liệu hình ảnh.');
@@ -47,11 +50,22 @@ const Gallery = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredImages = images.filter((image) =>
-    (image.image_title && image.image_title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (image.category_name && image.category_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (image.item_name && image.item_name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Đảm bảo images luôn là một mảng và xử lý lọc dữ liệu an toàn
+  const filteredImages = Array.isArray(images) ? images.filter((image) => {
+    // Kiểm tra image có hợp lệ không
+    if (!image || typeof image !== 'object') return false;
+
+    // Tìm kiếm theo tiêu đề (đảm bảo tiêu đề tồn tại)
+    const titleMatch = image.image_title && image.image_title.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Tìm kiếm theo danh mục (nếu có)
+    const categoryMatch = image.category_name && image.category_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Tìm kiếm theo tên item (nếu có)
+    const itemMatch = image.item_name && image.item_name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return titleMatch || categoryMatch || itemMatch;
+  }) : [];
 
   const handleAddImage = () => {
     setCurrentImage(null);

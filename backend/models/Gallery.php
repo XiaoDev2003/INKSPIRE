@@ -8,8 +8,11 @@ class Gallery {
         $this->conn = $db;
     }
 
-    public function getAll() {
-        $stmt = $this->conn->query("SELECT 
+    public function getAll($page = 1, $limit = 20) {
+        // Tính offset cho phân trang
+        $offset = ($page - 1) * $limit;
+        
+        $stmt = $this->conn->prepare("SELECT 
             g.image_id, g.image_title, g.image_description, g.image_url, g.category_id, g.item_id, g.uploaded_by, g.upload_date, g.status,
             c.category_name, c.status as category_status,
             i.item_name,
@@ -18,8 +21,19 @@ class Gallery {
         LEFT JOIN categories c ON g.category_id = c.category_id
         LEFT JOIN items i ON g.item_id = i.item_id
         LEFT JOIN users u ON g.uploaded_by = u.user_id
-        ORDER BY g.upload_date DESC");
+        ORDER BY g.upload_date DESC
+        LIMIT :limit OFFSET :offset");
+        
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    public function getTotalCount() {
+        $stmt = $this->conn->query("SELECT COUNT(*) FROM gallery");
+        return $stmt->fetchColumn();
     }
 
     public function getById($id) {

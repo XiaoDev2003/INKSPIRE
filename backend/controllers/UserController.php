@@ -13,53 +13,47 @@ class UserController {
         $this->userModel = new User($conn);
     }
 
-    public function handleRequest() {
-        $method = $_SERVER['REQUEST_METHOD'];
-
-        switch ($method) {
-            case 'GET':
-                if (isset($_GET['user_id'])) {
-                    $user = $this->userModel->getById($_GET['user_id']);
-                    jsonResponse($user ?: ['error' => 'Không tìm thấy người dùng'], $user ? 200 : 404);
-                } else {
-                    $users = $this->userModel->getAll();
-                    jsonResponse($users);
-                }
-                break;
-
-            case 'POST':
-                $data = json_decode(file_get_contents("php://input"), true);
-                if (!isset($data['username'], $data['email'])) {
-                    jsonResponse(['error' => 'Thiếu tên đăng nhập hoặc email'], 400);
-                }
-                if ($this->userModel->findByEmail($data['email'])) {
-                    jsonResponse(['error' => 'Email đã tồn tại'], 409);
-                }
-                $result = $this->userModel->create($data);
-                jsonResponse($result ? ['message' => 'Thêm người dùng thành công', 'user_id' => $this->userModel->getLastInsertId()] : ['error' => 'Thêm thất bại'], $result ? 201 : 500);
-                break;
-
-            case 'PUT':
-                $data = json_decode(file_get_contents("php://input"), true);
-                if (!isset($data['user_id'])) {
-                    jsonResponse(['error' => 'Thiếu user_id'], 400);
-                }
-                $result = $this->userModel->update($data);
-                jsonResponse($result ? ['message' => 'Cập nhật thành công'] : ['error' => 'Cập nhật thất bại'], $result ? 200 : 500);
-                break;
-
-            case 'DELETE':
-                $data = json_decode(file_get_contents("php://input"), true);
-                if (!isset($data['user_id'])) {
-                    jsonResponse(['error' => 'Thiếu user_id'], 400);
-                }
-                $result = $this->userModel->delete($data['user_id']);
-                jsonResponse($result ? ['message' => 'Xóa thành công'] : ['error' => 'Xóa thất bại'], $result ? 200 : 500);
-                break;
-
-            default:
-                jsonResponse(['error' => 'Phương thức không hỗ trợ'], 405);
+    // Phương thức handleRequest đã được loại bỏ để tuân theo mẫu OOP nhất quán
+    // Các phương thức riêng lẻ sẽ được gọi trực tiếp từ routes/api.php
+    
+    public function getUsers() {
+        if (isset($_GET['user_id'])) {
+            $user = $this->userModel->getById($_GET['user_id']);
+            jsonResponse($user ?: ['error' => 'Không tìm thấy người dùng'], $user ? 200 : 404);
+        } else {
+            $users = $this->userModel->getAll();
+            jsonResponse($users);
         }
+    }
+
+    public function createUser() {
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['username'], $data['email'])) {
+            jsonResponse(['error' => 'Thiếu tên đăng nhập hoặc email'], 400);
+        }
+        if ($this->userModel->findByEmail($data['email'])) {
+            jsonResponse(['error' => 'Email đã tồn tại'], 409);
+        }
+        $result = $this->userModel->create($data);
+        jsonResponse($result ? ['message' => 'Thêm người dùng thành công', 'user_id' => $this->userModel->getLastInsertId()] : ['error' => 'Thêm thất bại'], $result ? 201 : 500);
+    }
+
+    public function updateUser() {
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['user_id'])) {
+            jsonResponse(['error' => 'Thiếu user_id'], 400);
+        }
+        $result = $this->userModel->update($data);
+        jsonResponse($result ? ['message' => 'Cập nhật thành công'] : ['error' => 'Cập nhật thất bại'], $result ? 200 : 500);
+    }
+
+    public function deleteUser() {
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (!isset($data['user_id'])) {
+            jsonResponse(['error' => 'Thiếu user_id'], 400);
+        }
+        $result = $this->userModel->delete($data['user_id']);
+        jsonResponse($result ? ['message' => 'Xóa thành công'] : ['error' => 'Xóa thất bại'], $result ? 200 : 500);
     }
 
     public function updateProfile() {
